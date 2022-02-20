@@ -7,10 +7,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
+import com.example.myapplication.MainActivity;
 import com.example.myapplication.databinding.FragmentCameraBinding;
+
+import java.util.Objects;
 
 public class CameraFragment extends Fragment {
 
@@ -26,6 +31,7 @@ public class CameraFragment extends Fragment {
 
         final TextView textView = binding.textCamera;
         cameraViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+
         return root;
     }
 
