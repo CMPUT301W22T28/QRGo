@@ -11,7 +11,12 @@
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/drawable/ic_notifications_black_24dp.xml" value="0.252" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/activity_main.xml" value="0.48020833333333335" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_dashboard.xml" value="0.10462962962962963" />
+        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_leaderboard.xml" value="0.28703703703703703" />
+        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_map.xml" value="0.1" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_notifications.xml" value="0.23333333333333334" />
+        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_profile.xml" value="0.28703703703703703" />
+        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_search.xml" value="0.1" />
+        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/menu/bottom_nav_menu.xml" value="0.23333333333333334" />
       </map>
     </option>
   </component>
