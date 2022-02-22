@@ -1,0 +1,79 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <ImageView
+        android:id="@+id/qr_code_imageview"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:padding="5dp"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:layout_marginStart="5dp"
+        android:src="@drawable/ic_qr_code_placeholder_24"
+        android:contentDescription="TODO" />
+
+    <LinearLayout android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/qr_code_score_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Score - "
+                android:textStyle="bold"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:padding="2dp"
+                android:textColor="#4d4d4d" />
+
+            <TextView
+                android:id="@+id/qr_code_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:padding="2dp"
+                android:textColor="#4d4d4d" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/geolocation_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Geolocation - "
+                android:textStyle="bold"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:padding="2dp"
+                android:textColor="#4d4d4d" />
+
+            <TextView
+                android:id="@+id/geolocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:padding="2dp"
+                android:textColor="#4d4d4d" />
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
