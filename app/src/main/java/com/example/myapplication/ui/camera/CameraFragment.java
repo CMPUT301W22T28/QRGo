@@ -1,9 +1,13 @@
 package com.example.myapplication.ui.camera;
 
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.myapplication.MainActivity;
+import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentCameraBinding;
 
 import java.util.Objects;
@@ -28,9 +33,6 @@ public class CameraFragment extends Fragment {
 
         binding = FragmentCameraBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
-        final TextView textView = binding.textCamera;
-        cameraViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
         return root;
     }
