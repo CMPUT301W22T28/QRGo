@@ -6,11 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
@@ -18,11 +21,14 @@ import com.example.myapplication.databinding.FragmentProfileBinding;
 
 import java.util.ArrayList;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener{
 
     private FragmentProfileBinding binding;
-
+    MainActivity activity;
     ArrayAdapter<ScoringQRCode> qrCodeArrayAdapter;
+
+    QRCodeRecyclerAdapter scoringQRCodeAdapter;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -42,19 +48,28 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        MainActivity activity = (MainActivity) getActivity();
+        activity = (MainActivity) getActivity();
         assert activity != null;
 
+
+        // testing the custom array adapter
         ArrayList<ScoringQRCode> qrCodes = new ArrayList<>();
         for (int i = 0; i<20; i++) {
             qrCodes.add(new ScoringQRCode());
         }
 
+        RecyclerView recyclerView = binding.scoringQrCodeList;
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        scoringQRCodeAdapter = new QRCodeRecyclerAdapter(activity, qrCodes);
+        scoringQRCodeAdapter.setClickListener(this);
+        recyclerView.setAdapter(scoringQRCodeAdapter);
+
+    }
 
 
-        qrCodeArrayAdapter = new QRCodeArrayAdapter(requireContext(), qrCodes);
-        binding.scoringQrCodeList.setAdapter(qrCodeArrayAdapter);
-
+    @Override
+    public void onItemClick(View view, int position) {
+        Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
     }
 
     @Override
