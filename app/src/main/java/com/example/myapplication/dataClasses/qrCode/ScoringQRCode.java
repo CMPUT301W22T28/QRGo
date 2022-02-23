@@ -5,7 +5,7 @@ public class ScoringQRCode extends QRCode {
     // private image image; //idk lol
     private String hash;
     private String geolocation;
-
+    private int score = -1;
 
     @Override
     public String getQRCodeType() {
@@ -15,7 +15,11 @@ public class ScoringQRCode extends QRCode {
     public int getScore() {
 
         // return the score of the qr code
-        return -1;
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
 
     public String getGeolocation()
