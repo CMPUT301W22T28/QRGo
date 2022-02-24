@@ -34,6 +34,7 @@ public class CameraFragment extends Fragment {
         binding = FragmentCameraBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        //Acitvate camera from clicking on the camera image
         return root;
     }
 
