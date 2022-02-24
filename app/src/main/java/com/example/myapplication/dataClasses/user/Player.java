@@ -1,10 +1,15 @@
 package com.example.myapplication.dataClasses.user;
 
-import com.example.myapplication.dataClasses.profile.Profile;
 
 public class Player {
 
-    private Profile profile;
+    private String myUsername;
 
+    public Player(String myUsername) {
+        this.myUsername = myUsername;
+    }
 
+    public String getMyUsername() {
+        return myUsername;
+    }
 }

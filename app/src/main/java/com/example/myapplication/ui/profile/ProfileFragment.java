@@ -35,8 +35,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     MainActivity activity;
     ArrayAdapter<ScoringQRCode> qrCodeArrayAdapter;
 
-    QRCodeRecyclerAdapter scoringQRCodeAdapter;
+    private String myUsername = null;
 
+    QRCodeRecyclerAdapter scoringQRCodeAdapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         activity = (MainActivity) getActivity();
         assert activity != null;
 
+        this.myUsername = activity.getMyUsername();
 
         // testing the custom array adapter
         ArrayList<ScoringQRCode> qrCodes = new ArrayList<>();
@@ -90,7 +92,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         recyclerView.setAdapter(scoringQRCodeAdapter);
 
     }
-
 
     @Override
     public void onItemClick(View view, int position) {
