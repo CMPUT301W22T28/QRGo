@@ -18,6 +18,29 @@
         android:layout_marginBottom="70dp"
         android:orientation="vertical">
 
+        <com.google.android.material.tabs.TabLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Highest"
+                />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Count"
+                />
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sum"
+                />
+
+        </com.google.android.material.tabs.TabLayout>
+
         <TextView
             android:id="@+id/text_leaderboard"
             android:layout_width="match_parent"
@@ -32,43 +55,29 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:orientation="horizontal"
-            android:padding="0dp">
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:id="@+id/highest_rank"
-                android:layout_weight="1"
-                android:text="Highest">
-            </Button>
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:id="@+id/count_rank"
-                android:layout_weight="1"
-                android:text="Count">
-            </Button>
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:id="@+id/sum_rank"
-                android:layout_weight="1"
-                android:text="Sum">
-            </Button>
-        </LinearLayout>
-
-        <TextView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="90dp"
-            android:text="Player - Score - Score - Score"
-            android:textSize="30dp"
-            android:textAlignment="center"
-            android:autoSizeTextType="uniform"
-            android:background="@drawable/back">
-        </TextView>
+            android:layout_margin="10dp"
+            app:cardBackgroundColor="@color/black">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_gravity="center"
+                android:text="Personal Profile - 2nd Place"
+                android:textAllCaps="true"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textColor="@color/white"
+                android:textSize="30dp" />
+        </com.google.android.material.card.MaterialCardView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/leaderboard"
