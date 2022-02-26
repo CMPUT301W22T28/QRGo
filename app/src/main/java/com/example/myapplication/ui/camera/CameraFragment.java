@@ -1,8 +1,11 @@
 package com.example.myapplication.ui.camera;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -12,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -33,6 +37,13 @@ import com.example.myapplication.ui.camera.Capture;
 
 public class CameraFragment extends Fragment {
 
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    private ImageView cameraImage;
+    private TextView sizeImageText;
+    private double sizeImage;
+    private Bitmap imageBitMap;
+
+
     private FragmentCameraBinding binding;
     private IntentIntegrator intentIntegrator;
 
@@ -46,51 +57,63 @@ public class CameraFragment extends Fragment {
         View root = binding.getRoot();
 
         //Activate camera from clicking on the camera image
-        ImageView cameraImage = binding.cameraImageHolder;
+        cameraImage = binding.cameraImageHolder;
 
         //initialize integrator
         intentIntegrator =  new IntentIntegrator(getActivity()).forSupportFragment(this);
+
+        sizeImageText = binding.imageSizeText;
 
         cameraImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                //Initialize the integrator for fragments.
-//               FragmentIntentIntegrator intentIntegrator = new FragmentIntentIntegrator(CameraFragment.this);
-
-                //Lock the orientation of the screen
-                intentIntegrator.setOrientationLocked(true);
-
-                //Set the capture activity
-//                intentIntegrator.setCaptureActivity(new Capture());
-
-                //Start the scan
-                intentIntegrator.initiateScan();
-//
-//                Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//                someActivityResultLauncher.launch(cInt);
+                Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
             }
 
         });
         return root;
     }
 
-    ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        // There are no request codes
-                        Intent data = result.getData();
-                        Log.d("MainActivity", "result of picture ");
-                    }
-                }
-            });
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            imageBitMap = (Bitmap) extras.get("data");
+
+            Log.d("MainActivity", "" + imageBitMap.toString());
+
+            sizeImage = imageBitMap.getAllocationByteCount()/ 1e6;
+
+            if (sizeImage <= 20) {
+                //set the image to be in the placeholder.
+                cameraImage.setImageBitmap(imageBitMap);
+                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount()/1e6 + "/20MB");
+
+            }
+
+            else {
+
+                //compress the bitmap of the image.
+                int scaledWidth = imageBitMap.getWidth() / 10;
+                int scaledHeight = imageBitMap.getHeight() / 10;
+
+                imageBitMap = Bitmap.createScaledBitmap(imageBitMap,scaledWidth, scaledWidth, false);
+
+                sizeImage = imageBitMap.getAllocationByteCount()/ 1e6;
+
+                cameraImage.setImageBitmap(imageBitMap);
+                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount()/1e6 + "/20MB");
+                Toast.makeText(this.getActivity(), "Image Size too large, Image Compressed", Toast.LENGTH_SHORT).show();
+
+            }
+        }
     }
 }
