@@ -9,7 +9,9 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,10 +32,11 @@ import androidx.navigation.Navigation;
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentCameraBinding;
-import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.util.Objects;
-import com.example.myapplication.ui.camera.Capture;
 
 public class CameraFragment extends Fragment {
 
@@ -42,10 +45,10 @@ public class CameraFragment extends Fragment {
     private TextView sizeImageText;
     private double sizeImage;
     private Bitmap imageBitMap;
+    private String qrCodeData;
 
 
     private FragmentCameraBinding binding;
-    private IntentIntegrator intentIntegrator;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -59,9 +62,6 @@ public class CameraFragment extends Fragment {
         //Activate camera from clicking on the camera image
         cameraImage = binding.cameraImageHolder;
 
-        //initialize integrator
-        intentIntegrator =  new IntentIntegrator(getActivity()).forSupportFragment(this);
-
         sizeImageText = binding.imageSizeText;
 
         cameraImage.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +73,8 @@ public class CameraFragment extends Fragment {
             }
 
         });
+
+
         return root;
     }
 
@@ -90,30 +92,60 @@ public class CameraFragment extends Fragment {
 
             Log.d("MainActivity", "" + imageBitMap.toString());
 
-            sizeImage = imageBitMap.getAllocationByteCount()/ 1e6;
+            sizeImage = imageBitMap.getAllocationByteCount()/ 1e3;
 
-            if (sizeImage <= 20) {
+            qrCodeData = scanQRImage(imageBitMap);
+
+            if (sizeImage <= 64) {
                 //set the image to be in the placeholder.
                 cameraImage.setImageBitmap(imageBitMap);
-                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount()/1e6 + "/20MB");
+                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount()/1e3 + "/64KB");
 
             }
 
             else {
 
                 //compress the bitmap of the image.
-                int scaledWidth = imageBitMap.getWidth() / 10;
-                int scaledHeight = imageBitMap.getHeight() / 10;
+                int scaledWidth = imageBitMap.getWidth() / 2;
+                int scaledHeight = imageBitMap.getHeight() / 2;
 
                 imageBitMap = Bitmap.createScaledBitmap(imageBitMap,scaledWidth, scaledWidth, false);
 
-                sizeImage = imageBitMap.getAllocationByteCount()/ 1e6;
+                sizeImage = imageBitMap.getAllocationByteCount()/ 1e3;
 
                 cameraImage.setImageBitmap(imageBitMap);
-                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount()/1e6 + "/20MB");
+                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount()/1e3 + "/64KB");
                 Toast.makeText(this.getActivity(), "Image Size too large, Image Compressed", Toast.LENGTH_SHORT).show();
 
             }
         }
+
+        Log.d("MainActivity", ""+ qrCodeData);
+    }
+
+    public String scanQRImage(Bitmap bMap) {
+        BarcodeDetector barcodeDetector =
+                new BarcodeDetector.Builder(getActivity())
+                        .setBarcodeFormats(Barcode.QR_CODE)
+                        .build();
+
+        Frame myFrame = new Frame.Builder()
+                .setBitmap(bMap)
+                .build();
+
+        SparseArray<Barcode> barcodes = barcodeDetector.detect(myFrame);
+
+        if(barcodes.size() != 0) {
+
+            // Print the QR code's message
+            Log.d("MainActivity",
+                    barcodes.valueAt(0).displayValue
+            );
+        }
+        else {
+            Log.d("MainActivity","No Value");
+        }
+
+        return null;
     }
 }
