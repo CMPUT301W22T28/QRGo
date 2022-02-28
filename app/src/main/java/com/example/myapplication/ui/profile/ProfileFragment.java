@@ -63,6 +63,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 }
             }
         });
+        Log.d("ProfileFragment",getActivity().getIntent().getStringExtra("Username"));
 
         return root;
     }
