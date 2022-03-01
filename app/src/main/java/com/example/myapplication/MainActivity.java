@@ -6,9 +6,9 @@ import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -42,6 +42,14 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         this.myUsername = sharedPref.getString("my_username", null);
 
+
+        layoutChanges();
+    }
+
+    private void layoutChanges() {
+        ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
+        actionBar.hide();
     }
 
     public String getMyUsername() {
