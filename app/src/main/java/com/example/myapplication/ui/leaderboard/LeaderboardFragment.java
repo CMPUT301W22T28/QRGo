@@ -53,7 +53,7 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
 
         ArrayList<Player> rankings = new ArrayList<>();
         for (int i=0; i<5; i++) {
-            Player player = new Player();
+            Player player = new Player("Uri the trainer who trains");
             player.setHighest_score(i+1);
             rankings.add(player);
         }

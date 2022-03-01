@@ -12,6 +12,10 @@ public class Player {
     private int highest_score;
     private int most_codes_score;
 
+    public Player(String username) {
+        this.username = username;
+    }
+
     public String getUsername() {
         return username;
     }
