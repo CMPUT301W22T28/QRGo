@@ -2,41 +2,31 @@ package com.example.myapplication.ui.camera;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.app.Activity;
+import static androidx.core.content.ContextCompat.checkSelfPermission;
+
+import android.Manifest;
 import android.content.Intent;
-import android.content.res.Resources;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.Navigation;
-
-import com.example.myapplication.MainActivity;
-import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentCameraBinding;
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.BarcodeDetector;
-
-import java.util.Objects;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.Result;
+import com.google.zxing.common.HybridBinarizer;
 
 public class CameraFragment extends Fragment {
 
@@ -46,6 +36,7 @@ public class CameraFragment extends Fragment {
     private double sizeImage;
     private Bitmap imageBitMap;
     private String qrCodeData;
+    final int MY_CAMERA_REQUEST_CODE = 100;
 
 
     private FragmentCameraBinding binding;
@@ -67,9 +58,15 @@ public class CameraFragment extends Fragment {
         cameraImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.CAMERA},
+                            MY_CAMERA_REQUEST_CODE);
+                }
 
-                Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
+                else {
+                    Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
+                }
             }
 
         });
@@ -92,60 +89,75 @@ public class CameraFragment extends Fragment {
 
             Log.d("MainActivity", "" + imageBitMap.toString());
 
-            sizeImage = imageBitMap.getAllocationByteCount()/ 1e3;
+            sizeImage = imageBitMap.getAllocationByteCount() / 1e3;
 
             qrCodeData = scanQRImage(imageBitMap);
 
             if (sizeImage <= 64) {
                 //set the image to be in the placeholder.
                 cameraImage.setImageBitmap(imageBitMap);
-                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount()/1e3 + "/64KB");
+                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount() / 1e3 + "/64KB");
 
-            }
-
-            else {
+            } else {
 
                 //compress the bitmap of the image.
                 int scaledWidth = imageBitMap.getWidth() / 2;
                 int scaledHeight = imageBitMap.getHeight() / 2;
 
-                imageBitMap = Bitmap.createScaledBitmap(imageBitMap,scaledWidth, scaledWidth, false);
+                Bitmap newImageBitMap = Bitmap.createScaledBitmap(imageBitMap, scaledWidth, scaledHeight, false);
 
-                sizeImage = imageBitMap.getAllocationByteCount()/ 1e3;
+                sizeImage = imageBitMap.getAllocationByteCount() / 1e3;
 
                 cameraImage.setImageBitmap(imageBitMap);
-                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount()/1e3 + "/64KB");
+                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount() / 1e3 + "/64KB");
                 Toast.makeText(this.getActivity(), "Image Size too large, Image Compressed", Toast.LENGTH_SHORT).show();
 
             }
         }
 
-        Log.d("MainActivity", ""+ qrCodeData);
+        Log.d("MainActivity", "" + qrCodeData);
     }
 
-    public String scanQRImage(Bitmap bMap) {
-        BarcodeDetector barcodeDetector =
-                new BarcodeDetector.Builder(getActivity())
-                        .setBarcodeFormats(Barcode.QR_CODE)
-                        .build();
-
-        Frame myFrame = new Frame.Builder()
-                .setBitmap(bMap)
-                .build();
-
-        SparseArray<Barcode> barcodes = barcodeDetector.detect(myFrame);
-
-        if(barcodes.size() != 0) {
-
-            // Print the QR code's message
-            Log.d("MainActivity",
-                    barcodes.valueAt(0).displayValue
-            );
-        }
-        else {
-            Log.d("MainActivity","No Value");
+    public String scanQRImage(Bitmap bitMap) {
+        int width = bitMap.getWidth(), height = bitMap.getHeight();
+        int[] pixels = new int[width * height];
+        bitMap.getPixels(pixels, 0, width, 0, 0, width, height);
+        bitMap.recycle();
+        RGBLuminanceSource source = new RGBLuminanceSource(width, height, pixels);
+        BinaryBitmap bBitmap = new BinaryBitmap(new HybridBinarizer(source));
+        MultiFormatReader reader = new MultiFormatReader();
+        try {
+            Result result = reader.decode(bBitmap);
+            Toast.makeText(this.getActivity(), "The content of the QR image is: " + result.getText(), Toast.LENGTH_SHORT).show();
+            return result.getText();
+        } catch (NotFoundException e) {
+            Log.e("TAG", "decode exception", e);
         }
 
         return null;
+    }
+
+    @Override
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == MY_CAMERA_REQUEST_CODE) {
+
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                Toast.makeText(this.getContext(), "camera permission granted", Toast.LENGTH_LONG).show();
+
+                Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
+
+            } else {
+
+                Toast.makeText(this.getContext(), "camera permission denied", Toast.LENGTH_LONG).show();
+
+            }
+
+        }
     }
 }
