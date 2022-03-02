@@ -6,4 +6,9 @@
     <string name="title_profile">Profile</string>
     <string name="title_leaderboard">Leaderboard</string>
     <string name="profile_filler_value">-</string>
+    <string name="profile_icon">Profile Icon</string>
+    <string name="profile_static_username">Username:</string>
+    <string name="profile_static_total_score">Total Score:</string>
+    <string name="profile_static_total_qr_code_count">Total QR Code Count</string>
+    <string name="profile_static_top_qr_code">Top QR Code:</string>
 </resources>
