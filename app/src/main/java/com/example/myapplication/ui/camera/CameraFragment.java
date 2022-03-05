@@ -72,41 +72,6 @@ public class CameraFragment extends Fragment {
 
         setSavePicture();
 
-
-//        cameraImage.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//                    requestPermissions(new String[]{Manifest.permission.CAMERA},
-//                            MY_CAMERA_REQUEST_CODE);
-//
-//
-//                }
-//
-//                else {
-//
-//                    IntentIntegrator integrator = new IntentIntegrator(getActivity());
-//
-////                    IntentIntegrator.forSupportFragment(CameraFragment.this)
-////                            .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
-////                            .setBeepEnabled(true).setPrompt("Hello world").setOrientationLocked(true).setBarcodeImageEnabled(true)
-////                            .initiateScan();
-//
-//                    integrator.setPrompt("Scan a barcode or QRcode");
-//
-//                    integrator.setOrientationLocked(true);
-//
-//                    integrator.initiateScan();
-////
-////                    integrator.forSupportFragment(getParentFragment()).initiateScan();
-//
-////                    Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-////                    startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
-//                }
-//            }
-//
-//        });
-
         return root;
     }
 
@@ -169,35 +134,5 @@ public class CameraFragment extends Fragment {
 
             }
         }
-    }
-    public void setImageInHolder(Bitmap image) {
-
-        Log.d("MainActivity", "Triggered nigga");
-
-        /*
-
-            double sizeImage = imageBitMap.getAllocationByteCount() / 1e3;
-
-            if (sizeImage <= 64) {
-                //set the image to be in the placeholder.
-                cameraImage.setImageBitmap(imageBitMap);
-                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount() / 1e3 + "/64KB");
-
-            } else {
-
-                //compress the bitmap of the image.
-                int scaledWidth = imageBitMap.getWidth() / 2;
-                int scaledHeight = imageBitMap.getHeight() / 2;
-
-                Bitmap newImageBitMap = Bitmap.createScaledBitmap(imageBitMap, scaledWidth, scaledHeight, false);
-
-                sizeImage = imageBitMap.getAllocationByteCount() / 1e3;
-
-                cameraImage.setImageBitmap(imageBitMap);
-                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount() / 1e3 + "/64KB");
-                Toast.makeText(this.getActivity(), "Image Size too large, Image Compressed", Toast.LENGTH_SHORT).show();
-
-            }
-         */
     }
 }
