@@ -11,7 +11,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     Player myPlayerProfile;
     Context activityContext;
     final int MY_CAMERA_REQUEST_CODE = 100;
+    private String qrResult= null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +160,8 @@ public class MainActivity extends AppCompatActivity {
         String scanContent = "null";
         String scanFormat = "";
 
-        Log.d("MainActivity", "Fired");
+        Toast.makeText(MainActivity.this, "" + requestCode + " " + resultCode, Toast.LENGTH_LONG).show();
+
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (scanningResult != null) {
             if (scanningResult.getContents() != null) {
@@ -167,7 +171,8 @@ public class MainActivity extends AppCompatActivity {
 
             Toast.makeText(MainActivity.this, scanContent + "   type:" + scanFormat, Toast.LENGTH_SHORT).show();
 
-            //sizeImageText.setText(scanContent + "    type:" + scanFormat);
+            //Get hash
+            qrResult = scanContent;
 
         } else {
             Toast.makeText(MainActivity.this, "Nothing scanned", Toast.LENGTH_SHORT).show();
@@ -240,6 +245,20 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+    }
+
+    public void setSavePicture(Switch savePictureSwitch) {
+
+        savePictureSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                if (b==true) {
+                    Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
+                }
+            }
+        });
     }
 
     public String getMyUsername() {

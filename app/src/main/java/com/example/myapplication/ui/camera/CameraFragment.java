@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -37,9 +38,9 @@ public class CameraFragment extends Fragment {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private ImageView cameraImage;
     private TextView sizeImageText;
+    private Switch savePictureSwitch;
     private double sizeImage;
     private Bitmap imageBitMap;
-    private String qrCodeData;
     final int MY_CAMERA_REQUEST_CODE = 100;
 
 
@@ -59,9 +60,14 @@ public class CameraFragment extends Fragment {
 
         sizeImageText = binding.imageSizeText;
 
+        savePictureSwitch = binding.savePictureSwitch;
+
         MainActivity activity = (MainActivity) getActivity();
 
         activity.setBarCodeScanner(cameraImage);
+
+        activity.setSavePicture(savePictureSwitch);
+
 
 //        cameraImage.setOnClickListener(new View.OnClickListener() {
 //            @Override
