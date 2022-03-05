@@ -1,7 +1,6 @@
 package com.example.myapplication.ui.leaderboard;
 
 import android.os.Bundle;
-import android.service.notification.NotificationListenerService;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentLeaderboardBinding;
-import com.example.myapplication.ui.profile.QRCodeRecyclerAdapter;
 
 import java.util.ArrayList;
 
@@ -53,8 +51,8 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
 
         ArrayList<Player> rankings = new ArrayList<>();
         for (int i=0; i<5; i++) {
-            Player player = new Player("Uri the trainer who trains");
-            player.setHighest_score(i+1);
+            Player player = new Player("Uri the trainer who trains", false);
+            player.setHighestScore(i+1);
             rankings.add(player);
         }
 
