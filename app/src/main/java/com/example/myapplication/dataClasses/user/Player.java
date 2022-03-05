@@ -25,8 +25,8 @@ public class Player {
         this.isUserSet = true;
     }
 
-    public void addScoringQRCode() {
-
+    public void addScoringQRCode(ScoringQRCode qrCode) {
+        scannedQRCodes.add(qrCode);
     }
 
     public String getUsername() {

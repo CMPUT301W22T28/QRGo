@@ -68,8 +68,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         // testing the custom array adapter
         ArrayList<ScoringQRCode> qrCodes = new ArrayList<>();
         for (int i = 0; i<20; i++) {
-            ScoringQRCode code = new ScoringQRCode();
-            code.setScore(i+1);
+            ScoringQRCode code = new ScoringQRCode("hash");
             qrCodes.add(code);
         }
 

@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
                         else {
                             myPlayerProfile = new Player(myUsername, true);
                         }
-                        Long scanned_count = document.getLong("scanned_count");
+                        Long scannedCount = document.getLong("scanned_count");
 
                         // get qrcodes
                         Object obj = document.get("scanned_qrcodes");
@@ -109,17 +109,32 @@ public class MainActivity extends AppCompatActivity {
                         for (Object x : ar) {
                             qrCodeHashes.add((String) x);
                         }
-
-                        if (scanned_count == null || qrCodeHashes.size() != scanned_count.intValue()) {
+                        for (String s: qrCodeHashes) {
+                            myPlayerProfile.addScoringQRCode(new ScoringQRCode(s));
+                        }
+                        if (scannedCount == null || qrCodeHashes.size() != scannedCount.intValue()) {
                             docRef.update(
                                     "scanned_count", qrCodeHashes.size()
                             );
                         }
 
+                        Long topQRCode = document.getLong("scanned_highest");
+                        if (topQRCode != null) {
+                            myPlayerProfile.setHighestScore(topQRCode.intValue());
+                        }
+                        else {
+                            myPlayerProfile.setHighestScore(-1);
+                        }
 
+                        Long sumOfQRCodes = document.getLong("scanned_sum");
+                        if (sumOfQRCodes != null) {
+                            myPlayerProfile.setHighestScore(sumOfQRCodes.intValue());
+                        }
+                        else {
+                            myPlayerProfile.setHighestScore(-1);
+                        }
 
                         Log.d(TAG, String.valueOf(document.getLong("scanned_highest")));
-
                         // get list of qrCodes, avoiding warnings
 
 
