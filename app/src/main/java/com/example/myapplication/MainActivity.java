@@ -191,9 +191,6 @@ public class MainActivity extends AppCompatActivity {
             Bundle extras = data.getExtras();
             Bitmap imageBitMap = (Bitmap) extras.get("data");
 
-            //CameraFragment cameraFragment = ((CameraFragment) getSupportFragmentManager().findFragmentById();
-
-            //cameraFragment.setImageInHolder(imageBitMap);
         }
     }
 
@@ -214,9 +211,6 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 Toast.makeText(getApplicationContext(), "camera permission granted", Toast.LENGTH_LONG).show();
-
-                Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
 
             } else {
 
@@ -244,40 +238,16 @@ public class MainActivity extends AppCompatActivity {
 
                     IntentIntegrator integrator = new IntentIntegrator(MainActivity.this);
 
-//                    IntentIntegrator.forSupportFragment(CameraFragment.this)
-//                            .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
-//                            .setBeepEnabled(true).setPrompt("Hello world").setOrientationLocked(true).setBarcodeImageEnabled(true)
-//                            .initiateScan();
-
                     integrator.setPrompt("Scan a barcode or QRcode").setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
 
                     integrator.setOrientationLocked(true);
 
                     integrator.initiateScan();
-//
-//                    integrator.forSupportFragment(getParentFragment()).initiateScan();
-
-//                    Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//                    startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
                 }
             }
 
         });
 
-    }
-
-    public void setSavePicture(Switch savePictureSwitch) {
-
-        savePictureSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-                if (b==true) {
-                    Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
-                }
-            }
-        });
     }
 
     public String getMyUsername() {
