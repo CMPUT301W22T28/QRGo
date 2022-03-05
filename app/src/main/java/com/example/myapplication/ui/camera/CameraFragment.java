@@ -20,6 +20,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.example.myapplication.MainActivity;
 import com.example.myapplication.databinding.FragmentCameraBinding;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
@@ -27,6 +29,8 @@ import com.google.zxing.NotFoundException;
 import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class CameraFragment extends Fragment {
 
@@ -55,22 +59,43 @@ public class CameraFragment extends Fragment {
 
         sizeImageText = binding.imageSizeText;
 
-        cameraImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.CAMERA},
-                            MY_CAMERA_REQUEST_CODE);
-                }
+        MainActivity activity = (MainActivity) getActivity();
 
-                else {
-                    Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
-                }
-            }
+        activity.setBarCodeScanner(cameraImage);
 
-        });
-
+//        cameraImage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+//                    requestPermissions(new String[]{Manifest.permission.CAMERA},
+//                            MY_CAMERA_REQUEST_CODE);
+//
+//
+//                }
+//
+//                else {
+//
+//                    IntentIntegrator integrator = new IntentIntegrator(getActivity());
+//
+////                    IntentIntegrator.forSupportFragment(CameraFragment.this)
+////                            .setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES)
+////                            .setBeepEnabled(true).setPrompt("Hello world").setOrientationLocked(true).setBarcodeImageEnabled(true)
+////                            .initiateScan();
+//
+//                    integrator.setPrompt("Scan a barcode or QRcode");
+//
+//                    integrator.setOrientationLocked(true);
+//
+//                    integrator.initiateScan();
+////
+////                    integrator.forSupportFragment(getParentFragment()).initiateScan();
+//
+////                    Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+////                    startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
+//                }
+//            }
+//
+//        });
 
         return root;
     }
@@ -80,84 +105,106 @@ public class CameraFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            imageBitMap = (Bitmap) extras.get("data");
-
-            Log.d("MainActivity", "" + imageBitMap.toString());
-
-            sizeImage = imageBitMap.getAllocationByteCount() / 1e3;
-
-            qrCodeData = scanQRImage(imageBitMap);
-
-            if (sizeImage <= 64) {
-                //set the image to be in the placeholder.
-                cameraImage.setImageBitmap(imageBitMap);
-                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount() / 1e3 + "/64KB");
-
-            } else {
-
-                //compress the bitmap of the image.
-                int scaledWidth = imageBitMap.getWidth() / 2;
-                int scaledHeight = imageBitMap.getHeight() / 2;
-
-                Bitmap newImageBitMap = Bitmap.createScaledBitmap(imageBitMap, scaledWidth, scaledHeight, false);
-
-                sizeImage = imageBitMap.getAllocationByteCount() / 1e3;
-
-                cameraImage.setImageBitmap(imageBitMap);
-                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount() / 1e3 + "/64KB");
-                Toast.makeText(this.getActivity(), "Image Size too large, Image Compressed", Toast.LENGTH_SHORT).show();
-
-            }
-        }
-
-        Log.d("MainActivity", "" + qrCodeData);
-    }
-
-    public String scanQRImage(Bitmap bitMap) {
-        int width = bitMap.getWidth(), height = bitMap.getHeight();
-        int[] pixels = new int[width * height];
-        bitMap.getPixels(pixels, 0, width, 0, 0, width, height);
-        bitMap.recycle();
-        RGBLuminanceSource source = new RGBLuminanceSource(width, height, pixels);
-        BinaryBitmap bBitmap = new BinaryBitmap(new HybridBinarizer(source));
-        MultiFormatReader reader = new MultiFormatReader();
-        try {
-            Result result = reader.decode(bBitmap);
-            Toast.makeText(this.getActivity(), "The content of the QR image is: " + result.getText(), Toast.LENGTH_SHORT).show();
-            return result.getText();
-        } catch (NotFoundException e) {
-            Log.e("TAG", "decode exception", e);
-        }
-
-        return null;
-    }
-
-    @Override
-
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == MY_CAMERA_REQUEST_CODE) {
-
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                Toast.makeText(this.getContext(), "camera permission granted", Toast.LENGTH_LONG).show();
-
-                Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
-
-            } else {
-
-                Toast.makeText(this.getContext(), "camera permission denied", Toast.LENGTH_LONG).show();
-
-            }
-
-        }
-    }
+//
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+//            Bundle extras = data.getExtras();
+//            imageBitMap = (Bitmap) extras.get("data");
+//
+//            Log.d("MainActivity", "" + imageBitMap.toString());
+//
+//            sizeImage = imageBitMap.getAllocationByteCount() / 1e3;
+//
+//            qrCodeData = scanQRImage(imageBitMap);
+//
+//            if (sizeImage <= 64) {
+//                //set the image to be in the placeholder.
+//                cameraImage.setImageBitmap(imageBitMap);
+//                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount() / 1e3 + "/64KB");
+//
+//            } else {
+//
+//                //compress the bitmap of the image.
+//                int scaledWidth = imageBitMap.getWidth() / 2;
+//                int scaledHeight = imageBitMap.getHeight() / 2;
+//
+//                Bitmap newImageBitMap = Bitmap.createScaledBitmap(imageBitMap, scaledWidth, scaledHeight, false);
+//
+//                sizeImage = imageBitMap.getAllocationByteCount() / 1e3;
+//
+//                cameraImage.setImageBitmap(imageBitMap);
+//                sizeImageText.setText("Image Size: " + imageBitMap.getAllocationByteCount() / 1e3 + "/64KB");
+//                Toast.makeText(this.getActivity(), "Image Size too large, Image Compressed", Toast.LENGTH_SHORT).show();
+//
+//            }
+//        }
+//
+//        Log.d("MainActivity", "" + qrCodeData);
+//    }
+//
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        String scanContent = "null";
+//        String scanFormat = "";
+//
+//        Log.d("MainActivity", "Fired");
+//        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+//        if (scanningResult != null) {
+//            if (scanningResult.getContents() != null) {
+//                scanContent = scanningResult.getContents().toString();
+//                scanFormat = scanningResult.getFormatName().toString();
+//            }
+//
+//            Toast.makeText(getActivity(), scanContent + "   type:" + scanFormat, Toast.LENGTH_SHORT).show();
+//
+//            sizeImageText.setText(scanContent + "    type:" + scanFormat);
+//
+//        } else {
+//            Toast.makeText(getActivity(), "Nothing scanned", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+//
+//    public String scanQRImage(Bitmap bitMap) {
+//        int width = bitMap.getWidth(), height = bitMap.getHeight();
+//        int[] pixels = new int[width * height];
+//        bitMap.getPixels(pixels, 0, width, 0, 0, width, height);
+//        bitMap.recycle();
+//        RGBLuminanceSource source = new RGBLuminanceSource(width, height, pixels);
+//        BinaryBitmap bBitmap = new BinaryBitmap(new HybridBinarizer(source));
+//        MultiFormatReader reader = new MultiFormatReader();
+//        try {
+//            Result result = reader.decode(bBitmap);
+//            Toast.makeText(this.getActivity(), "The content of the QR image is: " + result.getText(), Toast.LENGTH_SHORT).show();
+//            return result.getText();
+//        } catch (NotFoundException e) {
+//            Log.e("TAG", "decode exception", e);
+//        }
+//
+//        return null;
+//    }
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//
+//        if (requestCode == MY_CAMERA_REQUEST_CODE) {
+//
+//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//
+//                Toast.makeText(this.getContext(), "camera permission granted", Toast.LENGTH_LONG).show();
+//
+//                Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
+//
+//            } else {
+//
+//                Toast.makeText(this.getContext(), "camera permission denied", Toast.LENGTH_LONG).show();
+//
+//            }
+//
+//        }
+//    }
 }
