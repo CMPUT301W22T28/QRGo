@@ -197,9 +197,6 @@ public class MainActivity extends AppCompatActivity {
 
                 Toast.makeText(getApplicationContext(), "camera permission granted", Toast.LENGTH_LONG).show();
 
-                Intent cInt = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cInt, REQUEST_IMAGE_CAPTURE);
-
             } else {
 
                 Toast.makeText(getApplicationContext(), "camera permission denied", Toast.LENGTH_LONG).show();
