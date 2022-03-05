@@ -6,6 +6,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -28,6 +29,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.ActivityMainBinding;
+import com.example.myapplication.ui.camera.CameraFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -47,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
     Player myPlayerProfile;
     Context activityContext;
     final int MY_CAMERA_REQUEST_CODE = 100;
+    final int QR_CODE_SCAN = 49374;
+
     private String qrResult= null;
 
     @Override
@@ -145,22 +149,36 @@ public class MainActivity extends AppCompatActivity {
         String scanContent = "null";
         String scanFormat = "";
 
-        Toast.makeText(MainActivity.this, "" + requestCode + " " + resultCode, Toast.LENGTH_LONG).show();
+        if (requestCode == QR_CODE_SCAN && resultCode == REQUEST_IMAGE_CAPTURE) {
 
-        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (scanningResult != null) {
-            if (scanningResult.getContents() != null) {
-                scanContent = scanningResult.getContents().toString();
-                scanFormat = scanningResult.getFormatName().toString();
+//            Toast.makeText(MainActivity.this, "" + requestCode + " " + resultCode, Toast.LENGTH_LONG).show();
+
+            IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if (scanningResult != null) {
+                if (scanningResult.getContents() != null) {
+                    scanContent = scanningResult.getContents().toString();
+                    scanFormat = scanningResult.getFormatName().toString();
+                }
+
+                Toast.makeText(MainActivity.this, scanContent + "   type:" + scanFormat, Toast.LENGTH_SHORT).show();
+
+                //Get hash
+                qrResult = scanContent;
+
+            } else {
+
+                Toast.makeText(MainActivity.this, "Nothing scanned", Toast.LENGTH_SHORT).show();
+
             }
 
-            Toast.makeText(MainActivity.this, scanContent + "   type:" + scanFormat, Toast.LENGTH_SHORT).show();
+        }
+        else if (requestCode == MY_CAMERA_REQUEST_CODE && resultCode == REQUEST_IMAGE_CAPTURE) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitMap = (Bitmap) extras.get("data");
 
-            //Get hash
-            qrResult = scanContent;
+            //CameraFragment cameraFragment = ((CameraFragment) getSupportFragmentManager().findFragmentById();
 
-        } else {
-            Toast.makeText(MainActivity.this, "Nothing scanned", Toast.LENGTH_SHORT).show();
+            //cameraFragment.setImageInHolder(imageBitMap);
         }
     }
 
@@ -188,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
 
                 Toast.makeText(getApplicationContext(), "camera permission denied", Toast.LENGTH_LONG).show();
+
 
             }
 
