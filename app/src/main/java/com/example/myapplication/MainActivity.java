@@ -31,6 +31,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -97,6 +98,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void getProfileFromDatabase() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // setting persistence
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        db.setFirestoreSettings(settings);
 
         DocumentReference docRef = db.collection("Users").document(this.myUsername);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

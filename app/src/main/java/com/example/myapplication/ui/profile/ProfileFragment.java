@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -70,8 +71,13 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
             qrCodes.add(code);
         }
 
+
         RecyclerView recyclerView = binding.scoringQrCodeList;
-        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
+        recyclerView.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                layoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
         scoringQRCodeAdapter = new QRCodeRecyclerAdapter(activity, qrCodes);
         scoringQRCodeAdapter.setClickListener(this);
         recyclerView.setAdapter(scoringQRCodeAdapter);
