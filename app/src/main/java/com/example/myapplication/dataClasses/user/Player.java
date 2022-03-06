@@ -8,7 +8,7 @@ public class Player {
 
     private String username;
     private ArrayList<ScoringQRCode> scannedQRCodes = new ArrayList<>();
-    private int sumScore;
+    private int totalScore;
     private int highestScore;
     private final boolean isUserSet;
     private boolean isAdmin = false;
@@ -45,12 +45,12 @@ public class Player {
         this.username = username;
     }
 
-    public int getSumScore() {
-        return sumScore;
+    public int getTotalScore() {
+        return totalScore;
     }
 
-    public void setSumScore(int sumScore) {
-        this.sumScore = sumScore;
+    public void setTotalScore(int totalScore) {
+        this.totalScore = totalScore;
     }
 
     public int getHighestScore() {
@@ -61,7 +61,7 @@ public class Player {
         this.highestScore = highestScore;
     }
 
-    public int getMostCodesScore() {
+    public int getQRCodeCount() {
         return scannedQRCodes.size();
     }
 }

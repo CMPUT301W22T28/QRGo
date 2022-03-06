@@ -1,7 +1,6 @@
 package com.example.myapplication.ui.profile;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,21 +18,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.databinding.FragmentProfileBinding;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener{
 
     private FragmentProfileBinding binding;
     MainActivity activity;
     ArrayAdapter<ScoringQRCode> qrCodeArrayAdapter;
+    private ProfileViewModel profileViewModel;
+
 
     private String myUsername = null;
 
@@ -46,6 +40,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+
 
 //        final TextView textView = binding.textProfile;
 //        profileViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
@@ -63,6 +59,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         activity = (MainActivity) getActivity();
         assert activity != null;
 
+        setViews();
+
         this.myUsername = activity.getMyUsername();
 
         // testing the custom array adapter
@@ -78,6 +76,22 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         scoringQRCodeAdapter.setClickListener(this);
         recyclerView.setAdapter(scoringQRCodeAdapter);
 
+    }
+
+    private void setViews() {
+        profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
+
+        final TextView usernameTextView = binding.profileUsername;
+        profileViewModel.getUsername().observe(getViewLifecycleOwner(), usernameTextView::setText);
+
+        final TextView totalScoreTextView = binding.profileTotalScore;
+        profileViewModel.getTopQRCodeScore().observe(getViewLifecycleOwner(), totalScoreTextView::setText);
+
+        final TextView QRCodeCountTextView = binding.profileQrCodeCount;
+        profileViewModel.getQrCodeCount().observe(getViewLifecycleOwner(), QRCodeCountTextView::setText);
+
+        final TextView topQRCodeTextView = binding.profileTopQrCode;
+        profileViewModel.getTopQRCodeScore().observe(getViewLifecycleOwner(), topQRCodeTextView::setText);
     }
 
     @Override

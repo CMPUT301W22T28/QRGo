@@ -1,7 +1,5 @@
 package com.example.myapplication;
 
-import static androidx.core.content.ContextCompat.checkSelfPermission;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -9,18 +7,16 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -29,7 +25,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.ActivityMainBinding;
-import com.example.myapplication.ui.camera.CameraFragment;
+import com.example.myapplication.ui.profile.ProfileViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -51,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     final int MY_CAMERA_REQUEST_CODE = 100;
     final int QR_CODE_SCAN = 49374;
 
+    ProfileViewModel profileViewModel;
+
     private String qrResult= null;
 
     @Override
@@ -65,12 +63,23 @@ public class MainActivity extends AppCompatActivity {
         // bottom nav bar setup
         setupNavBar();
 
+        /*
+        All other methods to setup fragment go after this line
+        * */
+
+        // setiing up the view model/sending data
+        setupProfileViewModel();
+
         getProfileFromDatabase();
 
         // changing anything in the layout. i.e. removing the top action bar
         layoutChanges();
 
 
+    }
+
+    private void setupProfileViewModel() {
+        profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
     }
 
     private void setupNavBar() {
@@ -141,8 +150,8 @@ public class MainActivity extends AppCompatActivity {
                             myPlayerProfile.setHighestScore(-1);
                         }
 
-                        Log.d(TAG, String.valueOf(document.getLong("scanned_highest")));
-                        // get list of qrCodes, avoiding warnings
+                        // once you have all the data, send it to the fragment via its view model
+                        profileViewModel.setMyPlayerProfile(myPlayerProfile);
 
 
                     }
