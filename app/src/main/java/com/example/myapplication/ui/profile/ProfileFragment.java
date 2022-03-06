@@ -42,14 +42,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-
-
-//        final TextView textView = binding.textProfile;
-//        profileViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
-
-//         TestCode for database
-
-
         return root;
     }
 
