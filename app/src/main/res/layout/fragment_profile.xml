@@ -144,7 +144,8 @@
             android:id="@+id/scoring_qr_code_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:listSelector="@android:color/darker_gray"/>
+            android:listSelector="@android:color/darker_gray"
+            tools:listitem="@layout/profile_qr_code_list_item"/>
     </LinearLayout>
 
 

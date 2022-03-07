@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Player {
 
     private String username;
-    private ArrayList<ScoringQRCode> scannedQRCodes = new ArrayList<>();
+    private final ArrayList<ScoringQRCode> scannedQRCodes = new ArrayList<>();
     private int totalScore;
     private int highestScore;
     private final boolean isUserSet;

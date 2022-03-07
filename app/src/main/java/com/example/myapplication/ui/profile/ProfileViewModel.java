@@ -4,13 +4,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
+
+import java.util.ArrayList;
 
 public class ProfileViewModel extends ViewModel {
     private final MutableLiveData<String> username;
     private final MutableLiveData<String> totalScore;
     private final MutableLiveData<String> qrCodeCount;
     private final MutableLiveData<String> topQRCodeScore;
+    private final MutableLiveData<ArrayList<ScoringQRCode>> profileQrCodes;
+
 
     private Player myPlayerProfile;
 
@@ -19,6 +24,7 @@ public class ProfileViewModel extends ViewModel {
         totalScore = new MutableLiveData<>();
         qrCodeCount = new MutableLiveData<>();
         topQRCodeScore = new MutableLiveData<>();
+        profileQrCodes = new MutableLiveData<>();
     }
 
     public void setMyPlayerProfile(Player player) {

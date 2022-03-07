@@ -70,6 +70,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
+        recyclerView.setHasFixedSize(true);
         scoringQRCodeAdapter = new QRCodeRecyclerAdapter(activity, qrCodes);
         scoringQRCodeAdapter.setClickListener(this);
         recyclerView.setAdapter(scoringQRCodeAdapter);

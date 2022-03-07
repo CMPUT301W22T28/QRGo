@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     ProfileViewModel profileViewModel;
 
-    private String qrResult= null;
+    private String qrResult = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
