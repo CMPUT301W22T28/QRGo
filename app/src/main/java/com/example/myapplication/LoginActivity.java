@@ -47,7 +47,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         String androidId = Secure.getString(getApplicationContext().getContentResolver(),
                 Secure.ANDROID_ID);
-        androidId = "s";
         disableSignUp();
         getUsernameFromAndroidId(androidId);
 
