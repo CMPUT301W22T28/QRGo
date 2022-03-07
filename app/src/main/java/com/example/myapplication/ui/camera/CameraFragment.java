@@ -2,50 +2,52 @@ package com.example.myapplication.ui.camera;
 
 import static android.app.Activity.RESULT_OK;
 
-import static androidx.core.content.ContextCompat.checkSelfPermission;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentCameraBinding;
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.NotFoundException;
-import com.google.zxing.RGBLuminanceSource;
-import com.google.zxing.Result;
-import com.google.zxing.common.HybridBinarizer;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 public class CameraFragment extends Fragment {
 
-    static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int LOCATION_REQUEST_CODE = 2;
     private ImageView cameraImage;
     private TextView sizeImageText;
     private Switch savePictureSwitch;
+    private Switch saveGeolocationSwitch;
+    private double longitude;
+    private double latitude;
     private double sizeImage;
     private Bitmap imageBitMap;
-    final int MY_CAMERA_REQUEST_CODE = 100;
+    private Button savePostButton;
+    private FusedLocationProviderClient fusedLocationClient;
 
 
     private FragmentCameraBinding binding;
@@ -66,13 +68,98 @@ public class CameraFragment extends Fragment {
 
         savePictureSwitch = binding.savePictureSwitch;
 
+        savePostButton = binding.savePostButton;
+
+        saveGeolocationSwitch = binding.geolocationSwitch;
+
+        enablingButtons();
+
+
         MainActivity activity = (MainActivity) getActivity();
 
         activity.setBarCodeScanner(cameraImage);
 
         setSavePicture();
 
+        setGeolocationSwitch();
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
+        Log.d("CameraFragment", getActivity().getIntent().getStringExtra("Username"));
+
+
+        savePostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (saveGeolocationSwitch.isChecked()) {
+
+                    setLocation();
+                }
+
+                else {
+                    Log.d("MainActivity", longitude + " " + latitude);
+                }
+                //saveQRPost(String QRHash, );
+            }
+        });
+
         return root;
+    }
+
+    private void setGeolocationSwitch() {
+
+        saveGeolocationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                if (b==true) {
+
+                    checkLocationPermission();
+                }
+                else {
+                    //nothing to do
+                }
+            }
+        });
+
+    }
+
+    public void setLocation() {
+
+        checkLocationPermission();
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+
+                            //update the longitude and latitude
+
+                            latitude = location.getLatitude();
+
+                            longitude = location.getLongitude();
+                        }
+                    }
+                });
+    }
+
+    public void checkLocationPermission() {
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            Log.d("MainActivity", "In the fucking if statement");
+
+
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    LOCATION_REQUEST_CODE);
+        }
+
+        Log.d("MainActivity" , "" + ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) + " "
+                + PackageManager.PERMISSION_GRANTED + " " + ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION));
     }
 
     @Override
@@ -102,6 +189,31 @@ public class CameraFragment extends Fragment {
         });
 
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == LOCATION_REQUEST_CODE) {
+
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                Toast.makeText(getContext(), "Location Services Enabled.", Toast.LENGTH_SHORT).show();
+
+                Log.d("MainActivity", "Accepted");
+
+            } else {
+
+                Toast.makeText(getContext(), "Location must be enabled to save geolocation.", Toast.LENGTH_LONG).show();
+
+                Log.d("MainActivity", "DENIED");
+
+            }
+
+        }
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -134,5 +246,44 @@ public class CameraFragment extends Fragment {
 
             }
         }
+    }
+
+    public void disablingButtons() {
+
+        savePostButton.setEnabled(false);
+        savePostButton.setAlpha(.7f);
+        savePostButton.setBackgroundColor(Color.GRAY);
+        savePostButton.setTextColor(Color.BLACK);
+
+        saveGeolocationSwitch.setEnabled(false);
+        saveGeolocationSwitch.setAlpha(.7f);
+        saveGeolocationSwitch.setBackgroundColor(Color.GRAY);
+        saveGeolocationSwitch.setTextColor(Color.BLACK);
+
+        savePictureSwitch.setEnabled(false);
+        savePictureSwitch.setAlpha(.7f);
+        savePictureSwitch.setBackgroundColor(Color.GRAY);
+        savePictureSwitch.setTextColor(Color.BLACK);
+
+    }
+
+    public void enablingButtons() {
+
+        savePostButton.setEnabled(true);
+        savePostButton.setAlpha(1.0f);
+        savePostButton.setBackgroundColor(Color.parseColor("#FF3700B3"));
+        savePostButton.setTextColor(Color.WHITE);
+
+        saveGeolocationSwitch.setEnabled(true);
+        saveGeolocationSwitch.setAlpha(1.0f);
+        saveGeolocationSwitch.setBackgroundColor(Color.parseColor("#FF3700B3"));
+        saveGeolocationSwitch.setTextColor(Color.WHITE);
+
+        savePictureSwitch.setEnabled(true);
+        savePictureSwitch.setAlpha(1.0f);
+        savePictureSwitch.setBackgroundColor(Color.parseColor("#FF3700B3"));
+        savePictureSwitch.setTextColor(Color.WHITE);
+
+
     }
 }
