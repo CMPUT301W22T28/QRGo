@@ -1,5 +1,7 @@
 package com.example.myapplication.dataClasses.user;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 
 import java.util.ArrayList;
@@ -23,6 +25,10 @@ public class Player {
 
         this.isAdmin = isAdmin;
         this.isUserSet = true;
+    }
+
+    public void resetQrCodeList() {
+        scannedQRCodes.clear();
     }
 
     public void addScoringQRCode(ScoringQRCode qrCode) {
@@ -53,7 +59,7 @@ public class Player {
         this.totalScore = totalScore;
     }
 
-    public int getHighestScore() {
+    public int getTopQrCodeScore() {
         return highestScore;
     }
 
@@ -63,5 +69,9 @@ public class Player {
 
     public int getQRCodeCount() {
         return scannedQRCodes.size();
+    }
+
+    public ArrayList<ScoringQRCode> getQrCodes() {
+        return this.scannedQRCodes;
     }
 }

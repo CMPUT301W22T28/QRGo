@@ -16,6 +16,10 @@ public class ScoringQRCode extends QRCode {
         return -1;
     }
 
+    public void setScore(int score) {
+        this.score = score;
+    }
+
     @Override
     public String getQRCodeType() {
         return null;
