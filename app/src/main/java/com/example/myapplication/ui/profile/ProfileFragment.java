@@ -35,8 +35,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     MainActivity activity;
     ArrayAdapter<ScoringQRCode> qrCodeArrayAdapter;
 
-    QRCodeRecyclerAdapter scoringQRCodeAdapter;
+    private String myUsername = null;
 
+    QRCodeRecyclerAdapter scoringQRCodeAdapter;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -46,25 +47,24 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textProfile;
-        profileViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+//        final TextView textView = binding.textProfile;
+//        profileViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
 //         TestCode for database
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final CollectionReference collectionReference = db.collection("Users");
-        collectionReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        String name = document.getId().toString();
-                        Log.d("MainActivity",name);
-                    }
-                }
-            }
-        });
+//         FirebaseFirestore db = FirebaseFirestore.getInstance();
+//         final CollectionReference collectionReference = db.collection("Users");
+//         collectionReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//             @Override
+//             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                 if (task.isSuccessful()) {
+//                     for (QueryDocumentSnapshot document : task.getResult()) {
+//                         String name = document.getId().toString();
+//                         Log.d("MainActivity",name);
+//                     }
+//                 }
+//             }
+//         });
         Log.d("ProfileFragment",getActivity().getIntent().getStringExtra("Username"));
-
         return root;
     }
 
@@ -75,6 +75,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         activity = (MainActivity) getActivity();
         assert activity != null;
 
+        this.myUsername = activity.getMyUsername();
 
         // testing the custom array adapter
         ArrayList<ScoringQRCode> qrCodes = new ArrayList<>();
@@ -91,7 +92,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         recyclerView.setAdapter(scoringQRCodeAdapter);
 
     }
-
 
     @Override
     public void onItemClick(View view, int position) {
