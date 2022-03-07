@@ -1,10 +1,14 @@
 package com.example.myapplication;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.provider.Settings.Secure;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -24,11 +28,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +44,7 @@ import java.util.Map;
 public class LoginActivity extends AppCompatActivity {
     private final String USERS_COLLECTION = "Users";
     private final String LOGIN_TAG = "LoginActivity";
+    private final int MY_CAMERA_REQUEST_CODE = 100;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
@@ -47,12 +53,14 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         String androidId = Secure.getString(getApplicationContext().getContentResolver(),
                 Secure.ANDROID_ID);
-        androidId = "s";
         disableSignUp();
         getUsernameFromAndroidId(androidId);
+        String res = this.getIntent().getStringExtra("LoginQRCode");
+        if (res != null)
+            Log.d(LOGIN_TAG,res);
+
 
         Button signUpButton = (Button) findViewById(R.id.btn_sign_up);
-
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,9 +78,6 @@ public class LoginActivity extends AppCompatActivity {
                 else{
                     checkUsernameExists(userNameInput, emailField.getText().toString(), phoneField.getText().toString());
                 }
-
-
-
             }
         });
 
@@ -205,8 +210,9 @@ public class LoginActivity extends AppCompatActivity {
         SpannableString ss = new SpannableString("Already got an account? Login using your QR Code here.");
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
+            @RequiresApi(api = Build.VERSION_CODES.M)
             public void onClick(View textView) {
-                startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("Username","My link works kid"));
+                startActivity(new Intent(getApplicationContext(), LoginScanActivity.class));
             }
             @Override
             public void updateDrawState(TextPaint ds) {
