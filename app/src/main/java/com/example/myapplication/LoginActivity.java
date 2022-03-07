@@ -18,15 +18,22 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -40,10 +47,34 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         String androidId = Secure.getString(getApplicationContext().getContentResolver(),
                 Secure.ANDROID_ID);
-
+        androidId = "s";
         disableSignUp();
         getUsernameFromAndroidId(androidId);
 
+        Button signUpButton = (Button) findViewById(R.id.btn_sign_up);
+
+        signUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextInputEditText usernameField = (TextInputEditText) findViewById(R.id.username_field);
+                TextInputEditText emailField = (TextInputEditText) findViewById(R.id.email_field);
+                TextInputEditText phoneField = (TextInputEditText) findViewById(R.id.phone_field);
+
+                String userNameInput = usernameField.getText().toString().trim();
+
+                if (userNameInput.length() == 0){
+                    TextInputLayout usernameContainer = (TextInputLayout) findViewById(R.id.username_field_container);
+                    usernameContainer.setBoxStrokeColor(Color.RED);
+                    usernameContainer.setError("Enter a valid username!");
+                }
+                else{
+                    checkUsernameExists(userNameInput, emailField.getText().toString(), phoneField.getText().toString());
+                }
+
+
+
+            }
+        });
 
     }
 
@@ -72,7 +103,37 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    public void insertUserInfo(){
+    public void checkUsernameExists(String userName, String email, String phone){
+        db.collection(USERS_COLLECTION)
+                .document(userName)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                TextInputLayout usernameContainer = (TextInputLayout) findViewById(R.id.username_field_container);
+                                usernameContainer.setBoxStrokeColor(Color.RED);
+                                usernameContainer.setError("This username already exists!");
+                            } else {
+                                // Insert username, phone, email into the database.
+                                insertUserInfo(userName, email, phone);
+                            }
+                        } else {
+                            Log.d(LOGIN_TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+
+    public void insertUserInfo(String userName, String email, String phone){
+        db.collection(USERS_COLLECTION)
+                .document(userName)
+                .set(setUpUserSubCollection(email, phone));
+
+        mainActivity(userName);
 
     }
 
@@ -83,7 +144,7 @@ public class LoginActivity extends AppCompatActivity {
     public void disableSignUp(){
 
         ProgressBar spinner;
-        spinner = (ProgressBar)findViewById(R.id.login_progress_bar);
+        spinner = (ProgressBar) findViewById(R.id.login_progress_bar);
         spinner.setVisibility(View.VISIBLE);
 
         ImageView appLogo = (ImageView) findViewById(R.id.app_logo_image);
@@ -161,6 +222,39 @@ public class LoginActivity extends AppCompatActivity {
         accountExistsText.setMovementMethod(LinkMovementMethod.getInstance());
         accountExistsText.setHighlightColor(Color.TRANSPARENT);
 
+    }
+
+
+    Map<String, Object> setUpUserSubCollection(String email, String phone){
+        Map<String, Object> data = new HashMap<>();
+
+        data.put("admin",false);
+
+        List<String> devices = new ArrayList<>();
+        devices.add(Secure.getString(getApplicationContext().getContentResolver(), Secure.ANDROID_ID));
+        data.put("devices",devices);
+
+        if (email.trim().length()==0) {
+            data.put("email",null);
+        }
+        else{
+            data.put("email",email);
+        }
+
+        if (phone.trim().length()==0) {
+            data.put("phone",null);
+        }
+        else{
+            data.put("phone",phone);
+        }
+
+        data.put("scanned_count",0);
+        data.put("scanned_highest",0);
+        List<String> scanned_qrcodes = new ArrayList<>();
+        data.put("scanned_qrcodes",scanned_qrcodes);
+        data.put("scanned_sum",0);
+
+        return data;
     }
 
 
