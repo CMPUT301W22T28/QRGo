@@ -51,8 +51,20 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 //        profileViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
 //         TestCode for database
-
-
+//         FirebaseFirestore db = FirebaseFirestore.getInstance();
+//         final CollectionReference collectionReference = db.collection("Users");
+//         collectionReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//             @Override
+//             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                 if (task.isSuccessful()) {
+//                     for (QueryDocumentSnapshot document : task.getResult()) {
+//                         String name = document.getId().toString();
+//                         Log.d("MainActivity",name);
+//                     }
+//                 }
+//             }
+//         });
+        Log.d("ProfileFragment",getActivity().getIntent().getStringExtra("Username"));
         return root;
     }
 

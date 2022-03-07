@@ -5,6 +5,10 @@
     <string name="title_camera">Camera</string>
     <string name="title_profile">Profile</string>
     <string name="title_leaderboard">Leaderboard</string>
+    <string name="sign_up_button">Sign Up</string>
+    <string name="email_hint">Email</string>
+    <string name="phone_hint">Phone</string>
+    <string name="username_hint">Username</string>
     <string name="profile_filler_value">-</string>
     <string name="profile_icon">Profile Icon</string>
     <string name="profile_static_username">Username:</string>
