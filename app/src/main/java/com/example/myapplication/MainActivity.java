@@ -25,13 +25,18 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.ActivityMainBinding;
+import com.example.myapplication.ui.profile.AsyncQrCodeList;
 import com.example.myapplication.ui.profile.ProfileViewModel;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -66,23 +71,10 @@ public class MainActivity extends AppCompatActivity {
         // bottom nav bar setup
         setupNavBar();
 
-        /*
-        All other methods to setup fragment go after this line
-        * */
-
-        // setiing up the view model/sending data
-        setupProfileViewModel();
-
-        getProfileFromDatabase();
-
         // changing anything in the layout. i.e. removing the top action bar
         layoutChanges();
 
 
-    }
-
-    private void setupProfileViewModel() {
-        profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
     }
 
     private void setupNavBar() {
@@ -93,104 +85,12 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
         assert navHostFragment != null;
+
+
         NavController navController = navHostFragment.getNavController();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
     }
-
-    private void getProfileFromDatabase() {
-
-        Log.d("ProfileFragment",getIntent().getStringExtra("Username"));
-        this.myUsername = getIntent().getStringExtra("Username");
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // setting persistence
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true)
-                .build();
-        db.setFirestoreSettings(settings);
-
-        DocumentReference docRef = db.collection("Users").document(this.myUsername);
-
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-
-                if (snapshot != null && snapshot.exists()) {
-                    Boolean isAdmin = snapshot.getBoolean("admin");
-
-                    if (myPlayerProfile == null) {
-                        if (isAdmin == null || !isAdmin) {
-                            myPlayerProfile = new Player(myUsername, false);
-                        }
-                        else {
-                            myPlayerProfile = new Player(myUsername, true);
-                        }
-                    }
-                    profileViewModel.setUsername(myUsername);
-
-                    myPlayerProfile.resetQrCodeList();
-                    Long scannedCount = snapshot.getLong("scanned_count");
-
-                    // get qrcodes
-                    Object obj = snapshot.get("scanned_qrcodes");
-                    Iterable<?> ar = (Iterable<?>) obj;
-                    ArrayList<String> qrCodeHashes = new ArrayList<>();
-                    assert ar != null;
-                    for (Object x : ar) {
-                        qrCodeHashes.add((String) x);
-                    }
-                    ScoringQRCode temp;
-                    int i = 0;
-                    for (String s: qrCodeHashes) {
-                        temp = new ScoringQRCode(s);
-                        temp.setScore(i++);
-                        myPlayerProfile.addScoringQRCode(temp);
-                    }
-
-                    if (scannedCount == null || qrCodeHashes.size() != scannedCount.intValue()) {
-                        docRef.update(
-                                "scanned_count", qrCodeHashes.size()
-                        );
-                    }
-
-                    // TODO: update the view model to add the qrcodes
-                    profileViewModel.setProfileQrCodes(myPlayerProfile.getQrCodes());
-
-                    Long topQRCode = snapshot.getLong("scanned_highest");
-                    if (topQRCode != null) {
-                        myPlayerProfile.setHighestScore(topQRCode.intValue());
-                        Log.d(TAG, "Top qr code: "+topQRCode.intValue());
-                    }
-                    else {
-                        myPlayerProfile.setHighestScore(-1);
-                    }
-                    profileViewModel.setTopQRCodeScore(myPlayerProfile.getTopQrCodeScore());
-
-                    Long sumOfQRCodes = snapshot.getLong("scanned_sum");
-                    if (sumOfQRCodes != null) {
-                        myPlayerProfile.setTotalScore(sumOfQRCodes.intValue());
-                    }
-                    else {
-                        myPlayerProfile.setTotalScore(-1);
-                    }
-                    profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
-
-                    Log.d(TAG, "Current data: " + snapshot.getData());
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
-            }
-        });
-
-    }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

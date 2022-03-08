@@ -21,11 +21,22 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
+import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 
-public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener{
+public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
     private final String TAG = "ProfileFragment";
     private FragmentProfileBinding binding;
     MainActivity activity;
@@ -36,6 +47,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private RecyclerView recyclerView;
 
     private String myUsername = null;
+    private Player myPlayerProfile;
 
     QRCodeRecyclerAdapter scoringQRCodeAdapter;
 
@@ -60,7 +72,153 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         // getting the recycler view ready
         setupRecyclerView();
 
+        // set the view listeners
         setViewListeners();
+
+        // send the data to the view listeners
+        getProfileFromDatabase();
+    }
+
+    private void getProfileFromDatabase() {
+
+        Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
+        this.myUsername = requireActivity().getIntent().getStringExtra("Username");
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // setting persistence
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        db.setFirestoreSettings(settings);
+
+        DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
+
+        ProfileFragment profileFragment = this;
+
+        MyUserDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable DocumentSnapshot snapshot,
+                                @javax.annotation.Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Boolean isAdmin = snapshot.getBoolean("admin");
+
+                    if (myPlayerProfile == null) {
+                        if (isAdmin == null || !isAdmin) {
+                            myPlayerProfile = new Player(myUsername, false);
+                        }
+                        else {
+                            myPlayerProfile = new Player(myUsername, true);
+                        }
+                    }
+
+                    // region setting text views in profile top bar
+                    profileViewModel.setUsername(myUsername);
+
+                    Long topQRCode = snapshot.getLong("scanned_highest");
+                    if (topQRCode != null) {
+                        myPlayerProfile.setHighestScore(topQRCode.intValue());
+                    }
+                    else {
+                        myPlayerProfile.setHighestScore(-1);
+                    }
+                    profileViewModel.setTopQRCodeScore(myPlayerProfile.getTopQrCodeScore());
+
+                    Long sumOfQRCodes = snapshot.getLong("scanned_sum");
+                    if (sumOfQRCodes != null) {
+                        myPlayerProfile.setTotalScore(sumOfQRCodes.intValue());
+                    }
+                    else {
+                        myPlayerProfile.setTotalScore(-1);
+                    }
+                    profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
+
+                    // endregion
+
+                    myPlayerProfile.resetQrCodeList();
+                    Long scannedCount = snapshot.getLong("scanned_count");
+
+                    // get qrcodes
+                    Object obj = snapshot.get("scanned_qrcodes");
+                    Iterable<?> ar = (Iterable<?>) obj;
+                    ArrayList<String> qrCodeHashes = new ArrayList<>();
+                    assert ar != null;
+                    for (Object x : ar) {
+                        qrCodeHashes.add((String) x);
+                    }
+
+                    AsyncQrCodeList asyncQrCodeList = new AsyncQrCodeList(qrCodeHashes.size(), profileFragment);
+                    CollectionReference scoringQrCodeColRef = db.collection("ScoringQRCodes");
+
+                    for (String hash : qrCodeHashes) {
+                        scoringQrCodeColRef.document(hash).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    // Document found in the offline cache
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document != null && document.exists()) {
+
+                                        // data we need to get
+                                        ScoringQRCode tempQrCode = new ScoringQRCode(hash);
+                                        Long score;
+                                        Double longitude;
+                                        Double latitude;
+
+                                        // fetching score
+                                        score = document.getLong("score");
+                                        if (score != null) {
+                                            tempQrCode.setScore(score.intValue());
+                                        }
+                                        else {
+                                            tempQrCode.setScore(-2);
+                                        }
+
+                                        // setting latitude
+                                        latitude = document.getDouble("latitude");
+                                        if (latitude != null) {
+                                            tempQrCode.setLatitude(latitude);
+                                        }
+                                        else {
+                                            tempQrCode.setLatitude(null);
+                                        }
+
+                                        // setting longitude
+                                        longitude = document.getDouble("longitude");
+                                        if (longitude != null) {
+                                            tempQrCode.setLongitude(longitude);
+                                        }
+                                        else {
+                                            tempQrCode.setLongitude(null);
+                                        }
+
+                                        // adding qrCode to array
+                                        asyncQrCodeList.addToArray(tempQrCode);
+                                    }
+                                } else {
+                                    Log.d(TAG, "Cached ScoringQRCodeDocument document with hash: "+hash+" failed with exception: ", task.getException());
+                                }
+                            }
+                        });
+                    }
+
+                    if (scannedCount == null || qrCodeHashes.size() != scannedCount.intValue()) {
+                        MyUserDocRef.update(
+                                "scanned_count", qrCodeHashes.size()
+                        );
+                    }
+
+
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
 
     }
 
@@ -119,4 +277,48 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         super.onDestroyView();
         binding = null;
     }
+
+    @Override
+    public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
+        // fill the profile view with qrcodes
+
+        for (ScoringQRCode qrCode: qrCodes) {
+            myPlayerProfile.addScoringQRCode(qrCode);
+        }
+        profileViewModel.setMutableProfileQrCodes(qrCodes);
+        updateHighestAndSumQrCode();
+    }
+
+    public void updateHighestAndSumQrCode() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // setting persistence
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        db.setFirestoreSettings(settings);
+
+        DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
+
+
+        int highestQrCode = 0;
+        int sumQrCodes = 0;
+        for (ScoringQRCode qrCode: myPlayerProfile.getQrCodes())
+        {
+            sumQrCodes += qrCode.getScore();
+            highestQrCode = Math.max(highestQrCode, qrCode.getScore());
+        }
+        MyUserDocRef.update(
+                "scanned_sum", sumQrCodes
+        );
+
+        MyUserDocRef.update(
+                "scanned_highest", highestQrCode
+        );
+
+        profileViewModel.setTopQRCodeScore(highestQrCode);
+        profileViewModel.setTotalScore(sumQrCodes);
+    }
+
+
 }
