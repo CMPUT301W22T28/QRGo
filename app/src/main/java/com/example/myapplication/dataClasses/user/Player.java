@@ -1,5 +1,7 @@
 package com.example.myapplication.dataClasses.user;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 
 import java.util.ArrayList;
@@ -7,8 +9,8 @@ import java.util.ArrayList;
 public class Player {
 
     private String username;
-    private ArrayList<ScoringQRCode> scannedQRCodes = new ArrayList<>();
-    private int sumScore;
+    private final ArrayList<ScoringQRCode> scannedQRCodes = new ArrayList<>();
+    private int totalScore;
     private int highestScore;
     private final boolean isUserSet;
     private boolean isAdmin = false;
@@ -25,8 +27,14 @@ public class Player {
         this.isUserSet = true;
     }
 
-    public void addScoringQRCode() {
+    public void resetQrCodeList() {
+        scannedQRCodes.clear();
+    }
 
+    public void addScoringQRCode(ScoringQRCode qrCode) {
+        synchronized (this) {
+            scannedQRCodes.add(qrCode);
+        }
     }
 
     public String getUsername() {
@@ -45,15 +53,15 @@ public class Player {
         this.username = username;
     }
 
-    public int getSumScore() {
-        return sumScore;
+    public int getTotalScore() {
+        return totalScore;
     }
 
-    public void setSumScore(int sumScore) {
-        this.sumScore = sumScore;
+    public void setTotalScore(int totalScore) {
+        this.totalScore = totalScore;
     }
 
-    public int getHighestScore() {
+    public int getTopQrCodeScore() {
         return highestScore;
     }
 
@@ -61,7 +69,11 @@ public class Player {
         this.highestScore = highestScore;
     }
 
-    public int getMostCodesScore() {
+    public int getQRCodeCount() {
         return scannedQRCodes.size();
+    }
+
+    public ArrayList<ScoringQRCode> getQrCodes() {
+        return this.scannedQRCodes;
     }
 }
