@@ -123,7 +123,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     Long topQRCode = snapshot.getLong("scanned_highest");
                     if (topQRCode != null) {
                         myPlayerProfile.setHighestScore(topQRCode.intValue());
-                        Log.d(TAG, "Top qr code: "+topQRCode.intValue());
                     }
                     else {
                         myPlayerProfile.setHighestScore(-1);
@@ -214,9 +213,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         );
                     }
 
-//                    profileViewModel.setProfileQrCodes(myPlayerProfile.getQrCodes());
 
-                    Log.d(TAG, "Current data: " + snapshot.getData());
                 } else {
                     Log.d(TAG, "Current data: null");
                 }
@@ -284,7 +281,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     @Override
     public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
         // fill the profile view with qrcodes
-        Log.d(TAG, "we got here with array size: "+qrCodes.size());
 
         for (ScoringQRCode qrCode: qrCodes) {
             myPlayerProfile.addScoringQRCode(qrCode);
@@ -294,6 +290,17 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     }
 
     public void updateHighestAndSumQrCode() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // setting persistence
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        db.setFirestoreSettings(settings);
+
+        DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
+
+
         int highestQrCode = 0;
         int sumQrCodes = 0;
         for (ScoringQRCode qrCode: myPlayerProfile.getQrCodes())
@@ -301,8 +308,17 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
             sumQrCodes += qrCode.getScore();
             highestQrCode = Math.max(highestQrCode, qrCode.getScore());
         }
+        MyUserDocRef.update(
+                "scanned_sum", sumQrCodes
+        );
+
+        MyUserDocRef.update(
+                "scanned_highest", highestQrCode
+        );
 
         profileViewModel.setTopQRCodeScore(highestQrCode);
         profileViewModel.setTotalScore(sumQrCodes);
     }
+
+
 }
