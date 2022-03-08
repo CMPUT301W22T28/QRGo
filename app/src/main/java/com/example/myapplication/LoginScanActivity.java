@@ -25,8 +25,9 @@ public class LoginScanActivity extends AppCompatActivity implements ZXingScanner
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_scan);
-
+        // TODO: Change qr detection grid
         scannerView = (ZXingScannerView) findViewById(R.id.scanner_view);
+        scannerView.setLaserEnabled(false);
 
         Dexter.withActivity(this)
                 .withPermission("android.permission.CAMERA")
@@ -59,6 +60,8 @@ public class LoginScanActivity extends AppCompatActivity implements ZXingScanner
 
     @Override
     public void handleResult(Result rawResult) {
+        scannerView.stopCameraPreview();
+        scannerView.stopCamera();
         loginActivity(rawResult.getText());
     }
 }
