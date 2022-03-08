@@ -143,42 +143,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        String scanContent = "null";
-        String scanFormat = "";
-
-        if (requestCode == QR_CODE_SCAN && resultCode == REQUEST_IMAGE_CAPTURE) {
-
-//            Toast.makeText(MainActivity.this, "" + requestCode + " " + resultCode, Toast.LENGTH_LONG).show();
-
-            IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-            if (scanningResult != null) {
-                if (scanningResult.getContents() != null) {
-                    scanContent = scanningResult.getContents().toString();
-                    scanFormat = scanningResult.getFormatName().toString();
-                }
-
-                Toast.makeText(MainActivity.this, scanContent + "   type:" + scanFormat, Toast.LENGTH_SHORT).show();
-
-                //Get hash
-                qrResult = scanContent;
-
-            } else {
-
-                Toast.makeText(MainActivity.this, "Nothing scanned", Toast.LENGTH_SHORT).show();
-
-            }
-
-        }
-        else if (requestCode == MY_CAMERA_REQUEST_CODE && resultCode == REQUEST_IMAGE_CAPTURE) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitMap = (Bitmap) extras.get("data");
-
-        }
-    }
-
     private void layoutChanges() {
         ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
@@ -205,34 +169,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-    }
-
-    public void setBarCodeScanner(ImageView cameraImage) {
-
-        cameraImage.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public void onClick(View view) {
-                if (checkSelfPermission("android.permission.CAMERA") != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.CAMERA},
-                            MY_CAMERA_REQUEST_CODE);
-
-                }
-
-                else {
-
-                    IntentIntegrator integrator = new IntentIntegrator(MainActivity.this);
-
-                    integrator.setPrompt("Scan a barcode or QRcode").setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
-
-                    integrator.setOrientationLocked(true);
-
-                    integrator.initiateScan();
-                }
-            }
-
-        });
-
     }
 
     public String getMyUsername() {

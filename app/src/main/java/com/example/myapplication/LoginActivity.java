@@ -212,7 +212,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             @RequiresApi(api = Build.VERSION_CODES.M)
             public void onClick(View textView) {
-                startActivity(new Intent(getApplicationContext(), LoginScanActivity.class));
+                startActivity(new Intent(getApplicationContext(), LoginScanActivity.class).putExtra("Prev", "LoginActivity"));
             }
             @Override
             public void updateDrawState(TextPaint ds) {

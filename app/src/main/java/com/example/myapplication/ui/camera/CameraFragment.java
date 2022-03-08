@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -23,21 +24,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.myapplication.LoginScanActivity;
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentCameraBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.zxing.integration.android.IntentIntegrator;
 
 public class CameraFragment extends Fragment {
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int LOCATION_REQUEST_CODE = 2;
+    private static final int MY_CAMERA_REQUEST_CODE = 100;
     private ImageView cameraImage;
     private TextView sizeImageText;
     private Switch savePictureSwitch;
@@ -47,6 +52,7 @@ public class CameraFragment extends Fragment {
     private double sizeImage;
     private Bitmap imageBitMap;
     private Button savePostButton;
+    private String QRCodeString = null;
     private FusedLocationProviderClient fusedLocationClient;
 
 
@@ -72,12 +78,17 @@ public class CameraFragment extends Fragment {
 
         saveGeolocationSwitch = binding.geolocationSwitch;
 
-        enablingButtons();
+        disablingButtons();
 
+        if (getActivity().getIntent().getStringExtra("ScoringQRCode") !=null) {
 
-        MainActivity activity = (MainActivity) getActivity();
+            enablingButtons();
 
-        activity.setBarCodeScanner(cameraImage);
+            QRCodeString = getActivity().getIntent().getStringExtra("ScoringQRCode");
+
+        }
+
+        setQRCodeScanner();
 
         setSavePicture();
 
@@ -160,6 +171,30 @@ public class CameraFragment extends Fragment {
 
         Log.d("MainActivity" , "" + ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) + " "
                 + PackageManager.PERMISSION_GRANTED + " " + ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION));
+    }
+
+    public void checkCameraPermission() {
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA},
+                    MY_CAMERA_REQUEST_CODE);
+
+        }
+    }
+
+    public void setQRCodeScanner() {
+
+        checkCameraPermission();
+
+        cameraImage.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View view) {
+
+                startActivity(new Intent(getContext(), LoginScanActivity.class).putExtra("Prev", "CameraFragment"));
+
+            }
+
+        });
     }
 
     @Override
@@ -256,13 +291,9 @@ public class CameraFragment extends Fragment {
         savePostButton.setTextColor(Color.BLACK);
 
         saveGeolocationSwitch.setEnabled(false);
-        saveGeolocationSwitch.setAlpha(.7f);
-        saveGeolocationSwitch.setBackgroundColor(Color.GRAY);
         saveGeolocationSwitch.setTextColor(Color.BLACK);
 
         savePictureSwitch.setEnabled(false);
-        savePictureSwitch.setAlpha(.7f);
-        savePictureSwitch.setBackgroundColor(Color.GRAY);
         savePictureSwitch.setTextColor(Color.BLACK);
 
     }
@@ -271,17 +302,12 @@ public class CameraFragment extends Fragment {
 
         savePostButton.setEnabled(true);
         savePostButton.setAlpha(1.0f);
-        savePostButton.setBackgroundColor(Color.parseColor("#FF3700B3"));
         savePostButton.setTextColor(Color.WHITE);
 
         saveGeolocationSwitch.setEnabled(true);
-        saveGeolocationSwitch.setAlpha(1.0f);
-        saveGeolocationSwitch.setBackgroundColor(Color.parseColor("#FF3700B3"));
         saveGeolocationSwitch.setTextColor(Color.WHITE);
 
         savePictureSwitch.setEnabled(true);
-        savePictureSwitch.setAlpha(1.0f);
-        savePictureSwitch.setBackgroundColor(Color.parseColor("#FF3700B3"));
         savePictureSwitch.setTextColor(Color.WHITE);
 
 
