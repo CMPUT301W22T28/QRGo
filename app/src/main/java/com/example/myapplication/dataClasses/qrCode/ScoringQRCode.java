@@ -1,10 +1,14 @@
 package com.example.myapplication.dataClasses.qrCode;
 
+import com.google.firebase.firestore.GeoPoint;
+
 public class ScoringQRCode extends QRCode {
     // image
     // private image image; //idk lol
-    private String hash;
-    private String geolocation;
+    private String hash = "";
+    private Double latitude = null;
+    private Double longitude = null;
+    private String geolocation = "";
     private int score = -1;
 
     public ScoringQRCode(String hash) {
@@ -26,13 +30,25 @@ public class ScoringQRCode extends QRCode {
     }
 
     public int getScore() {
-
-        // return the score of the qr code
         return score;
+    }
+
+    public void setLongitude(Double lon) {
+        this.longitude = lon;
+    }
+
+    public void setLatitude(Double lat) {
+        this.latitude = lat;
     }
 
     public String getGeolocation()
     {
-        return "undefined";
+        if (this.longitude != null && this.latitude != null) {
+            return  "[" + this.latitude + ", " + this.longitude+"]";
+        }
+        else {
+            return "Not specified";
+        }
+
     }
 }

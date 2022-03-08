@@ -1,13 +1,10 @@
 package com.example.myapplication.ui.profile;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
-import com.example.myapplication.dataClasses.user.Player;
 
 import java.util.ArrayList;
 
@@ -18,7 +15,8 @@ public class ProfileViewModel extends ViewModel {
     private final MutableLiveData<String> totalScore;
     private final MutableLiveData<String> qrCodeCount;
     private final MutableLiveData<String> topQRCodeScore;
-    private final MutableLiveData<ArrayList<ScoringQRCode>> profileQrCodes;
+
+    private final MutableLiveData<ArrayList<ScoringQRCode>> mutableProfileQrCodes;
 
 
     public ProfileViewModel() {
@@ -26,7 +24,7 @@ public class ProfileViewModel extends ViewModel {
         totalScore = new MutableLiveData<>();
         qrCodeCount = new MutableLiveData<>();
         topQRCodeScore = new MutableLiveData<>();
-        profileQrCodes = new MutableLiveData<>();
+        mutableProfileQrCodes = new MutableLiveData<>();
     }
 
     public LiveData<String> getUsername() {
@@ -45,7 +43,7 @@ public class ProfileViewModel extends ViewModel {
         return topQRCodeScore;
     }
 
-    public LiveData<ArrayList<ScoringQRCode>> getQrCodes() { return profileQrCodes; }
+    public LiveData<ArrayList<ScoringQRCode>> getQrCodes() { return mutableProfileQrCodes; }
 
     public void setUsername(String username) {
         if (!String.valueOf(this.username.getValue()).equals(username)) {
@@ -65,8 +63,9 @@ public class ProfileViewModel extends ViewModel {
         }
     }
 
-    public void setProfileQrCodes(ArrayList<ScoringQRCode> qrCodes) {
-        this.profileQrCodes.setValue(qrCodes);
+
+    public void setMutableProfileQrCodes(ArrayList<ScoringQRCode> qrCodes) {
+        this.mutableProfileQrCodes.setValue(qrCodes);
         this.qrCodeCount.setValue(String.valueOf(qrCodes.size()));
     }
 }

@@ -32,7 +32,9 @@ public class Player {
     }
 
     public void addScoringQRCode(ScoringQRCode qrCode) {
-        scannedQRCodes.add(qrCode);
+        synchronized (this) {
+            scannedQRCodes.add(qrCode);
+        }
     }
 
     public String getUsername() {
