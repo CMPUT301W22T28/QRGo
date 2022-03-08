@@ -1,7 +1,5 @@
 package com.example.myapplication;
 
-import static androidx.core.content.ContextCompat.checkSelfPermission;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -9,18 +7,16 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -29,29 +25,34 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.ActivityMainBinding;
-import com.example.myapplication.ui.camera.CameraFragment;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.myapplication.ui.profile.ProfileViewModel;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 
+import javax.annotation.Nullable;
+
 public class MainActivity extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private ActivityMainBinding binding;
-    private String myUsername = "ostrander001";
+    private String myUsername;
     final String TAG = "MainActivity";
-    Player myPlayerProfile;
+    Player myPlayerProfile = null;
     Context activityContext;
     final int MY_CAMERA_REQUEST_CODE = 100;
     final int QR_CODE_SCAN = 49374;
 
-    private String qrResult= null;
+    ProfileViewModel profileViewModel;
+
+    private String qrResult = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +66,23 @@ public class MainActivity extends AppCompatActivity {
         // bottom nav bar setup
         setupNavBar();
 
+        /*
+        All other methods to setup fragment go after this line
+        * */
+
+        // setiing up the view model/sending data
+        setupProfileViewModel();
+
         getProfileFromDatabase();
 
         // changing anything in the layout. i.e. removing the top action bar
         layoutChanges();
 
 
+    }
+
+    private void setupProfileViewModel() {
+        profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
     }
 
     private void setupNavBar() {
@@ -87,59 +99,96 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getProfileFromDatabase() {
+
+        Log.d("ProfileFragment",getIntent().getStringExtra("Username"));
+        this.myUsername = getIntent().getStringExtra("Username");
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        // setting persistence
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        db.setFirestoreSettings(settings);
+
         DocumentReference docRef = db.collection("Users").document(this.myUsername);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    assert document != null;
-                    if (document.exists()) {
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
 
-                        Boolean isAdmin = document.getBoolean("admin");
+                if (snapshot != null && snapshot.exists()) {
+                    Boolean isAdmin = snapshot.getBoolean("admin");
 
+                    if (myPlayerProfile == null) {
                         if (isAdmin == null || !isAdmin) {
                             myPlayerProfile = new Player(myUsername, false);
                         }
                         else {
                             myPlayerProfile = new Player(myUsername, true);
                         }
-                        Long scanned_count = document.getLong("scanned_count");
+                    }
+                    profileViewModel.setUsername(myUsername);
 
-                        // get qrcodes
-                        Object obj = document.get("scanned_qrcodes");
-                        Iterable<?> ar = (Iterable<?>) obj;
-                        ArrayList<String> qrCodeHashes = new ArrayList<>();
-                        assert ar != null;
-                        for (Object x : ar) {
-                            qrCodeHashes.add((String) x);
-                        }
+                    myPlayerProfile.resetQrCodeList();
+                    Long scannedCount = snapshot.getLong("scanned_count");
 
-                        if (scanned_count == null || qrCodeHashes.size() != scanned_count.intValue()) {
-                            docRef.update(
-                                    "scanned_count", qrCodeHashes.size()
-                            );
-                        }
+                    // get qrcodes
+                    Object obj = snapshot.get("scanned_qrcodes");
+                    Iterable<?> ar = (Iterable<?>) obj;
+                    ArrayList<String> qrCodeHashes = new ArrayList<>();
+                    assert ar != null;
+                    for (Object x : ar) {
+                        qrCodeHashes.add((String) x);
+                    }
+                    ScoringQRCode temp;
+                    int i = 0;
+                    for (String s: qrCodeHashes) {
+                        temp = new ScoringQRCode(s);
+                        temp.setScore(i++);
+                        myPlayerProfile.addScoringQRCode(temp);
+                    }
 
+                    if (scannedCount == null || qrCodeHashes.size() != scannedCount.intValue()) {
+                        docRef.update(
+                                "scanned_count", qrCodeHashes.size()
+                        );
+                    }
 
+                    // TODO: update the view model to add the qrcodes
+                    profileViewModel.setProfileQrCodes(myPlayerProfile.getQrCodes());
 
-                        Log.d(TAG, String.valueOf(document.getLong("scanned_highest")));
-
-                        // get list of qrCodes, avoiding warnings
-
-
+                    Long topQRCode = snapshot.getLong("scanned_highest");
+                    if (topQRCode != null) {
+                        myPlayerProfile.setHighestScore(topQRCode.intValue());
+                        Log.d(TAG, "Top qr code: "+topQRCode.intValue());
                     }
                     else {
-                        Log.d(TAG,"we ain't rlly here LOL");
+                        myPlayerProfile.setHighestScore(-1);
                     }
-                }
-                else {
-                    Log.d(TAG, "get failed with ", task.getException());
+                    profileViewModel.setTopQRCodeScore(myPlayerProfile.getTopQrCodeScore());
+
+                    Long sumOfQRCodes = snapshot.getLong("scanned_sum");
+                    if (sumOfQRCodes != null) {
+                        myPlayerProfile.setTotalScore(sumOfQRCodes.intValue());
+                    }
+                    else {
+                        myPlayerProfile.setTotalScore(-1);
+                    }
+                    profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
+
+                    Log.d(TAG, "Current data: " + snapshot.getData());
+                } else {
+                    Log.d(TAG, "Current data: null");
                 }
             }
         });
+
     }
 
 

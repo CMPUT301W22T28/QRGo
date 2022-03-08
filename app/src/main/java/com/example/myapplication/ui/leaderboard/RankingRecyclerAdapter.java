@@ -40,7 +40,7 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Player qrCode = rankings.get(position);
-        holder.score.setText(Integer.toString(qrCode.getHighestScore()));
+        holder.score.setText(Integer.toString(qrCode.getTopQrCodeScore()));
         holder.username.setText(qrCode.getUsername());
     }
 
