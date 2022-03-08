@@ -36,7 +36,7 @@ import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 
-public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener{
+public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
     private final String TAG = "ProfileFragment";
     private FragmentProfileBinding binding;
     MainActivity activity;
@@ -77,7 +77,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         // send the data to the view listeners
         getProfileFromDatabase();
-
     }
 
     private void getProfileFromDatabase() {
@@ -94,6 +93,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         db.setFirestoreSettings(settings);
 
         DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
+
+        ProfileFragment profileFragment = this;
 
         MyUserDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -152,8 +153,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         qrCodeHashes.add((String) x);
                     }
 
-                    AsyncQrCodeList asyncQrCodeList = new AsyncQrCodeList(qrCodeHashes.size(), profileViewModel);
-
+                    AsyncQrCodeList asyncQrCodeList = new AsyncQrCodeList(qrCodeHashes.size(), profileFragment);
                     CollectionReference scoringQrCodeColRef = db.collection("ScoringQRCodes");
 
                     for (String hash : qrCodeHashes) {
@@ -167,13 +167,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
                                         // data we need to get
                                         ScoringQRCode tempQrCode = new ScoringQRCode(hash);
-
-                                        Log.d(TAG, "my hash is: "+hash);
-
                                         Long score;
                                         Double longitude;
                                         Double latitude;
-                                        GeoPoint geolocation;
 
                                         // fetching score
                                         score = document.getLong("score");
@@ -204,7 +200,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
                                         // adding qrCode to array
                                         asyncQrCodeList.addToArray(tempQrCode);
-
                                     }
                                 } else {
                                     Log.d(TAG, "Cached ScoringQRCodeDocument document with hash: "+hash+" failed with exception: ", task.getException());
@@ -284,5 +279,30 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
+        // fill the profile view with qrcodes
+        Log.d(TAG, "we got here with array size: "+qrCodes.size());
+
+        for (ScoringQRCode qrCode: qrCodes) {
+            myPlayerProfile.addScoringQRCode(qrCode);
+        }
+        profileViewModel.setMutableProfileQrCodes(qrCodes);
+        updateHighestAndSumQrCode();
+    }
+
+    public void updateHighestAndSumQrCode() {
+        int highestQrCode = 0;
+        int sumQrCodes = 0;
+        for (ScoringQRCode qrCode: myPlayerProfile.getQrCodes())
+        {
+            sumQrCodes += qrCode.getScore();
+            highestQrCode = Math.max(highestQrCode, qrCode.getScore());
+        }
+
+        profileViewModel.setTopQRCodeScore(highestQrCode);
+        profileViewModel.setTotalScore(sumQrCodes);
     }
 }

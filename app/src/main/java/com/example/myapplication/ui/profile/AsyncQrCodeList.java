@@ -5,16 +5,16 @@ import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import java.util.ArrayList;
 
 
-
 public class AsyncQrCodeList {
+    ProfileEventListeners profileEventListeners;
+
     int asyncTaskCount = 0;
     final int numTasksToReach;
-    ProfileViewModel profileViewModel;
     private final ArrayList<ScoringQRCode> qrCodes = new ArrayList<>();
 
-    public AsyncQrCodeList(int max, ProfileViewModel profileViewModel) {
+    public AsyncQrCodeList(int max, ProfileEventListeners profileEventListeners) {
         numTasksToReach = max;
-        this.profileViewModel = profileViewModel;
+        this.profileEventListeners = profileEventListeners;
     }
 
     public void addToArray(ScoringQRCode qrCode) {
@@ -22,7 +22,7 @@ public class AsyncQrCodeList {
             asyncTaskCount++;
             qrCodes.add(qrCode);
             if (asyncTaskCount >= numTasksToReach) {
-                profileViewModel.setMutableProfileQrCodes(qrCodes);
+                profileEventListeners.onQrCodeListDoneFillingEvent(qrCodes);
             }
         }
     }
