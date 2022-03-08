@@ -259,7 +259,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onChanged(ArrayList<ScoringQRCode> qrCodes) {
-                Log.d(TAG, "size: "+qrCodes.size());
                 myQrCodes.clear();
                 myQrCodes.addAll(qrCodes);
                 scoringQRCodeAdapter.notifyDataSetChanged();
@@ -301,23 +300,55 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
 
 
-        int highestQrCode = 0;
-        int sumQrCodes = 0;
+        int tempHighestQrCode = 0;
+        int tempSumQrCodes = 0;
         for (ScoringQRCode qrCode: myPlayerProfile.getQrCodes())
         {
-            sumQrCodes += qrCode.getScore();
-            highestQrCode = Math.max(highestQrCode, qrCode.getScore());
+            tempSumQrCodes += qrCode.getScore();
+            tempHighestQrCode = Math.max(tempHighestQrCode, qrCode.getScore());
         }
-        MyUserDocRef.update(
-                "scanned_sum", sumQrCodes
-        );
+        final int sumQrCodes = tempSumQrCodes;
+        final int highestQrCode = tempHighestQrCode;
 
-        MyUserDocRef.update(
-                "scanned_highest", highestQrCode
-        );
+        MyUserDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable DocumentSnapshot snapshot,
+                                @javax.annotation.Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
 
-        profileViewModel.setTopQRCodeScore(highestQrCode);
-        profileViewModel.setTotalScore(sumQrCodes);
+                if (snapshot != null && snapshot.exists()) {
+                    Long docSumQrCodes;
+                    Long docHighestQrCode;
+
+                    docSumQrCodes = snapshot.getLong("scanned_sum");
+                    if (docSumQrCodes != null) {
+                        if (docSumQrCodes.intValue() != sumQrCodes) {
+                            MyUserDocRef.update(
+                                    "scanned_sum", sumQrCodes
+                            );
+                        }
+                    }
+
+                    docHighestQrCode = snapshot.getLong("scanned_highest");
+                    if (docHighestQrCode != null) {
+                        if (docHighestQrCode.intValue() != highestQrCode) {
+                            MyUserDocRef.update(
+                                    "scanned_highest", highestQrCode
+                            );
+                        }
+                    }
+                }
+            }
+        });
+
+        myPlayerProfile.setTotalScore(sumQrCodes);
+        myPlayerProfile.setHighestScore(highestQrCode);
+
+        profileViewModel.setTopQRCodeScore(tempHighestQrCode);
+        profileViewModel.setTotalScore(tempSumQrCodes);
     }
 
 
