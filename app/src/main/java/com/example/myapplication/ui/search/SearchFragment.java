@@ -27,7 +27,6 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
 
     private FragmentSearchBinding binding;
     MainActivity activity;
-    UserArrayAdapter userArrayAdapter;
 
     ArrayList<Player> users;
 
@@ -64,11 +63,11 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         if (filteredlist.isEmpty()) {
             // if no item is added in filtered list we are
             // displaying a toast message as no data found.
-            // Toast.makeText(this, "No Data Found..", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity.getApplicationContext(), "No search results found", Toast.LENGTH_SHORT).show();
         } else {
             // at last we are passing that filtered
             // list to our adapter class.
-            userArrayAdapter.filterList(filteredlist);
+            userRecyclerAdapter.filterList(filteredlist);
         }
     }
 
@@ -82,7 +81,7 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         users = new ArrayList<Player>();
 
         for (int i=0; i<20; i++) {
-            Player player = new Player("Sandypants", true);
+            Player player = new Player("Sandypants"+i, true);
             users.add(player);
         }
 
