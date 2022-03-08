@@ -7,6 +7,19 @@ public class ScoringQRCode extends QRCode {
     private String geolocation;
     private int score = -1;
 
+    public ScoringQRCode(String hash) {
+        this.hash = hash;
+        this.score = calculateScore();
+    }
+
+    private int calculateScore() {
+        return -1;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
     @Override
     public String getQRCodeType() {
         return null;
@@ -16,10 +29,6 @@ public class ScoringQRCode extends QRCode {
 
         // return the score of the qr code
         return score;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
     }
 
     public String getGeolocation()

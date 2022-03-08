@@ -1,10 +1,14 @@
-package com.example.myapplication.ui.leaderboard;
+package com.example.myapplication.ui.search;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
 import android.content.Context;
+import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,23 +19,23 @@ import com.example.myapplication.dataClasses.user.Player;
 
 import java.util.ArrayList;
 
-public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecyclerAdapter.ViewHolder> {
+public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapter.ViewHolder> {
 
-    private ArrayList<Player> rankings;
+    private ArrayList<Player> users;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
 
     // data is passed into the constructor
-    RankingRecyclerAdapter(Context context, ArrayList<Player> rankings) {
+    UserRecyclerAdapter(Context context, ArrayList<Player> users) {
         this.mInflater = LayoutInflater.from(context);
-        this.rankings = rankings;
+        this.users = users;
     }
 
     // inflates the row layout from xml when needed
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = mInflater.inflate(R.layout.leaderboard_list_item, parent, false);
+        View view = mInflater.inflate(R.layout.search_list_item, parent, false);
         return new ViewHolder(view);
     }
 
@@ -39,27 +43,24 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Player qrCode = rankings.get(position);
-        holder.score.setText(Integer.toString(qrCode.getTopQrCodeScore()));
-        holder.username.setText(qrCode.getUsername());
+        Player player = users.get(position);
+        holder.username.setText(player.getUsername());
     }
 
-    // total number of rows
     @Override
     public int getItemCount() {
-        return rankings.size();
+        return users.size();
     }
 
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    // stores and recycles views as they are scrolled off screen
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView score;
+        ImageView profilePic;
         TextView username;
 
-        ViewHolder(View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
-            score = itemView.findViewById(R.id.put_leaderboard_score_here);
-            username = itemView.findViewById(R.id.put_leaderboard_username_here);
+            profilePic = itemView.findViewById(R.id.profilepic);
+            username = itemView.findViewById(R.id.username);
             itemView.setOnClickListener(this);
         }
 
@@ -69,13 +70,14 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
         }
     }
 
+
     // convenience method for getting data at click position
     Player getItem(int id) {
-        return rankings.get(id);
+        return users.get(id);
     }
 
     // allows clicks events to be caught
-    void setClickListener(ItemClickListener itemClickListener) {
+    void setClickListener(UserRecyclerAdapter.ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
