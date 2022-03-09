@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.search;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.MainActivity;
+import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentSearchBinding;
 import com.google.firebase.firestore.DocumentChange;
@@ -35,8 +37,8 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        SearchViewModel searchViewModel =
-                new ViewModelProvider(this).get(SearchViewModel.class);
+        UserViewModel searchViewModel =
+                new ViewModelProvider(this).get(UserViewModel.class);
 
         binding = FragmentSearchBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -138,6 +140,14 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
     @Override
     public void onItemClick(View view, int position) {
         Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
+        UserFragment userFragment = new UserFragment();
+        Bundle username = new Bundle();
+        username.putString("username", userRecyclerAdapter.getItem(position).getUsername());
+        userFragment.setArguments(username);
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(((ViewGroup)getView().getParent()).getId(), userFragment, "findThisFragment")
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override

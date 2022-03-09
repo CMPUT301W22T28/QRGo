@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class SearchViewModel extends ViewModel {
+public class UserViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
     private final MutableLiveData<String> username;
 
-    public SearchViewModel() {
+    public UserViewModel() {
         mText = new MutableLiveData<>();
         username = new MutableLiveData<>();
         mText.setValue("This is the search fragment");
