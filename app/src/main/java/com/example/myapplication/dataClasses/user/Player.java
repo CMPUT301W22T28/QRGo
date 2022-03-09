@@ -12,6 +12,7 @@ public class Player {
     private final ArrayList<ScoringQRCode> scannedQRCodes = new ArrayList<>();
     private int totalScore;
     private int highestScore;
+    private int rankingScore;
     private final boolean isUserSet;
     private boolean isAdmin = false;
 
@@ -22,7 +23,6 @@ public class Player {
 
     public Player(String username, boolean isAdmin) {
         this.username = username;
-
         this.isAdmin = isAdmin;
         this.isUserSet = true;
     }
@@ -51,6 +51,14 @@ public class Player {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public int getRankingScore() {
+        return rankingScore;
+    }
+
+    public void setRankingScore(int rankingScore) {
+        this.rankingScore = rankingScore;
     }
 
     public int getTotalScore() {

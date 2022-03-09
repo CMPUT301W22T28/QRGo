@@ -26,6 +26,8 @@ import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentLeaderboardBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -37,6 +39,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.core.OrderBy;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 public class LeaderboardFragment extends Fragment implements RankingRecyclerAdapter.ItemClickListener{
@@ -47,9 +51,14 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
     private LeaderboardViewModel leaderboardViewModel;
 
     private ArrayList<Player> myRankingList;
+    private ArrayList<String> listForUsernames;
     private RecyclerView recyclerView;
 
+    private String myUsername = null;
+    private Integer myScore;
+
     RankingRecyclerAdapter rankingRecyclerAdapter;
+    TabLayout tabLayout;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -57,6 +66,7 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
                 new ViewModelProvider(this).get(LeaderboardViewModel.class);
 
         binding = FragmentLeaderboardBinding.inflate(inflater, container, false);
+
         View root = binding.getRoot();
 
         return root;
@@ -70,22 +80,56 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
         assert activity != null;
 
         this.myRankingList = new ArrayList<>();
+        this.listForUsernames = new ArrayList<>();
 
+        tabLayout = binding.sortTabs;
         recyclerView = binding.leaderboard;
+
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         rankingRecyclerAdapter = new RankingRecyclerAdapter(activity, myRankingList);
         rankingRecyclerAdapter.setClickListener(this);
         recyclerView.setAdapter(rankingRecyclerAdapter);
 
+        Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
+        this.myUsername = requireActivity().getIntent().getStringExtra("Username");
+
         // set the view listeners
         setViewListeners();
 
-        // send the data to the view listeners
-        getRankingsFromDatabase();
+        getRankingsFromDatabase("scanned_sum");
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                   @Override
+                   public void onTabSelected(TabLayout.Tab tab) {
+                       //Log.d(TAG, "Current tab: " + tab.getText());
+                       if (tab.getText() == "Highest") {
+                           Log.d(TAG, "here");
+                           getRankingsFromDatabase("scanned_highest");
+                       }
+                       if (tab.getText() == "Count") {
+                           Log.d(TAG, "Current tab: " + tab.getText());
+                           getRankingsFromDatabase("scanned_count");
+                       }
+                       if (tab.getText() == "Sum") {
+                           Log.d(TAG, "Current tab: " + tab.getText());
+                           getRankingsFromDatabase("scanned_sum");
+                       }
+                   }
+
+                   @Override
+                   public void onTabUnselected(TabLayout.Tab tab) {
+
+                   }
+
+                   @Override
+                   public void onTabReselected(TabLayout.Tab tab) {
+
+                   }
+               });
 
     }
 
-    private void getRankingsFromDatabase() {
+    private void getRankingsFromDatabase(String tabSort) {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -99,26 +143,28 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
 
         LeaderboardFragment leaderboardFragment = this;
 
-        usersRef.orderBy("scanned_highest", Query.Direction.DESCENDING)
-                //.get()
+        leaderboardViewModel.setPersonalUsername(myUsername);
+
+        usersRef.orderBy(tabSort, Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    /*@Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {*/
                     @Override
             public void onEvent(@Nullable QuerySnapshot value,
                                 @Nullable FirebaseFirestoreException error) {
                 if (error == null) {
                     myRankingList.clear();
+                    listForUsernames.clear();
                     for (QueryDocumentSnapshot document : value) {
                         String username = document.getId();
-                        //String highestScanned = document.getString("scanned_highest");
-                        //boolean isAdmin = document.getBoolean("admin");
-                        Player player = new Player(username, false);
-                        //player.setHighestScore(2);
+                        listForUsernames.add(username);
+                        boolean isAdmin = document.getBoolean("admin");
+                        Double rankingScore = document.getDouble(tabSort);
+                        Player player = new Player(username, isAdmin);
+                        player.setRankingScore(rankingScore.intValue());
                         myRankingList.add(player);
 
                     }
-                    //Log.d(TAG, "Current Rankings: " + myRankingList);
+                    myScore = listForUsernames.indexOf(myUsername) + 1;
+                    leaderboardViewModel.setPersonalScore(myScore.toString());
                     leaderboardViewModel.setPlayerRankingList(myRankingList);
                 }
                 else {
@@ -133,14 +179,16 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
     private void setViewListeners() {
         leaderboardViewModel  = new ViewModelProvider(requireActivity()).get(LeaderboardViewModel.class);
 
+        final TextView personalProfileUsername = binding.personalPlayerCardUsername;
+        leaderboardViewModel.getPersonalUsername().observe(getViewLifecycleOwner(), personalProfileUsername::setText);
+
+        final TextView personalProfileScore = binding.personalPlayerCardScore;
+        leaderboardViewModel.getPersonalScore().observe(getViewLifecycleOwner(), personalProfileScore::setText);
+
         leaderboardViewModel.getRankingList().observe(getViewLifecycleOwner(), new Observer<ArrayList<Player>>() {
            @SuppressLint("NotifyDataSetChanged")
            @Override
            public void onChanged(ArrayList<Player> rankings) {
-               Log.d(TAG, "Current Rankings: " + rankings);
-               myRankingList.clear();
-               myRankingList.addAll(rankings);
-               Log.d(TAG, "New Rankings: " + myRankingList);
                rankingRecyclerAdapter.notifyDataSetChanged();
            }
         });
