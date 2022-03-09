@@ -61,9 +61,9 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Player qrCode = rankings.get(position);
-        holder.score.setText(Integer.toString(qrCode.getTopQrCodeScore()));
-        holder.username.setText(qrCode.getUsername());
+        Player player = rankings.get(position);
+        holder.score.setText(Integer.toString(player.getTopQrCodeScore()));
+        holder.username.setText(player.getUsername());
     }
 
     // total number of rows
