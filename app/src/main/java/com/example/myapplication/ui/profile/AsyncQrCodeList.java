@@ -15,6 +15,7 @@ public class AsyncQrCodeList {
     public AsyncQrCodeList(int max, ProfileEventListeners profileEventListeners) {
         numTasksToReach = max;
         this.profileEventListeners = profileEventListeners;
+        qrCodes.clear();
     }
 
     public void addToArray(ScoringQRCode qrCode) {
