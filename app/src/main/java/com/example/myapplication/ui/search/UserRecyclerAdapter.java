@@ -53,13 +53,12 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        ImageView profilePic;
+        //ImageView profilePic;
         TextView username;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
-            profilePic = itemView.findViewById(R.id.profilepic);
+            //profilePic = itemView.findViewById(R.id.profilepic);
             username = itemView.findViewById(R.id.username);
             itemView.setOnClickListener(this);
         }
