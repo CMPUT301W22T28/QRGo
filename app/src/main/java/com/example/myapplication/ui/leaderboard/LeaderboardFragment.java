@@ -96,21 +96,21 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
         // set the view listeners
         setViewListeners();
 
-        getRankingsFromDatabase("scanned_sum");
+        getRankingsFromDatabase("scanned_highest");
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                    @Override
                    public void onTabSelected(TabLayout.Tab tab) {
                        //Log.d(TAG, "Current tab: " + tab.getText());
-                       if (tab.getText() == "Highest") {
+                       if (tab.getText().equals("Highest")) {
                            Log.d(TAG, "here");
                            getRankingsFromDatabase("scanned_highest");
                        }
-                       if (tab.getText() == "Count") {
+                       if (tab.getText().equals("Count")) {
                            Log.d(TAG, "Current tab: " + tab.getText());
                            getRankingsFromDatabase("scanned_count");
                        }
-                       if (tab.getText() == "Sum") {
+                       if (tab.getText().equals("Sum")) {
                            Log.d(TAG, "Current tab: " + tab.getText());
                            getRankingsFromDatabase("scanned_sum");
                        }
