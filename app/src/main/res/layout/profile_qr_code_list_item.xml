@@ -2,7 +2,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:gravity="center">
+    android:gravity="center"
+    android:padding="5dp">
 
     <ImageView
         android:id="@+id/qr_code_imageview"
@@ -32,8 +33,6 @@
                 android:textStyle="bold"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="5dp"
-                android:padding="2dp"
                 android:textColor="#4d4d4d" />
 
             <TextView
@@ -41,9 +40,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="5dp"
-                android:padding="2dp"
                 android:textColor="#4d4d4d" />
 
         </LinearLayout>
@@ -62,7 +58,6 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
-                android:padding="2dp"
                 android:textColor="#4d4d4d" />
 
             <TextView
@@ -70,9 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
-                android:padding="2dp"
                 android:textColor="#4d4d4d" />
 
         </LinearLayout>
