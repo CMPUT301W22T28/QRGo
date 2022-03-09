@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.user.Player;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecyclerAdapter.ViewHolder> {
@@ -20,6 +22,26 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
     private ArrayList<Player> rankings;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView score;
+        TextView username;
+
+        // stores and recycles views as they are scrolled off screen
+        ViewHolder(View itemView) {
+            super(itemView);
+            score = itemView.findViewById(R.id.put_leaderboard_score_here);
+            username = itemView.findViewById(R.id.put_leaderboard_username_here);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (mClickListener != null) {
+                mClickListener.onItemClick(view, getAdapterPosition());
+            }
+        }
+    }
 
     // data is passed into the constructor
     RankingRecyclerAdapter(Context context, ArrayList<Player> rankings) {
@@ -50,23 +72,10 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
         return rankings.size();
     }
 
-
-    // stores and recycles views as they are scrolled off screen
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView score;
-        TextView username;
-
-        ViewHolder(View itemView) {
-            super(itemView);
-            score = itemView.findViewById(R.id.put_leaderboard_score_here);
-            username = itemView.findViewById(R.id.put_leaderboard_username_here);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
-        }
+    // add item to the ranking list
+    public void addRanking(Player player) {
+        rankings.add(player);
+        notifyItemInserted(0);
     }
 
     // convenience method for getting data at click position

@@ -25,13 +25,17 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.ActivityMainBinding;
+import com.example.myapplication.ui.leaderboard.LeaderboardViewModel;
 import com.example.myapplication.ui.profile.ProfileViewModel;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     final int QR_CODE_SCAN = 49374;
 
     ProfileViewModel profileViewModel;
+    LeaderboardViewModel leaderboardViewModel;
 
     private String qrResult = null;
 
@@ -70,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         All other methods to setup fragment go after this line
         * */
 
-        // setiing up the view model/sending data
+        // setting up the view model/sending data
         setupProfileViewModel();
 
         getProfileFromDatabase();
@@ -83,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupProfileViewModel() {
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
+    }
+
+    private void setupLeaderboardViewModel() {
+        leaderboardViewModel = new ViewModelProvider(this).get(LeaderboardViewModel.class);
     }
 
     private void setupNavBar() {
