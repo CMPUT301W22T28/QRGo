@@ -80,13 +80,13 @@ public class CameraFragment extends Fragment {
 
         disablingButtons();
 
-        if (getActivity().getIntent().getStringExtra("ScoringQRCode") !=null) {
-
-            enablingButtons();
-
-            QRCodeString = getActivity().getIntent().getStringExtra("ScoringQRCode");
-
-        }
+//        if (getActivity().getIntent().getStringExtra("ScoringQRCode") !=null) {
+//
+//            enablingButtons();
+//
+//            QRCodeString = getActivity().getIntent().getStringExtra("ScoringQRCode");
+//
+//        }
 
         setQRCodeScanner();
 
@@ -189,8 +189,8 @@ public class CameraFragment extends Fragment {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
-
-                startActivity(new Intent(getContext(), LoginScanActivity.class).putExtra("Prev", "CameraFragment"));
+                final Intent intent = new Intent(getContext(), LoginScanActivity.class).putExtra("Prev","CameraFragment");
+                startActivityForResult(intent, 6);
 
             }
 
@@ -281,6 +281,19 @@ public class CameraFragment extends Fragment {
 
             }
         }
+        else if (requestCode == 6){
+            if(resultCode == RESULT_OK) {
+                // Get the result from the returned Intent
+                final String result = data.getStringExtra("ScoringQRCode");
+
+                // Use the data - in this case, display it in a Toast.
+                Log.d("CameraFragment",result);
+                enablingButtons();
+            } else {
+                // AnotherActivity was not successful. No data to retrieve.
+            }
+        }
+
     }
 
     public void disablingButtons() {
@@ -303,6 +316,7 @@ public class CameraFragment extends Fragment {
         savePostButton.setEnabled(true);
         savePostButton.setAlpha(1.0f);
         savePostButton.setTextColor(Color.WHITE);
+        savePostButton.setBackgroundColor(Color.parseColor("#FF3700B3"));
 
         saveGeolocationSwitch.setEnabled(true);
         saveGeolocationSwitch.setTextColor(Color.WHITE);

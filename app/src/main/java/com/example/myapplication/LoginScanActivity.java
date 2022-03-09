@@ -56,9 +56,12 @@ public class LoginScanActivity extends AppCompatActivity implements ZXingScanner
 
     public void cameraFragment(String scanResult) {
 
-        Intent parentIntent = NavUtils.getParentActivityIntent(this);
-        parentIntent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(parentIntent.putExtra("ScoringQRCode", scanResult));
+//        Intent parentIntent = NavUtils.getParentActivityIntent(this);
+//        parentIntent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+//        startActivity(parentIntent.putExtra("ScoringQRCode", scanResult));
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("ScoringQRCode", scanResult);
+        setResult(RESULT_OK, returnIntent);
         finish();
 
         //startActivity(new Intent(this, MainActivity.class).putExtra("ScoringQRCode", scanResult));
