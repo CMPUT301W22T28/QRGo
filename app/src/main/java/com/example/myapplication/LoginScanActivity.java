@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NavUtils;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.myapplication.ui.camera.CameraFragment;
 import com.google.zxing.Result;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -53,6 +55,20 @@ public class LoginScanActivity extends AppCompatActivity implements ZXingScanner
         startActivity(new Intent(this, LoginActivity.class).putExtra("LoginQRCode",scanResult));
     }
 
+    public void cameraFragment(String scanResult) {
+
+//        Intent parentIntent = NavUtils.getParentActivityIntent(this);
+//        parentIntent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+//        startActivity(parentIntent.putExtra("ScoringQRCode", scanResult));
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("ScoringQRCode", scanResult);
+        setResult(RESULT_OK, returnIntent);
+        finish();
+
+        //startActivity(new Intent(this, MainActivity.class).putExtra("ScoringQRCode", scanResult));
+
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -62,6 +78,12 @@ public class LoginScanActivity extends AppCompatActivity implements ZXingScanner
     public void handleResult(Result rawResult) {
         scannerView.stopCameraPreview();
         scannerView.stopCamera();
-        loginActivity(rawResult.getText());
+        if (getIntent().getStringExtra("Prev").equals("CameraFragment")){
+
+            cameraFragment(rawResult.getText());
+        }
+        else{
+            loginActivity(rawResult.getText());
+        }
     }
 }
