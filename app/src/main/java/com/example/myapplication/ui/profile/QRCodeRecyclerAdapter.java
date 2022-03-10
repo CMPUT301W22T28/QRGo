@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAdapter.ViewHolder> {
@@ -20,6 +22,24 @@ public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAd
     private ArrayList<ScoringQRCode> qrCodes;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
+
+    // stores and recycles views as they are scrolled off screen
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView score;
+        TextView geolocation;
+
+        ViewHolder(View itemView) {
+            super(itemView);
+            score = itemView.findViewById(R.id.put_qr_score_here);
+            geolocation = itemView.findViewById(R.id.put_geolocation_here);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
+        }
+    }
 
     // data is passed into the constructor
     QRCodeRecyclerAdapter(Context context, ArrayList<ScoringQRCode> qrCodes) {
@@ -50,23 +70,9 @@ public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAd
         return qrCodes.size();
     }
 
-
-    // stores and recycles views as they are scrolled off screen
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView score;
-        TextView geolocation;
-
-        ViewHolder(View itemView) {
-            super(itemView);
-            score = itemView.findViewById(R.id.put_qr_score_here);
-            geolocation = itemView.findViewById(R.id.put_geolocation_here);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
-        }
+    public void addQrCode(ScoringQRCode qrCode) {
+        qrCodes.add(qrCode);
+        notifyItemInserted(0);
     }
 
     // convenience method for getting data at click position
