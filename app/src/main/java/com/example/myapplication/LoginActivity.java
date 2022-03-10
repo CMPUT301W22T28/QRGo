@@ -42,7 +42,10 @@ import java.util.Map;
 
 
 public class LoginActivity extends AppCompatActivity {
+    // Firestore collection names
     private final String USERS_COLLECTION = "Users";
+    private final String LOGIN_QRCODE_COLLECTION = "LoginQRCode";
+    // Tag for Logcat
     private final String LOGIN_TAG = "LoginActivity";
     private final int MY_CAMERA_REQUEST_CODE = 100;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -50,40 +53,42 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        String androidId = Secure.getString(getApplicationContext().getContentResolver(),
-                Secure.ANDROID_ID);
-        disableSignUp();
-        getUsernameFromAndroidId(androidId);
+        setContentView(R.layout.activity_login
         String res = this.getIntent().getStringExtra("LoginQRCode");
-        if (res != null)
-            Log.d(LOGIN_TAG,res);
+        if (res != null) {
+            disableSignUp();
+            checkLoginQRCode(res);
+        }
+        else {
+            String androidId = Secure.getString(getApplicationContext().getContentResolver(),
+                    Secure.ANDROID_ID);
+            getUsernameFromAndroidId(androidId);
 
 
-        Button signUpButton = (Button) findViewById(R.id.btn_sign_up);
-        signUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TextInputEditText usernameField = (TextInputEditText) findViewById(R.id.username_field);
-                TextInputEditText emailField = (TextInputEditText) findViewById(R.id.email_field);
-                TextInputEditText phoneField = (TextInputEditText) findViewById(R.id.phone_field);
+            Button signUpButton = (Button) findViewById(R.id.btn_sign_up);
+            signUpButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    TextInputEditText usernameField = (TextInputEditText) findViewById(R.id.username_field);
+                    TextInputEditText emailField = (TextInputEditText) findViewById(R.id.email_field);
+                    TextInputEditText phoneField = (TextInputEditText) findViewById(R.id.phone_field);
 
-                String userNameInput = usernameField.getText().toString().trim();
+                    String userNameInput = usernameField.getText().toString().trim();
 
-                if (userNameInput.length() == 0){
-                    TextInputLayout usernameContainer = (TextInputLayout) findViewById(R.id.username_field_container);
-                    usernameContainer.setBoxStrokeColor(Color.RED);
-                    usernameContainer.setError("Enter a valid username!");
+                    if (userNameInput.length() == 0) {
+                        TextInputLayout usernameContainer = (TextInputLayout) findViewById(R.id.username_field_container);
+                        usernameContainer.setBoxStrokeColor(Color.RED);
+                        usernameContainer.setError("Enter a valid username!");
+                    } else {
+                        checkUsernameExists(userNameInput, emailField.getText().toString(), phoneField.getText().toString());
+                    }
                 }
-                else{
-                    checkUsernameExists(userNameInput, emailField.getText().toString(), phoneField.getText().toString());
-                }
-            }
-        });
-
+            });
+        }
     }
 
     public void getUsernameFromAndroidId(String androidId){
+        disableSignUp();
         db.collection(USERS_COLLECTION)
                 .whereArrayContains("devices",androidId)
                 .get()
@@ -100,6 +105,30 @@ public class LoginActivity extends AppCompatActivity {
                                 enableSignUp();
                             }
 
+                        } else {
+                            Log.d(LOGIN_TAG, "Error getting documents: ", task.getException());
+                        }
+
+                    }
+                });
+    }
+
+    public void checkLoginQRCode(String scannedString){
+        db.collection(LOGIN_QRCODE_COLLECTION)
+                .whereEqualTo("username",scannedString)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                // TODO: Add device that was just scanned from to login to USERS.Devices
+                                mainActivity(scannedString);
+                            }
+                            if (task.getResult().size() == 0){
+                                enableSignUp();
+                                Toast.makeText(getApplicationContext(),"Login QRCode not recognized. Please scan a valid Login QRCode!",Toast.LENGTH_LONG).show();
+                            }
                         } else {
                             Log.d(LOGIN_TAG, "Error getting documents: ", task.getException());
                         }
@@ -138,8 +167,15 @@ public class LoginActivity extends AppCompatActivity {
                 .document(userName)
                 .set(setUpUserSubCollection(email, phone));
 
-        mainActivity(userName);
+        insertLoginQRCode(userName);
 
+    }
+
+    public void insertLoginQRCode(String userName){
+        db.collection(LOGIN_QRCODE_COLLECTION)
+                .add(setUpLoginQRCodeSubCollection(userName));
+
+        mainActivity(userName);
     }
 
     public void mainActivity (String userName){
@@ -230,6 +266,12 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    Map<String, Object> setUpLoginQRCodeSubCollection(String userName){
+        Map<String, Object> data = new HashMap<>();
+        data.put("username",userName);
+
+        return data;
+    }
 
     Map<String, Object> setUpUserSubCollection(String email, String phone){
         Map<String, Object> data = new HashMap<>();
