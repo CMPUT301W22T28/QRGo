@@ -281,7 +281,7 @@ public class CameraFragment extends Fragment {
 
             }
         }
-        else if (requestCode == 6){
+        else if (requestCode == 6) {
             if(resultCode == RESULT_OK) {
                 // Get the result from the returned Intent
                 final String result = data.getStringExtra("ScoringQRCode");
