@@ -1,50 +1,24 @@
 package com.example.myapplication;
 
-import static androidx.core.content.ContextCompat.checkSelfPermission;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.os.Build;
+
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.ActivityMainBinding;
-import com.example.myapplication.ui.profile.AsyncQrCodeList;
 import com.example.myapplication.ui.profile.ProfileViewModel;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.GeoPoint;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
-import java.util.ArrayList;
-
-import javax.annotation.Nullable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -71,8 +45,6 @@ public class MainActivity extends AppCompatActivity {
         // bottom nav bar setup
         setupNavBar();
 
-        getProfileFromDatabase();
-
         // changing anything in the layout. i.e. removing the top action bar
         layoutChanges();
 
@@ -91,63 +63,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
     }
-
-    private void getProfileFromDatabase() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        DocumentReference docRef = db.collection("Users").document(this.myUsername);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    assert document != null;
-                    if (document.exists()) {
-
-                        Boolean isAdmin = document.getBoolean("admin");
-
-                        if (isAdmin == null || !isAdmin) {
-                            myPlayerProfile = new Player(myUsername, false);
-                        }
-                        else {
-                            myPlayerProfile = new Player(myUsername, true);
-                        }
-                        Long scanned_count = document.getLong("scanned_count");
-
-                        // get qrcodes
-                        Object obj = document.get("scanned_qrcodes");
-                        Iterable<?> ar = (Iterable<?>) obj;
-                        ArrayList<String> qrCodeHashes = new ArrayList<>();
-                        assert ar != null;
-                        for (Object x : ar) {
-                            qrCodeHashes.add((String) x);
-                        }
-
-                        if (scanned_count == null || qrCodeHashes.size() != scanned_count.intValue()) {
-                            docRef.update(
-                                    "scanned_count", qrCodeHashes.size()
-                            );
-                        }
-
-
-
-                        Log.d(TAG, String.valueOf(document.getLong("scanned_highest")));
-
-                        // get list of qrCodes, avoiding warnings
-
-
-                    }
-                    else {
-                        Log.d(TAG,"we ain't rlly here LOL");
-                    }
-                }
-                else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
-            }
-        });
-    }
-
 
     private void layoutChanges() {
         ActionBar actionBar = getSupportActionBar();
@@ -176,8 +91,8 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
     public String getMyUsername() {
         return this.myUsername;
     }
+
 }
