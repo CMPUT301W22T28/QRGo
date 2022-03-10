@@ -120,27 +120,25 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     // region setting text views in profile top bar
                     profileViewModel.setUsername(myUsername);
 
-                    Long topQRCode = snapshot.getLong("scanned_highest");
-                    if (topQRCode != null) {
-                        myPlayerProfile.setHighestScore(topQRCode.intValue());
-                    }
-                    else {
-                        myPlayerProfile.setHighestScore(-1);
-                    }
-                    profileViewModel.setTopQRCodeScore(myPlayerProfile.getTopQrCodeScore());
-
-                    Long sumOfQRCodes = snapshot.getLong("scanned_sum");
-                    if (sumOfQRCodes != null) {
-                        myPlayerProfile.setTotalScore(sumOfQRCodes.intValue());
-                    }
-                    else {
-                        myPlayerProfile.setTotalScore(-1);
-                    }
-                    profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
+//                    Long topQRCode = snapshot.getLong("scanned_highest");
+//                    if (topQRCode != null) {
+//                        myPlayerProfile.setHighestScore(topQRCode.intValue());
+//                    }
+//                    else {
+//                        myPlayerProfile.setHighestScore(-1);
+//                    }
+//                    profileViewModel.setTopQRCodeScore(myPlayerProfile.getTopQrCodeScore());
+//
+//                    Long sumOfQRCodes = snapshot.getLong("scanned_sum");
+//                    if (sumOfQRCodes != null) {
+//                        myPlayerProfile.setTotalScore(sumOfQRCodes.intValue());
+//                    }
+//                    else {
+//                        myPlayerProfile.setTotalScore(-1);
+//                    }
+//                    profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
 
                     // endregion
-
-                    myPlayerProfile.resetQrCodeList();
                     Long scannedCount = snapshot.getLong("scanned_count");
 
                     // get qrcodes
@@ -155,56 +153,58 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     AsyncQrCodeList asyncQrCodeList = new AsyncQrCodeList(qrCodeHashes.size(), profileFragment);
                     CollectionReference scoringQrCodeColRef = db.collection("ScoringQRCodes");
 
-                    for (String hash : qrCodeHashes) {
-                        scoringQrCodeColRef.document(hash).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    // Document found in the offline cache
-                                    DocumentSnapshot document = task.getResult();
-                                    if (document != null && document.exists()) {
+                    if (qrCodeHashes.size() != myPlayerProfile.getQRCodeCount()) {
+                        for (String hash : qrCodeHashes) {
+                            scoringQrCodeColRef.document(hash).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        // Document found in the offline cache
+                                        DocumentSnapshot document = task.getResult();
+                                        if (document != null && document.exists()) {
 
-                                        // data we need to get
-                                        ScoringQRCode tempQrCode = new ScoringQRCode(hash);
-                                        Long score;
-                                        Double longitude;
-                                        Double latitude;
+                                            // data we need to get
+                                            ScoringQRCode tempQrCode = new ScoringQRCode(hash);
+                                            Long score;
+                                            Double longitude;
+                                            Double latitude;
 
-                                        // fetching score
-                                        score = document.getLong("score");
-                                        if (score != null) {
-                                            tempQrCode.setScore(score.intValue());
-                                        }
-                                        else {
-                                            tempQrCode.setScore(-2);
-                                        }
+                                            // fetching score
+                                            score = document.getLong("score");
+                                            if (score != null) {
+                                                tempQrCode.setScore(score.intValue());
+                                            }
+                                            else {
+                                                tempQrCode.setScore(-2);
+                                            }
 
-                                        // setting latitude
-                                        latitude = document.getDouble("latitude");
-                                        if (latitude != null) {
-                                            tempQrCode.setLatitude(latitude);
-                                        }
-                                        else {
-                                            tempQrCode.setLatitude(null);
-                                        }
+                                            // setting latitude
+                                            latitude = document.getDouble("latitude");
+                                            if (latitude != null) {
+                                                tempQrCode.setLatitude(latitude);
+                                            }
+                                            else {
+                                                tempQrCode.setLatitude(null);
+                                            }
 
-                                        // setting longitude
-                                        longitude = document.getDouble("longitude");
-                                        if (longitude != null) {
-                                            tempQrCode.setLongitude(longitude);
-                                        }
-                                        else {
-                                            tempQrCode.setLongitude(null);
-                                        }
+                                            // setting longitude
+                                            longitude = document.getDouble("longitude");
+                                            if (longitude != null) {
+                                                tempQrCode.setLongitude(longitude);
+                                            }
+                                            else {
+                                                tempQrCode.setLongitude(null);
+                                            }
 
-                                        // adding qrCode to array
-                                        asyncQrCodeList.addToArray(tempQrCode);
+                                            // adding qrCode to array
+                                            asyncQrCodeList.addToArray(tempQrCode);
+                                        }
+                                    } else {
+                                        Log.d(TAG, "Cached ScoringQRCodeDocument document with hash: "+hash+" failed with exception: ", task.getException());
                                     }
-                                } else {
-                                    Log.d(TAG, "Cached ScoringQRCodeDocument document with hash: "+hash+" failed with exception: ", task.getException());
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
 
                     if (scannedCount == null || qrCodeHashes.size() != scannedCount.intValue()) {
@@ -280,7 +280,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     @Override
     public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
         // fill the profile view with qrcodes
-
+        myPlayerProfile.resetQrCodeList();
         for (ScoringQRCode qrCode: qrCodes) {
             myPlayerProfile.addScoringQRCode(qrCode);
         }
@@ -307,37 +307,37 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
             tempSumQrCodes += qrCode.getScore();
             tempHighestQrCode = Math.max(tempHighestQrCode, qrCode.getScore());
         }
+        Log.d(TAG,"total: "+tempSumQrCodes+", highest: "+tempSumQrCodes+", numQrCodes: "+myPlayerProfile.getQrCodes().size());
         final int sumQrCodes = tempSumQrCodes;
         final int highestQrCode = tempHighestQrCode;
 
-        MyUserDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        MyUserDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@javax.annotation.Nullable DocumentSnapshot snapshot,
-                                @javax.annotation.Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    // Document found in the offline cache
+                    DocumentSnapshot document = task.getResult();
 
-                if (snapshot != null && snapshot.exists()) {
-                    Long docSumQrCodes;
-                    Long docHighestQrCode;
+                    if (document != null && document.exists()) {
+                        Long docSumQrCodes;
+                        Long docHighestQrCode;
 
-                    docSumQrCodes = snapshot.getLong("scanned_sum");
-                    if (docSumQrCodes != null) {
-                        if (docSumQrCodes.intValue() != sumQrCodes) {
-                            MyUserDocRef.update(
-                                    "scanned_sum", sumQrCodes
-                            );
+                        docSumQrCodes = document.getLong("scanned_sum");
+                        if (docSumQrCodes != null) {
+                            if (docSumQrCodes.intValue() != sumQrCodes) {
+                                MyUserDocRef.update(
+                                        "scanned_sum", sumQrCodes
+                                );
+                            }
                         }
-                    }
 
-                    docHighestQrCode = snapshot.getLong("scanned_highest");
-                    if (docHighestQrCode != null) {
-                        if (docHighestQrCode.intValue() != highestQrCode) {
-                            MyUserDocRef.update(
-                                    "scanned_highest", highestQrCode
-                            );
+                        docHighestQrCode = document.getLong("scanned_highest");
+                        if (docHighestQrCode != null) {
+                            if (docHighestQrCode.intValue() != highestQrCode) {
+                                MyUserDocRef.update(
+                                        "scanned_highest", highestQrCode
+                                );
+                            }
                         }
                     }
                 }
