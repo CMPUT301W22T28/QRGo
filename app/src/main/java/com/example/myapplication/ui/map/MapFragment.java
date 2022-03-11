@@ -75,7 +75,7 @@ public class MapFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
-        // initialize currentlocation so it is not null
+        // initialize currentLocation so it is not null
         currentLocation = new GeoPoint(53.5461, -113.4938);
         // check permission
         // Register the permissions callback, which handles the user's response to the
@@ -85,9 +85,8 @@ public class MapFragment extends Fragment {
                 registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                     if (isGranted) {
                         //locationPermission = Boolean.TRUE;
-                        updateLocation();
+                        updateLocation(0);
                     } else {
-                        //locationPermission = Boolean.FALSE;
                         // Explain to the user that the feature is unavailable because the
                         // features requires a permission that the user has denied. At the
                         // same time, respect the user's decision. Don't link to system
@@ -112,9 +111,14 @@ public class MapFragment extends Fragment {
         mMapView.setDestroyMode(false);
 
         IMapController mapController = mMapView.getController();
-        mapController.setZoom(15);
-        GeoPoint startPoint = new GeoPoint(53.5461, -113.4938);
-        mapController.setCenter(startPoint);
+        mapController.setZoom(16);
+        updateLocation(0);
+        mapController.setCenter(currentLocation);
+
+        MyLocationNewOverlay myLocationoverlay = new MyLocationNewOverlay(mMapView);
+        myLocationoverlay.enableFollowLocation();
+        myLocationoverlay.enableMyLocation();
+        mMapView.getOverlays().add(myLocationoverlay);
 
         return v;
     }
@@ -129,12 +133,12 @@ public class MapFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // 1. get location
-                updateLocation();
+                updateLocation(1);
             }
         });
     }
 
-    public void updateLocation() {
+    public void updateLocation(Integer event) {
         final Context context = this.getActivity();
         if (ContextCompat.checkSelfPermission(
                 context, Manifest.permission.ACCESS_FINE_LOCATION) ==
@@ -149,63 +153,10 @@ public class MapFragment extends Fragment {
                         currentLocation.setLatitude(location.getLatitude());
                         currentLocation.setLongitude(location.getLongitude());
 
-                        final GeoLocation center = new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude());
-
-                        // Each item in 'bounds' represents a startAt/endAt pair. We have to issue
-                        // a separate query for each pair.
-                        List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(center, 1000);
-                        final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
-                        for (GeoQueryBounds b : bounds) {
-                            Query q = db.collection("ScoringQRCodes")
-                                    .orderBy("geoHash")
-                                    .startAt(b.startHash)
-                                    .endAt(b.endHash);
-
-                            tasks.add(q.get());
+                        // if updatelocation is called from search nearby
+                        if (event == 1){
+                            getNearbyCodes();
                         }
-
-                        //final List<OverlayItem> markers = new ArrayList<OverlayItem>();
-                        // Collect all the query results together into a single list
-                        Tasks.whenAllComplete(tasks)
-                                .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<List<Task<?>>> t) {
-                                        List<DocumentSnapshot> matchingDocs = new ArrayList<>();
-
-                                        for (Task<QuerySnapshot> task : tasks) {
-                                            QuerySnapshot snap = task.getResult();
-                                            for (DocumentSnapshot doc : snap.getDocuments()) {
-                                                double lat = doc.getDouble("latitude");
-                                                double lng = doc.getDouble("longitude");
-
-                                                // We have to filter out a few false positives due to GeoHash
-                                                // accuracy, but most will match
-                                                GeoLocation docLocation = new GeoLocation(lat, lng);
-                                                double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, center);
-                                                if (distanceInM <= 1000) {
-                                                    //matchingDocs.add(doc);
-                                                    // create marker and listener for each doc
-                                                    Marker marker = new Marker(mMapView);
-                                                    marker.setPosition(new GeoPoint(lat,lng));
-                                                    marker.setId(doc.getId());
-                                                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-                                                    mMapView.getOverlays().add(marker);
-
-//                                            marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-//                                                @Override
-//                                                public boolean onMarkerClick(Marker marker, MapView mapView) {
-//                                                    return false;
-//                                                }
-//                                            });
-                                                    //markers.add(new OverlayItem(doc.getId(), "Title","marker", new GeoPoint(lat,lng)));
-                                                }
-                                            }
-                                        }
-
-                                        // matchingDocs contains the results
-
-                                    }
-                                });
                     }
                 }
             });
@@ -215,6 +166,68 @@ public class MapFragment extends Fragment {
             requestPermissionLauncher.launch(
                     Manifest.permission.ACCESS_FINE_LOCATION);
         }
+    }
+
+    public void getNearbyCodes(){
+        final GeoLocation center = new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude());
+
+        // Each item in 'bounds' represents a startAt/endAt pair. We have to issue
+        // a separate query for each pair.
+        List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(center, 1000);
+        final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+        for (GeoQueryBounds b : bounds) {
+            Query q = db.collection("ScoringQRCodes")
+                    .orderBy("geoHash")
+                    .startAt(b.startHash)
+                    .endAt(b.endHash);
+
+            tasks.add(q.get());
+        }
+
+        //final List<OverlayItem> markers = new ArrayList<OverlayItem>();
+        // Collect all the query results together into a single list
+        Tasks.whenAllComplete(tasks)
+                .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
+                    @Override
+                    public void onComplete(@NonNull Task<List<Task<?>>> t) {
+                        List<DocumentSnapshot> matchingDocs = new ArrayList<>();
+
+                        for (Task<QuerySnapshot> task : tasks) {
+                            QuerySnapshot snap = task.getResult();
+                            for (DocumentSnapshot doc : snap.getDocuments()) {
+                                double lat = doc.getDouble("latitude");
+                                double lng = doc.getDouble("longitude");
+
+                                // We have to filter out a few false positives due to GeoHash
+                                // accuracy, but most will match
+                                GeoLocation docLocation = new GeoLocation(lat, lng);
+                                double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, center);
+                                if (distanceInM <= 1000) {
+                                    //matchingDocs.add(doc);
+                                    // create marker and listener for each doc
+                                    Marker marker = new Marker(mMapView);
+                                    marker.setPosition(new GeoPoint(lat, lng));
+                                    marker.setId(doc.getId());
+                                    marker.setTitle(doc.getId());
+                                    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                                    mMapView.getOverlays().add(marker);
+                                    mMapView.invalidate();
+
+                                    //                                            marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                                    //                                                @Override
+                                    //                                                public boolean onMarkerClick(Marker marker, MapView mapView) {
+                                    //                                                    return false;
+                                    //                                                }
+                                    //                                            });
+                                    //markers.add(new OverlayItem(doc.getId(), "Title","marker", new GeoPoint(lat,lng)));
+                                }
+                            }
+                        }
+
+                        // matchingDocs contains the results
+
+                    }
+                });
     }
 
     @Override
