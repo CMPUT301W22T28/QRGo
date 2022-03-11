@@ -17,6 +17,22 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
+/**
+ *
+ * This a the recycler adapter class for the ranking list
+ *
+ * @author CMPUT 301 team 28, Sankalp Saini
+ *
+ * March 11, 2022
+ */
+
+/*
+ * Sources
+ *
+ * RecyclerView: https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView
+ *
+ */
+
 public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecyclerAdapter.ViewHolder> {
 
     private ArrayList<Player> rankings;
@@ -43,7 +59,7 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
         }
     }
 
-    // data is passed into the constructor
+    // data passed into the contructor
     RankingRecyclerAdapter(Context context, ArrayList<Player> rankings) {
         this.mInflater = LayoutInflater.from(context);
         this.rankings = rankings;
@@ -67,29 +83,41 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
         holder.username.setText(player.getUsername());
     }
 
-    // total number of rows
+    /**
+     * Returns the size of the ranking list
+     *
+     * @return int
+     * the size of the ranking list
+     *
+     */
     @Override
     public int getItemCount() {
         return rankings.size();
     }
-
     // add item to the ranking list
     public void addRanking(Player player) {
         rankings.add(player);
         notifyItemInserted(0);
     }
 
-    // convenience method for getting data at click position
     Player getItem(int id) {
         return rankings.get(id);
     }
 
-    // allows clicks events to be caught
+    /**
+     * Allows the click events to be caught
+     *
+     * @param itemClickListener
+     * event click
+     *
+     */
     void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
-    // parent activity will implement this method to respond to click events
+    /**
+     * Implements method to respond to onClick events
+     */
     public interface ItemClickListener {
         void onItemClick(View view, int position);
     }
