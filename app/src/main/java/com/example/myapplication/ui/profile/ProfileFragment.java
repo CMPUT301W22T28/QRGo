@@ -82,7 +82,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private void getProfileFromDatabase() {
 
         Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
-        this.myUsername = requireActivity().getIntent().getStringExtra("Username");
+
+        try { this.myUsername = getArguments().getString("Username");}
+        catch(Exception e) { this.myUsername = requireActivity().getIntent().getStringExtra("Username"); }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -223,7 +225,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     }
 
     private void setupRecyclerView() {
-        this.myUsername = activity.getMyUsername();
+        try { this.myUsername = getArguments().getString("Username");}
+        catch (Exception e){ activity.getMyUsername(); }
 
         // testing the custom array adapter
         this.myQrCodes = new ArrayList<>();

@@ -21,6 +21,7 @@ import com.example.myapplication.MainActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentSearchBinding;
+import com.example.myapplication.ui.profile.ProfileFragment;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -140,12 +141,12 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
     @Override
     public void onItemClick(View view, int position) {
         Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
-        UserFragment userFragment = new UserFragment();
+        ProfileFragment profileFragment = new ProfileFragment();
         Bundle username = new Bundle();
-        username.putString("username", userRecyclerAdapter.getItem(position).getUsername());
-        userFragment.setArguments(username);
+        username.putString("Username", userRecyclerAdapter.getItem(position).getUsername());
+        profileFragment.setArguments(username);
         getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(((ViewGroup)getView().getParent()).getId(), userFragment, "findThisFragment")
+                .replace(R.id.nav_host_fragment_activity_main, profileFragment, "findThisFragment")
                 .addToBackStack(null)
                 .commit();
     }
