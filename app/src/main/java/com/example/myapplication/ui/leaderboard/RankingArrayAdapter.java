@@ -41,7 +41,7 @@ public class RankingArrayAdapter extends ArrayAdapter<Player> {
         TextView score = view.findViewById(R.id.put_leaderboard_score_here);
         TextView username = view.findViewById(R.id.put_leaderboard_username_here);
 
-        score.setText(Integer.toString(player.getHighest_score()));
+        score.setText(Integer.toString(player.getTopQrCodeScore()));
         username.setText(player.getUsername());
 
         return view;
