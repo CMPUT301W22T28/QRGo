@@ -137,10 +137,6 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
            @SuppressLint("NotifyDataSetChanged")
            @Override
            public void onChanged(ArrayList<Player> rankings) {
-               Log.d(TAG, "Current Rankings: " + rankings);
-               myRankingList.clear();
-               myRankingList.addAll(rankings);
-               Log.d(TAG, "New Rankings: " + myRankingList);
                rankingRecyclerAdapter.notifyDataSetChanged();
            }
         });

@@ -344,8 +344,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         myPlayerProfile.setTotalScore(sumQrCodes);
         myPlayerProfile.setHighestScore(highestQrCode);
 
-        profileViewModel.setTopQRCodeScore(tempHighestQrCode);
-        profileViewModel.setTotalScore(tempSumQrCodes);
+        profileViewModel.setTopQRCodeScore( myPlayerProfile.getHighestScore());
+        profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
     }
 
 
