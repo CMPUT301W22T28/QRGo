@@ -3,7 +3,6 @@ package com.example.myapplication.ui.map;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -12,29 +11,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.CustomZoomButtonsController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.OverlayItem;
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
-import com.example.myapplication.databinding.FragmentMapBinding;
 
 import com.example.myapplication.R;
 import com.firebase.geofire.GeoFireUtils;
@@ -45,8 +35,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -54,16 +42,28 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
+/**
+ *
+ * This Fragment displays the map and allows the user to search for nearby QRCodes.
+ *
+ * @author CMPUT 301 team 28, Marc-Andre Haley
+ *
+ * March 10, 2022
+ */
+
+/*
+ * Sources
+ * Location permission: https://developer.android.com/training/permissions/requesting
+ * Getting last location: https://developer.android.com/training/location/retrieve-current
+ *
+ */
 public class MapFragment extends Fragment {
 
-    //private FragmentMapBinding binding;
     private MapView mMapView;
     FusedLocationProviderClient fusedLocationProviderClient;
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private GeoPoint currentLocation;
-    //private Boolean locationPermission;
     private FirebaseFirestore db;
 
     @Override
@@ -84,7 +84,6 @@ public class MapFragment extends Fragment {
         requestPermissionLauncher =
                 registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                     if (isGranted) {
-                        //locationPermission = Boolean.TRUE;
                         updateLocation(0);
                     } else {
                         // Explain to the user that the feature is unavailable because the
@@ -98,23 +97,19 @@ public class MapFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        //final Context context = this.getActivity();
 
-        //MapViewModel mapViewModel =
-        //new ViewModelProvider(this).get(MapViewModel.class);
-
-        //binding = FragmentMapBinding.inflate(inflater, container, false);
-        //View root = binding.getRoot();
-
+        // set up view
         View v = inflater.inflate(R.layout.fragment_map, null);
         mMapView = v.findViewById(R.id.map);
         mMapView.setDestroyMode(false);
 
+        // set up initial map config
         IMapController mapController = mMapView.getController();
         mapController.setZoom(16);
         updateLocation(0);
         mapController.setCenter(currentLocation);
 
+        // add myLocation overlay
         MyLocationNewOverlay myLocationoverlay = new MyLocationNewOverlay(mMapView);
         myLocationoverlay.enableFollowLocation();
         myLocationoverlay.enableMyLocation();
@@ -125,25 +120,33 @@ public class MapFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        final Context context = this.getActivity();
         super.onViewCreated(view, savedInstanceState);
 
         final Button searchButton = view.findViewById(R.id.search_button);
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 1. get location
                 updateLocation(1);
             }
         });
     }
 
+    /**
+     * Checks location permission and sets current location to device's last known location.
+     *
+     * @param event
+     * indicates in what event the method is called (0 or 1)
+     * 1 indicates we need to get nearby codes after getting location
+     * anything else indicates we don't need to get nearby codes after getting location
+     *
+     */
     public void updateLocation(Integer event) {
         final Context context = this.getActivity();
+
+        // always check location permissions
         if (ContextCompat.checkSelfPermission(
                 context, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED) {
-            //locationPermission = Boolean.TRUE;
             fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
             fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
                 @Override
@@ -153,7 +156,7 @@ public class MapFragment extends Fragment {
                         currentLocation.setLatitude(location.getLatitude());
                         currentLocation.setLongitude(location.getLongitude());
 
-                        // if updatelocation is called from search nearby
+                        // if updatelocation is called from search nearby button
                         if (event == 1){
                             getNearbyCodes();
                         }
@@ -168,6 +171,10 @@ public class MapFragment extends Fragment {
         }
     }
 
+    /**
+     * Searches the database for QRcodes in a 1km radius from users last known location.
+     * Displays these QR codes as markers on the map.
+     */
     public void getNearbyCodes(){
         final GeoLocation center = new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude());
 
@@ -175,6 +182,7 @@ public class MapFragment extends Fragment {
         // a separate query for each pair.
         List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(center, 1000);
         final List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+
         for (GeoQueryBounds b : bounds) {
             Query q = db.collection("ScoringQRCodes")
                     .orderBy("geoHash")
@@ -212,20 +220,10 @@ public class MapFragment extends Fragment {
                                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                                     mMapView.getOverlays().add(marker);
                                     mMapView.invalidate();
-
-                                    //                                            marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-                                    //                                                @Override
-                                    //                                                public boolean onMarkerClick(Marker marker, MapView mapView) {
-                                    //                                                    return false;
-                                    //                                                }
-                                    //                                            });
-                                    //markers.add(new OverlayItem(doc.getId(), "Title","marker", new GeoPoint(lat,lng)));
                                 }
                             }
                         }
-
                         // matchingDocs contains the results
-
                     }
                 });
     }
@@ -233,6 +231,5 @@ public class MapFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        //binding = null;
     }
 }
