@@ -20,7 +20,8 @@ public class Player {
     private final ArrayList<ScoringQRCode> scannedQRCodes = new ArrayList<>();
     private int totalScore;
     private int highestScore;
-    private final boolean isAdmin;
+    private int rankingScore;
+    private boolean isAdmin = false;
 
     /**
      * Constructor of the player class.
@@ -29,7 +30,6 @@ public class Player {
      */
     public Player(String username, boolean isAdmin) {
         this.username = username;
-
         this.isAdmin = isAdmin;
     }
 
@@ -70,6 +70,22 @@ public class Player {
      */
     public void setUsername(String username) {
         this.username = username;
+    }
+
+     /**
+     * Allows someone to get the score that is being ranked.
+     * @return The current ranking score.
+     */
+    public int getRankingScore() {
+        return rankingScore;
+    }
+  
+    /**
+     * Allows the user to set the ranking score to a new score that will be displayed.
+     * @param rankingScore The new ranking score.
+     */
+    public void setRankingScore(int rankingScore) {
+        this.rankingScore = rankingScore;
     }
 
     /**
