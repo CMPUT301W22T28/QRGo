@@ -245,6 +245,11 @@ public class ProfileFragment extends Fragment implements QrCodeRecyclerAdapter.I
         recyclerView.setAdapter(scoringQRCodeAdapter);
     }
 
+    /**
+     * Method that fetches the livedata and attaches listeners. Whenever there is a change in any of the data,
+     * it gets passed on to it's respective view. For example, when the username changes, it's textview will
+     * change with it.
+     */
     private void setViewListeners() {
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
@@ -271,17 +276,30 @@ public class ProfileFragment extends Fragment implements QrCodeRecyclerAdapter.I
         });
     }
 
+    /**
+     * To implement later, a method called when a qr code is clicked in the list of Scoring Qr Codes.
+     * @param view The view that was clicked.
+     * @param position The position of the qr Code clicked in the recycler view.
+     */
     @Override
     public void onItemClick(View view, int position) {
         Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Called when the Fragment is destroyed.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
 
+    /**
+     * An event listener, called when AsynQrCodeList is done filling with the prescribed
+     * number of Qr Codes.
+     * @param qrCodes The list of qr codes that was filled asynchronously
+     */
     @Override
     public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
         // fill the profile view with qrcodes
@@ -293,6 +311,11 @@ public class ProfileFragment extends Fragment implements QrCodeRecyclerAdapter.I
         updateHighestAndSumQrCode();
     }
 
+    /**
+     * This method is called after the onQrCodeListDoneFillingEvent is called. It
+     * uses the gathered ScoringQrCodes to calculate the highest score and the sum of all
+     * the qr codes. It
+     */
     public void updateHighestAndSumQrCode() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
