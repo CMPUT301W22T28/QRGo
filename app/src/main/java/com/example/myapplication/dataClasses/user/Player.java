@@ -6,81 +6,130 @@ import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 
 import java.util.ArrayList;
 
+/**
+ * This class is a representation of the player. It holds information necessary such as type of user, their score,
+ * if they are a player or an admin.
+ * @author Walter
+ * @see ScoringQRCode
+ * @version 1.0.0
+ */
 public class Player {
-
     private String username;
     private final ArrayList<ScoringQRCode> scannedQRCodes = new ArrayList<>();
     private int totalScore;
     private int highestScore;
     private int rankingScore;
-    private final boolean isUserSet;
     private boolean isAdmin = false;
 
-    // if player is not set yet, isUserSet remains false
-    public Player() {
-        this.isUserSet = false;
-    }
-
+    /**
+     * constructor of the player class
+     * @param username the username of the player
+     * @param isAdmin whether or not the player has admin privilages
+     */
     public Player(String username, boolean isAdmin) {
         this.username = username;
         this.isAdmin = isAdmin;
-        this.isUserSet = true;
     }
 
+    /**
+     * Clears the qrCode list so that you can add a new list of qr codes
+     */
     public void resetQrCodeList() {
         scannedQRCodes.clear();
     }
 
+    /**
+     * Adds a scoring qr code to the list of qr codes.
+     * @param qrCode A new qr code to add to the current list and display on profile.
+     */
     public void addScoringQRCode(ScoringQRCode qrCode) {
-        synchronized (this) {
-            scannedQRCodes.add(qrCode);
-        }
+        scannedQRCodes.add(qrCode);
     }
 
+    /**
+     * Method that gets the username.
+     * @return The current username of the player.
+     */
     public String getUsername() {
         return username;
     }
 
-    public boolean isUserSet() {
-        return isUserSet;
-    }
-
+    /**
+     * Returns whether or not the user is an admin.
+     * @return True if the user is an admin, false otherwise.
+     */
     public boolean isAdmin() {
         return isAdmin;
     }
 
+    /**
+     * Sets the username to a new username.
+     * @param username The new username.
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+     /**
+     * Allows someone to get the score that is being ranked.
+     * @return The current ranking score.
+     */
     public int getRankingScore() {
         return rankingScore;
     }
-
+  
+    /**
+     * Allows the user to set the ranking score to a new score that will be displayed.
+     * @param rankingScore The new ranking score.
+     */
     public void setRankingScore(int rankingScore) {
         this.rankingScore = rankingScore;
     }
 
+    /**
+     * Allows someone to get the current total score.
+     * @return The current total score.
+     */
     public int getTotalScore() {
         return totalScore;
     }
 
+    /**
+     * Allows the user to set the total score to a new total score.
+     * @param totalScore The new total score.
+     */
     public void setTotalScore(int totalScore) {
         this.totalScore = totalScore;
     }
 
-    public int getTopQrCodeScore() {
+    /**
+     * Allows someone to get the current highest score of the player.
+     * @return The highest score of the player.
+     */
+    public int getHighestScore() {
         return highestScore;
     }
 
+    /**
+     * Allows someone to set the highest score of the player.
+     * @param highestScore the new highest score of the player.
+     */
     public void setHighestScore(int highestScore) {
         this.highestScore = highestScore;
     }
 
+    /**
+     * Queries the number of qr codes that the player has.
+     * @return The number of qr codes that the player has.
+     */
     public int getQRCodeCount() {
         return scannedQRCodes.size();
     }
 
+    /**
+     * Allows someone to get the list of qr codes the player has.
+     * @return the list of qr codes on the player profile.
+     */
     public ArrayList<ScoringQRCode> getQrCodes() {
         return this.scannedQRCodes;
     }
