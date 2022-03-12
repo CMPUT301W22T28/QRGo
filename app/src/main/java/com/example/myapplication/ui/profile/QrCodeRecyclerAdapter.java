@@ -18,7 +18,8 @@ import java.util.ArrayList;
 /**
  * The recycler adapter for the profile fragment, adapts scoring qr codes to fit in the profile
  * array list
- * @author Walter
+ *
+ * @author Walter Ostrander
  * @see ProfileFragment
  *
  * May 12, 2022
