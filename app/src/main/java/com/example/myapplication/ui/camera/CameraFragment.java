@@ -29,8 +29,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.myapplication.LoginScanActivity;
+import com.example.myapplication.QRScanActivity;
 import com.example.myapplication.MainActivity;
+import com.example.myapplication.QRScanActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentCameraBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -189,7 +190,7 @@ public class CameraFragment extends Fragment {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
-                final Intent intent = new Intent(getContext(), LoginScanActivity.class).putExtra("Prev","CameraFragment");
+                final Intent intent = new Intent(getContext(), QRScanActivity.class).putExtra("Prev","CameraFragment");
                 startActivityForResult(intent, 6);
 
             }
