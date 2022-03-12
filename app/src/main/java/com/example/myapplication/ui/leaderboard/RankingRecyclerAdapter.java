@@ -13,8 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.user.Player;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 
 /**
@@ -79,7 +77,7 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
     public void onBindViewHolder(ViewHolder holder, int position) {
         Player player = rankings.get(position);
         holder.score.setText((Integer.toString(player.getRankingScore())));
-        //holder.score.setText(Integer.toString(player.getTopQrCodeScore()));
+
         holder.username.setText(player.getUsername());
     }
 
