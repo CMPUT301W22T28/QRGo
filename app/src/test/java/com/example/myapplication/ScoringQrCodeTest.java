@@ -5,7 +5,7 @@ import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ScoringQrCodeTest {
+public class ScoringQRCodeTest {
     private ScoringQRCode qrCode;
 
 

@@ -89,7 +89,7 @@ public class QrCodeRecyclerAdapter extends RecyclerView.Adapter<QrCodeRecyclerAd
     public void onBindViewHolder(ViewHolder holder, int position) {
         ScoringQRCode qrCode = qrCodes.get(position);
         holder.scoreTextView.setText(Integer.toString(qrCode.getScore()));
-        holder.geolocationTextView.setText(qrCode.getGeolocation());
+        holder.geolocationTextView.setText(qrCode.getGeolocationString());
     }
 
     /**
