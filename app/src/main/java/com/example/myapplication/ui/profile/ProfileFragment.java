@@ -35,21 +35,31 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
 
-public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
+/**
+ * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
+ * @author Walter
+ * @see ProfileViewModel
+ * @see ProfileEventListeners
+ */
+public class ProfileFragment extends Fragment implements QrCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
     private final String TAG = "ProfileFragment";
     private FragmentProfileBinding binding;
     MainActivity activity;
     ArrayAdapter<ScoringQRCode> qrCodeArrayAdapter;
     private ProfileViewModel profileViewModel;
-
     private ArrayList<ScoringQRCode> myQrCodes;
     private RecyclerView recyclerView;
-
     private String myUsername = null;
     private Player myPlayerProfile;
+    QrCodeRecyclerAdapter scoringQRCodeAdapter;
 
-    QRCodeRecyclerAdapter scoringQRCodeAdapter;
-
+    /**
+     * Initially called when the profile fragment is created.
+     * @param inflater The inflater for this view.
+     * @param container The container for this view, defined in the xml.
+     * @param savedInstanceState A saved state if there is one.
+     * @return The root View.
+     */
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         ProfileViewModel profileViewModel =
@@ -61,6 +71,11 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         return root;
     }
 
+    /**
+     * Called every after the view is initialized
+     * @param view The profile fragment view that was initialized.
+     * @param savedInstanceState A saved instance.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -78,8 +93,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         getProfileFromDatabase();
     }
 
+    /**
+     * Method that implements everything necessary to get all the data to fill out the profile.
+     * The data is stored on Firestore, so it makes fetches from there and passes them to the
+     * ProfileViewModel. Furthermore, it uses the array of qrCode hashes from the user's profile
+     * Document on Firestore, then creates an AsyncQrCodeListEvent and passes all the qr code information
+     * into there.
+     */
     private void getProfileFromDatabase() {
-
         Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
 
         try { this.myUsername = getArguments().getString("Username");}
@@ -120,24 +141,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
                     // region setting text views in profile top bar
                     profileViewModel.setUsername(myUsername);
-
-//                    Long topQRCode = snapshot.getLong("scanned_highest");
-//                    if (topQRCode != null) {
-//                        myPlayerProfile.setHighestScore(topQRCode.intValue());
-//                    }
-//                    else {
-//                        myPlayerProfile.setHighestScore(-1);
-//                    }
-//                    profileViewModel.setTopQRCodeScore(myPlayerProfile.getTopQrCodeScore());
-//
-//                    Long sumOfQRCodes = snapshot.getLong("scanned_sum");
-//                    if (sumOfQRCodes != null) {
-//                        myPlayerProfile.setTotalScore(sumOfQRCodes.intValue());
-//                    }
-//                    else {
-//                        myPlayerProfile.setTotalScore(-1);
-//                    }
-//                    profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
 
                     // endregion
                     Long scannedCount = snapshot.getLong("scanned_count");
@@ -221,9 +224,11 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
     }
 
+    /**
+     * This method sets up the recycler view to hold all the qr codes, along with creating dividers
+     * between the recycler elements.
+     */
     private void setupRecyclerView() {
-        try { this.myUsername = getArguments().getString("Username");}
-        catch (Exception e){ activity.getMyUsername(); }
 
         // testing the custom array adapter
         this.myQrCodes = new ArrayList<>();
@@ -235,7 +240,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setHasFixedSize(true);
-        scoringQRCodeAdapter = new QRCodeRecyclerAdapter(activity, myQrCodes);
+        scoringQRCodeAdapter = new QrCodeRecyclerAdapter(activity, myQrCodes);
         scoringQRCodeAdapter.setClickListener(this);
         recyclerView.setAdapter(scoringQRCodeAdapter);
     }
