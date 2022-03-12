@@ -4,9 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.provider.Settings.Secure;
@@ -24,16 +22,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.Batch;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +45,6 @@ public class LoginActivity extends AppCompatActivity {
     private final String LOGIN_QRCODE_COLLECTION = "LoginQRCode";
     // Tag for Logcat
     private final String LOGIN_TAG = "LoginActivity";
-    private final int MY_CAMERA_REQUEST_CODE = 100;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
@@ -123,7 +120,8 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                // TODO: Add device that was just scanned from to login to USERS.Devices
+                                updateUserDeviceList(Secure.getString(getApplicationContext().getContentResolver(),
+                                        Secure.ANDROID_ID), scannedString);
                                 mainActivity(scannedString);
                             }
                             if (task.getResult().size() == 0){
@@ -169,6 +167,13 @@ public class LoginActivity extends AppCompatActivity {
                 .set(setUpUserSubCollection(email, phone));
 
         insertLoginQRCode(userName);
+
+    }
+
+    public void updateUserDeviceList(String androidID, String loginQRString){
+        Map<String, Object> map = new HashMap<>();
+        map.put("devices", FieldValue.arrayUnion(androidID));
+        db.collection(USERS_COLLECTION).document(loginQRString).update(map);
 
     }
 
@@ -249,7 +254,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             @RequiresApi(api = Build.VERSION_CODES.M)
             public void onClick(View textView) {
-                startActivity(new Intent(getApplicationContext(), LoginScanActivity.class));
+                startActivity(new Intent(getApplicationContext(), QRScanActivity.class));
             }
             @Override
             public void updateDrawState(TextPaint ds) {

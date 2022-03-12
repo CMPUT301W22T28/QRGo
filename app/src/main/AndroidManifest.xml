@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
         <activity
-            android:name=".LoginScanActivity"
+            android:name=".QRScanActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
