@@ -8,6 +8,8 @@ import java.util.ArrayList;
  * An interface that defines a new event listener
  * @author Walter
  * @see AsyncQrCodeList
+ *
+ * May 12, 2022
  */
 public interface ProfileEventListeners {
 

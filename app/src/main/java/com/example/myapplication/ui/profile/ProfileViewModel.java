@@ -12,6 +12,8 @@ import java.util.ArrayList;
  * The view model that holds all the livedata for the profile framgent
  * @author Walter
  * @see ProfileFragment
+ *
+ * May 12, 2022
  */
 public class ProfileViewModel extends ViewModel {
     final String TAG = "ProfileViewModel";

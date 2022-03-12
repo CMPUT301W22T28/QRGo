@@ -12,6 +12,8 @@ import java.util.ArrayList;
  * @author Walter
  * @author Sankalp
  * @see ScoringQRCode
+ *
+ * May 12, 2022
  */
 public class Player {
     private String username;

@@ -10,6 +10,13 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
+/**
+ * Testing the AsynQrCodeList for proper functionality
+ *
+ * @author Walter Ostrander
+ *
+ * May 12 2022
+ */
 public class AsyncQrCodeListTest implements ProfileEventListeners {
     private AsyncQrCodeList asyncQrCodeList;
     private int myMax = 5;
@@ -17,19 +24,29 @@ public class AsyncQrCodeListTest implements ProfileEventListeners {
     final Object syncObject = new Object();
     private boolean hasEventTriggered;
 
-
+    /**
+     * The test must initialize this method that is the event listener
+     *
+     * @param qrCodes The list of qr codes that was filled asynchronously
+     */
     @Override
     public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
         this.qrCodes = qrCodes;
         hasEventTriggered = true;
     }
 
+    /**
+     * Before every test, setup runs to created a new AsyncQrCodeList and reset hasEventTriggered
+     */
     @Before
     public void setup() {
         asyncQrCodeList = new AsyncQrCodeList(myMax, this);
         hasEventTriggered = false;
     }
 
+    /**
+     * Test if the asyncQrcode list triggers after sending myMax number of new qr codes.
+     */
     @Test
     public void TestTrigger() {
         for (int i = 0; i < myMax; i++) {
@@ -38,6 +55,9 @@ public class AsyncQrCodeListTest implements ProfileEventListeners {
         Assert.assertTrue(hasEventTriggered);
     }
 
+    /**
+     * Test if the array size is as it should be.
+     */
     @Test
     public void arraySizeTest() {
         for (int i = 0; i < myMax; i++) {
@@ -46,6 +66,9 @@ public class AsyncQrCodeListTest implements ProfileEventListeners {
         Assert.assertEquals(this.qrCodes.size(), myMax);
     }
 
+    /**
+     * Test to see if the array elements fill as expected.
+     */
     @Test
     public void arrayElementTest() {
         ArrayList<ScoringQRCode> testCodes = new ArrayList<>();

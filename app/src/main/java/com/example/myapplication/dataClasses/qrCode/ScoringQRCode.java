@@ -7,6 +7,7 @@ import com.firebase.geofire.GeoLocation;
  * Used to represent a Scoring QR code. Contains getters/setters for the object's attributes.
  *
  * @author Walter Ostrander
+ * @author Marc-Andre Haley
  *
  * March 10 2022
  */

@@ -20,6 +20,8 @@ import java.util.ArrayList;
  * array list
  * @author Walter
  * @see ProfileFragment
+ *
+ * May 12, 2022
  */
 public class QrCodeRecyclerAdapter extends RecyclerView.Adapter<QrCodeRecyclerAdapter.ViewHolder> {
     private ArrayList<ScoringQRCode> qrCodes;
@@ -30,6 +32,8 @@ public class QrCodeRecyclerAdapter extends RecyclerView.Adapter<QrCodeRecyclerAd
      * A class that stores and recycles views as they are scrolled off screen.
      * @author Walter
      * @see QrCodeRecyclerAdapter
+     *
+     * May 12, 2022
      */
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView scoreTextView;
@@ -131,6 +135,8 @@ public class QrCodeRecyclerAdapter extends RecyclerView.Adapter<QrCodeRecyclerAd
      * Parent activity will implement this method to respond to click events.
      * @author Walter
      * @see QrCodeRecyclerAdapter
+     *
+     * May 12, 2022
      */
     public interface ItemClickListener {
         void onItemClick(View view, int position);

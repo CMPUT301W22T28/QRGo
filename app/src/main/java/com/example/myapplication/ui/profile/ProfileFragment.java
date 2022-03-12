@@ -40,6 +40,8 @@ import java.util.ArrayList;
  * @author Walter
  * @see ProfileViewModel
  * @see ProfileEventListeners
+ *
+ * May 12, 2022
  */
 public class ProfileFragment extends Fragment implements QrCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
     private final String TAG = "ProfileFragment";

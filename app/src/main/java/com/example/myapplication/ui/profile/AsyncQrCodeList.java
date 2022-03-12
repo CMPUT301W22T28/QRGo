@@ -10,6 +10,8 @@ import java.util.ArrayList;
  * qr codes have been added to a list
  * @author Walter
  * @see ProfileEventListeners
+ *
+ * May 12, 2022
  */
 public class AsyncQrCodeList {
     ProfileEventListeners profileEventListeners;
