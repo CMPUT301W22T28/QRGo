@@ -1,6 +1,5 @@
 package com.example.myapplication.activity;
 
-
 import android.content.Context;
 import android.content.pm.PackageManager;
 
@@ -20,9 +19,12 @@ import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.ActivityMainBinding;
 import com.example.myapplication.fragments.profile.ProfileViewModel;
 
-
+/**
+ * The main activity that runs all our fragments
+ * @author Walter, Mohamed Ali
+ * @see LoginActivity
+ */
 public class MainActivity extends AppCompatActivity {
-
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private ActivityMainBinding binding;
     private String myUsername;
@@ -31,9 +33,11 @@ public class MainActivity extends AppCompatActivity {
     Context activityContext;
     final int MY_CAMERA_REQUEST_CODE = 100;
     final int QR_CODE_SCAN = 49374;
-
     ProfileViewModel profileViewModel;
 
+    /**
+     * Overridden so that
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -48,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
         // changing anything in the layout. i.e. removing the top action bar
         layoutChanges();
-
-
     }
 
     private void setupNavBar() {
