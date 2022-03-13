@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.profile;
+package com.example.myapplication.fragments.profile;
 
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 
