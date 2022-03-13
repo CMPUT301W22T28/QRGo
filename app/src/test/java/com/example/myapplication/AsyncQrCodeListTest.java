@@ -1,8 +1,8 @@
 package com.example.myapplication;
 
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
-import com.example.myapplication.ui.profile.AsyncQrCodeList;
-import com.example.myapplication.ui.profile.ProfileEventListeners;
+import com.example.myapplication.fragments.profile.AsyncQrCodeList;
+import com.example.myapplication.fragments.profile.ProfileEventListeners;
 
 import org.junit.Assert;
 import org.junit.Before;

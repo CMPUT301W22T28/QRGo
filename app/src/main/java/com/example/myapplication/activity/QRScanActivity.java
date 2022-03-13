@@ -1,15 +1,12 @@
-package com.example.myapplication;
+package com.example.myapplication.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NavUtils;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.myapplication.ui.camera.CameraFragment;
+import com.example.myapplication.R;
 import com.google.zxing.Result;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -20,7 +17,7 @@ import com.karumi.dexter.listener.single.PermissionListener;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
-public class LoginScanActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
+public class QRScanActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
     private ZXingScannerView scannerView;
 
     @Override
@@ -36,7 +33,7 @@ public class LoginScanActivity extends AppCompatActivity implements ZXingScanner
                 .withListener(new PermissionListener() {
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
-                        scannerView.setResultHandler(LoginScanActivity.this);
+                        scannerView.setResultHandler(QRScanActivity.this);
                         scannerView.startCamera();
                     }
 

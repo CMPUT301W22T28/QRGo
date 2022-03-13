@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.profile;
+package com.example.myapplication.fragments.profile;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myapplication.MainActivity;
+import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
@@ -43,7 +43,7 @@ import java.util.ArrayList;
  *
  * May 12, 2022
  */
-public class ProfileFragment extends Fragment implements QrCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
+public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
     private final String TAG = "ProfileFragment";
     private FragmentProfileBinding binding;
     MainActivity activity;
@@ -53,7 +53,7 @@ public class ProfileFragment extends Fragment implements QrCodeRecyclerAdapter.I
     private RecyclerView recyclerView;
     private String myUsername = null;
     private Player myPlayerProfile;
-    QrCodeRecyclerAdapter scoringQRCodeAdapter;
+    QRCodeRecyclerAdapter scoringQRCodeAdapter;
 
     /**
      * Initially called when the profile fragment is created.
@@ -242,7 +242,7 @@ public class ProfileFragment extends Fragment implements QrCodeRecyclerAdapter.I
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setHasFixedSize(true);
-        scoringQRCodeAdapter = new QrCodeRecyclerAdapter(activity, myQrCodes);
+        scoringQRCodeAdapter = new QRCodeRecyclerAdapter(activity, myQrCodes);
         scoringQRCodeAdapter.setClickListener(this);
         recyclerView.setAdapter(scoringQRCodeAdapter);
     }

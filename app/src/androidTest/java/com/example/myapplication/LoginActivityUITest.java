@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import com.example.myapplication.activity.LoginActivity;
 import com.robotium.solo.Solo;
 
 @RunWith(AndroidJUnit4.class)
