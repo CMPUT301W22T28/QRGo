@@ -1,11 +1,10 @@
-package com.example.myapplication.ui.search;
+package com.example.myapplication.fragments.search;
 
 import android.os.Bundle;
-import android.service.notification.NotificationListenerService;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,9 +16,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myapplication.MainActivity;
+import com.example.myapplication.activity.MainActivity;
+import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentSearchBinding;
+import com.example.myapplication.fragments.profile.ProfileFragment;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
 
@@ -27,23 +31,20 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
 
     private FragmentSearchBinding binding;
     MainActivity activity;
-    UserArrayAdapter userArrayAdapter;
-
     ArrayList<Player> users;
-
     UserRecyclerAdapter userRecyclerAdapter;
+    FirebaseFirestore db;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        SearchViewModel searchViewModel =
-                new ViewModelProvider(this).get(SearchViewModel.class);
+        UserViewModel searchViewModel =
+                new ViewModelProvider(this).get(UserViewModel.class);
 
         binding = FragmentSearchBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         final TextView textView = binding.textSearch;
         searchViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
-
 
         return root;
     }
@@ -64,11 +65,11 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         if (filteredlist.isEmpty()) {
             // if no item is added in filtered list we are
             // displaying a toast message as no data found.
-            // Toast.makeText(this, "No Data Found..", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity.getApplicationContext(), "No search results found", Toast.LENGTH_SHORT).show();
         } else {
             // at last we are passing that filtered
             // list to our adapter class.
-            userArrayAdapter.filterList(filteredlist);
+            userRecyclerAdapter.filterList(filteredlist);
         }
     }
 
@@ -76,16 +77,12 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        db = FirebaseFirestore.getInstance();
         activity = (MainActivity) getActivity();
         assert activity != null;
 
-        users = new ArrayList<Player>();
-
-        for (int i=0; i<20; i++) {
-            Player player = new Player("Sandypants", true);
-            users.add(player);
-        }
-
+        users = new ArrayList<>();
+        getUsersFromDatabase();
         RecyclerView recyclerView = binding.searchList;
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
         userRecyclerAdapter = new UserRecyclerAdapter(activity, users);
@@ -112,10 +109,45 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
 
     }
 
+    private void getUsersFromDatabase() {
+
+        // setting persistence
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        db.setFirestoreSettings(settings);
+
+        db.collection("Users").addSnapshotListener((value, error) -> {
+
+            if (error != null) {
+                Log.e("Firestore Error", error.getMessage());
+                return;
+            }
+
+            assert value != null;
+            for (DocumentChange dc : value.getDocumentChanges()) {
+                if (dc.getType() == DocumentChange.Type.ADDED) {
+                    Player player = new Player(dc.getDocument().getId(), false);
+                    users.add(player);
+                }
+            }
+
+            userRecyclerAdapter.notifyDataSetChanged();
+        });
+
+    }
 
     @Override
     public void onItemClick(View view, int position) {
         Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
+        ProfileFragment profileFragment = new ProfileFragment();
+        Bundle username = new Bundle();
+        username.putString("Username", userRecyclerAdapter.getItem(position).getUsername());
+        profileFragment.setArguments(username);
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.nav_host_fragment_activity_main, profileFragment, "findThisFragment")
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override

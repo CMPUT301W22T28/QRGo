@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.profile;
+package com.example.myapplication.fragments.profile;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -12,8 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -61,7 +59,7 @@ public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAd
     public void onBindViewHolder(ViewHolder holder, int position) {
         ScoringQRCode qrCode = qrCodes.get(position);
         holder.score.setText(Integer.toString(qrCode.getScore()));
-        holder.geolocation.setText(qrCode.getGeolocation());
+        holder.geolocation.setText(qrCode.getGeolocationString());
     }
 
     // total number of rows

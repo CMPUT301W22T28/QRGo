@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.profile;
+package com.example.myapplication.fragments.profile;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myapplication.MainActivity;
+import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
@@ -32,7 +32,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 
@@ -82,7 +81,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private void getProfileFromDatabase() {
 
         Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
-        this.myUsername = requireActivity().getIntent().getStringExtra("Username");
+
+        try { this.myUsername = getArguments().getString("Username");}
+        catch(Exception e) { this.myUsername = requireActivity().getIntent().getStringExtra("Username"); }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -212,8 +213,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                                 "scanned_count", qrCodeHashes.size()
                         );
                     }
-
-
                 } else {
                     Log.d(TAG, "Current data: null");
                 }
@@ -223,7 +222,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     }
 
     private void setupRecyclerView() {
-        this.myUsername = activity.getMyUsername();
+        try { this.myUsername = getArguments().getString("Username");}
+        catch (Exception e){ activity.getMyUsername(); }
 
         // testing the custom array adapter
         this.myQrCodes = new ArrayList<>();
@@ -347,8 +347,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         myPlayerProfile.setTotalScore(sumQrCodes);
         myPlayerProfile.setHighestScore(highestQrCode);
 
-        profileViewModel.setTopQRCodeScore(tempHighestQrCode);
-        profileViewModel.setTotalScore(tempSumQrCodes);
+        profileViewModel.setTopQRCodeScore( myPlayerProfile.getHighestScore());
+        profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
     }
 
 
