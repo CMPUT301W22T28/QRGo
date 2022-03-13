@@ -17,6 +17,11 @@ import com.karumi.dexter.listener.single.PermissionListener;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
+/**
+ * @author Amro Amanuddein
+ * @see LoginActivity
+ * @see com.example.myapplication.fragments.camera.CameraFragment
+ */
 public class QRScanActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
     private ZXingScannerView scannerView;
 
@@ -24,7 +29,7 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_scan);
-        // TODO: Change qr detection grid
+        // TODO: Change qr detection grid size
         scannerView = (ZXingScannerView) findViewById(R.id.scanner_view);
         scannerView.setLaserEnabled(false);
 
@@ -48,22 +53,24 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
                     }
                 }).check();
     }
+
+    /**
+     * Starts the LoginActivity activity and passes the result of the QRScan with it
+     * @param scanResult
+     */
     public void loginActivity (String scanResult){
         startActivity(new Intent(this, LoginActivity.class).putExtra("LoginQRCode",scanResult));
     }
 
+    /**
+     * Starts the camera fragment and passes the result of the QRScan with it
+     * @param scanResult result of the QRScan
+     */
     public void cameraFragment(String scanResult) {
-
-//        Intent parentIntent = NavUtils.getParentActivityIntent(this);
-//        parentIntent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-//        startActivity(parentIntent.putExtra("ScoringQRCode", scanResult));
         Intent returnIntent = new Intent();
         returnIntent.putExtra("ScoringQRCode", scanResult);
         setResult(RESULT_OK, returnIntent);
         finish();
-
-        //startActivity(new Intent(this, MainActivity.class).putExtra("ScoringQRCode", scanResult));
-
     }
 
     @Override
@@ -75,6 +82,7 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
     public void handleResult(Result rawResult) {
         scannerView.stopCameraPreview();
         scannerView.stopCamera();
+        // This if statement is to check which activity/fragment launched this activity to redirect accordingly
         if (getIntent().getStringExtra("Prev").equals("CameraFragment")){
 
             cameraFragment(rawResult.getText());
