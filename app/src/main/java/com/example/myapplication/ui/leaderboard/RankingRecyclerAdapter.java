@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 /**
  *
- * This a the recycler adapter class for the ranking list
+ * This is a the recycler adapter class for the ranking list
  *
  * @author CMPUT 301 team 28, Sankalp Saini
  *
@@ -84,20 +84,31 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
     /**
      * Returns the size of the ranking list
      *
-     * @return int
-     * the size of the ranking list
+     * @return int the size of the ranking list
      *
      */
     @Override
     public int getItemCount() {
         return rankings.size();
     }
-    // add item to the ranking list
+
+    /**
+     * Adds a player to the ranking list
+     *
+     * @param player that needs to be added to the list
+     *
+     */
     public void addRanking(Player player) {
         rankings.add(player);
         notifyItemInserted(0);
     }
 
+    /**
+     * Returns the id of the player
+     *
+     * @return player the player id
+     *
+     */
     Player getItem(int id) {
         return rankings.get(id);
     }
@@ -105,8 +116,7 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
     /**
      * Allows the click events to be caught
      *
-     * @param itemClickListener
-     * event click
+     * @param itemClickListener event click
      *
      */
     void setClickListener(ItemClickListener itemClickListener) {

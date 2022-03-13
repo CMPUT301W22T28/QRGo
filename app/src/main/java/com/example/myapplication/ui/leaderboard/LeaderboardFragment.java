@@ -153,8 +153,7 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
     /**
      * Gets rankings from the database, based on specific sort, and displays it onto the screen
      *
-     * @param tabSort
-     * indicates what type of sort is needed based on the tab that is clicked
+     * @param tabSort indicates what type of sort is needed based on the tab that is clicked
      *
      */
     private void getRankingsFromDatabase(String tabSort) {
@@ -233,11 +232,9 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
     /**
      * Contains items that react after being clicked
      *
-     * @param view
-     * indicates the view that is being used
+     * @param view indicates the view that is being used
      *
-     * @param position
-     * indicates what position you user clicks on
+     * @param position indicates what position you user clicks on
      */
     @Override
     public void onItemClick(View view, int position) {
