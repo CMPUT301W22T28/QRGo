@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.leaderboard;
+package com.example.myapplication.fragments.leaderboard;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.profile;
+package com.example.myapplication.fragments.profile;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
  *
  * May 12, 2022
  */
-public class QrCodeRecyclerAdapter extends RecyclerView.Adapter<QrCodeRecyclerAdapter.ViewHolder> {
+public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAdapter.ViewHolder> {
     private ArrayList<ScoringQRCode> qrCodes;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
@@ -32,7 +32,7 @@ public class QrCodeRecyclerAdapter extends RecyclerView.Adapter<QrCodeRecyclerAd
     /**
      * A class that stores and recycles views as they are scrolled off screen.
      * @author Walter
-     * @see QrCodeRecyclerAdapter
+     * @see QRCodeRecyclerAdapter
      *
      * May 12, 2022
      */
@@ -66,7 +66,7 @@ public class QrCodeRecyclerAdapter extends RecyclerView.Adapter<QrCodeRecyclerAd
      * @param context the context of the qr code adapter
      * @param qrCodes the list of qr codes to inflate inside the recycler view
      */
-    QrCodeRecyclerAdapter(Context context, ArrayList<ScoringQRCode> qrCodes) {
+    QRCodeRecyclerAdapter(Context context, ArrayList<ScoringQRCode> qrCodes) {
         this.mInflater = LayoutInflater.from(context);
         this.qrCodes = qrCodes;
     }
@@ -135,7 +135,7 @@ public class QrCodeRecyclerAdapter extends RecyclerView.Adapter<QrCodeRecyclerAd
     /**
      * Parent activity will implement this method to respond to click events.
      * @author Walter
-     * @see QrCodeRecyclerAdapter
+     * @see QRCodeRecyclerAdapter
      *
      * May 12, 2022
      */

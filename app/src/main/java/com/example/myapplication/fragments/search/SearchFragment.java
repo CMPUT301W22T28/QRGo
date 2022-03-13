@@ -1,6 +1,5 @@
-package com.example.myapplication.ui.search;
+package com.example.myapplication.fragments.search;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,11 +16,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myapplication.MainActivity;
+import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentSearchBinding;
-import com.example.myapplication.ui.profile.ProfileFragment;
+import com.example.myapplication.fragments.profile.ProfileFragment;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;

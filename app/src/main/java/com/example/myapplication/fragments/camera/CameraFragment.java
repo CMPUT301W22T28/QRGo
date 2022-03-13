@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.camera;
+package com.example.myapplication.fragments.camera;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -29,14 +28,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.myapplication.LoginScanActivity;
-import com.example.myapplication.MainActivity;
+import com.example.myapplication.activity.QRScanActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentCameraBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.zxing.integration.android.IntentIntegrator;
 
 public class CameraFragment extends Fragment {
 
@@ -189,7 +186,7 @@ public class CameraFragment extends Fragment {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
-                final Intent intent = new Intent(getContext(), LoginScanActivity.class).putExtra("Prev","CameraFragment");
+                final Intent intent = new Intent(getContext(), QRScanActivity.class).putExtra("Prev","CameraFragment");
                 startActivityForResult(intent, 6);
 
             }
