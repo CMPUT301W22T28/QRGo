@@ -59,7 +59,7 @@ public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAd
     public void onBindViewHolder(ViewHolder holder, int position) {
         ScoringQRCode qrCode = qrCodes.get(position);
         holder.score.setText(Integer.toString(qrCode.getScore()));
-        holder.geolocation.setText(qrCode.getGeolocation());
+        holder.geolocation.setText(qrCode.getGeolocationString());
     }
 
     // total number of rows
