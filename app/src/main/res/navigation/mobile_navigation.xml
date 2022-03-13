@@ -7,31 +7,31 @@
 
     <fragment
         android:id="@+id/navigation_map"
-        android:name="com.example.myapplication.ui.map.MapFragment"
+        android:name="com.example.myapplication.fragments.map.MapFragment"
         android:label="@string/title_map"
         tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/navigation_search"
-        android:name="com.example.myapplication.ui.search.SearchFragment"
+        android:name="com.example.myapplication.fragments.search.SearchFragment"
         android:label="@string/title_search"
         tools:layout="@layout/fragment_search" />
 
     <fragment
         android:id="@+id/navigation_camera"
-        android:name="com.example.myapplication.ui.camera.CameraFragment"
+        android:name="com.example.myapplication.fragments.camera.CameraFragment"
         android:label="@string/title_camera"
         tools:layout="@layout/fragment_camera" />
 
     <fragment
         android:id="@+id/navigation_leaderboard"
-        android:name="com.example.myapplication.ui.leaderboard.LeaderboardFragment"
+        android:name="com.example.myapplication.fragments.leaderboard.LeaderboardFragment"
         android:label="@string/title_leaderboard"
         tools:layout="@layout/fragment_leaderboard" />
 
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.example.myapplication.ui.profile.ProfileFragment"
+        android:name="com.example.myapplication.fragments.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
 

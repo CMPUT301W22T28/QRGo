@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.map;
+package com.example.myapplication.fragments.map;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

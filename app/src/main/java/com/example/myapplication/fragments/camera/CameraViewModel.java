@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.camera;
+package com.example.myapplication.fragments.camera;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

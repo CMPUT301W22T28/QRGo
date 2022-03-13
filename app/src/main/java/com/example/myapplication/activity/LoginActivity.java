@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.activity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -22,7 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.api.Batch;
+import com.example.myapplication.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -32,15 +32,15 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * @author:
+ */
 public class LoginActivity extends AppCompatActivity {
     // Firestore collection names
     private final String USERS_COLLECTION = "Users";
@@ -86,6 +86,10 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method will
+     * @param androidId id of the phone that is using the app currently
+     */
     public void getUsernameFromAndroidId(String androidId){
         disableSignUp();
         db.collection(USERS_COLLECTION)
@@ -218,8 +222,6 @@ public class LoginActivity extends AppCompatActivity {
 
         TextView accountExistsText = (TextView) findViewById(R.id.account_exists_text);
         accountExistsText.setVisibility(View.INVISIBLE);
-
-
 
     }
 

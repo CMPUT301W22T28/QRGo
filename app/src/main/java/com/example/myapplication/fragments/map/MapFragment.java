@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.map;
+package com.example.myapplication.fragments.map;
 
 import android.Manifest;
 import android.content.Context;
