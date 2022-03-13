@@ -9,7 +9,7 @@ import java.util.ArrayList;
 /**
  * This class is a representation of the player. It holds information necessary such as type of user, their score,
  * if they are a player or an admin.
- * @author Walter
+ * @author Walter Ostrander
  * @author Sankalp
  * @see ScoringQRCode
  *
