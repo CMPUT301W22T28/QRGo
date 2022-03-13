@@ -1,14 +1,10 @@
-package com.example.myapplication.ui.search;
+package com.example.myapplication.fragments.search;
 
 import android.annotation.SuppressLint;
-import android.content.ClipData;
 import android.content.Context;
-import android.text.Layout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;

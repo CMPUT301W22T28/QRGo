@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.activity;
 
 
 import android.content.Context;
@@ -15,9 +15,10 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.ActivityMainBinding;
-import com.example.myapplication.ui.profile.ProfileViewModel;
+import com.example.myapplication.fragments.profile.ProfileViewModel;
 
 
 public class MainActivity extends AppCompatActivity {
