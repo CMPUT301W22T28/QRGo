@@ -1,10 +1,12 @@
-package com.example.myapplication;
+package com.example.myapplication.activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.provider.Settings.Secure;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -20,12 +22,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.myapplication.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -35,9 +38,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * @author:
+ */
 public class LoginActivity extends AppCompatActivity {
+    // Firestore collection names
     private final String USERS_COLLECTION = "Users";
+    private final String LOGIN_QRCODE_COLLECTION = "LoginQRCode";
+    // Tag for Logcat
     private final String LOGIN_TAG = "LoginActivity";
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -45,39 +53,45 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        String androidId = Secure.getString(getApplicationContext().getContentResolver(),
-                Secure.ANDROID_ID);
-        disableSignUp();
-        getUsernameFromAndroidId(androidId);
+        String res = this.getIntent().getStringExtra("LoginQRCode");
+        if (res != null) {
+            disableSignUp();
+            checkLoginQRCode(res);
+        }
+        else {
+            String androidId = Secure.getString(getApplicationContext().getContentResolver(),
+                    Secure.ANDROID_ID);
+            getUsernameFromAndroidId(androidId);
 
-        Button signUpButton = (Button) findViewById(R.id.btn_sign_up);
 
-        signUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TextInputEditText usernameField = (TextInputEditText) findViewById(R.id.username_field);
-                TextInputEditText emailField = (TextInputEditText) findViewById(R.id.email_field);
-                TextInputEditText phoneField = (TextInputEditText) findViewById(R.id.phone_field);
+            Button signUpButton = (Button) findViewById(R.id.btn_sign_up);
+            signUpButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    TextInputEditText usernameField = (TextInputEditText) findViewById(R.id.username_field);
+                    TextInputEditText emailField = (TextInputEditText) findViewById(R.id.email_field);
+                    TextInputEditText phoneField = (TextInputEditText) findViewById(R.id.phone_field);
 
-                String userNameInput = usernameField.getText().toString().trim();
+                    String userNameInput = usernameField.getText().toString().trim();
 
-                if (userNameInput.length() == 0){
-                    TextInputLayout usernameContainer = (TextInputLayout) findViewById(R.id.username_field_container);
-                    usernameContainer.setBoxStrokeColor(Color.RED);
-                    usernameContainer.setError("Enter a valid username!");
+                    if (userNameInput.length() == 0) {
+                        TextInputLayout usernameContainer = (TextInputLayout) findViewById(R.id.username_field_container);
+                        usernameContainer.setBoxStrokeColor(Color.RED);
+                        usernameContainer.setError("Enter a valid username!");
+                    } else {
+                        checkUsernameExists(userNameInput, emailField.getText().toString(), phoneField.getText().toString());
+                    }
                 }
-                else{
-                    checkUsernameExists(userNameInput, emailField.getText().toString(), phoneField.getText().toString());
-                }
-
-
-
-            }
-        });
-
+            });
+        }
     }
 
+    /**
+     * This method will
+     * @param androidId id of the phone that is using the app currently
+     */
     public void getUsernameFromAndroidId(String androidId){
+        disableSignUp();
         db.collection(USERS_COLLECTION)
                 .whereArrayContains("devices",androidId)
                 .get()
@@ -94,6 +108,31 @@ public class LoginActivity extends AppCompatActivity {
                                 enableSignUp();
                             }
 
+                        } else {
+                            Log.d(LOGIN_TAG, "Error getting documents: ", task.getException());
+                        }
+
+                    }
+                });
+    }
+
+    public void checkLoginQRCode(String scannedString){
+        db.collection(LOGIN_QRCODE_COLLECTION)
+                .whereEqualTo("username",scannedString)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                updateUserDeviceList(Secure.getString(getApplicationContext().getContentResolver(),
+                                        Secure.ANDROID_ID), scannedString);
+                                mainActivity(scannedString);
+                            }
+                            if (task.getResult().size() == 0){
+                                enableSignUp();
+                                Toast.makeText(getApplicationContext(),"Login QRCode not recognized. Please scan a valid Login QRCode!",Toast.LENGTH_LONG).show();
+                            }
                         } else {
                             Log.d(LOGIN_TAG, "Error getting documents: ", task.getException());
                         }
@@ -132,8 +171,22 @@ public class LoginActivity extends AppCompatActivity {
                 .document(userName)
                 .set(setUpUserSubCollection(email, phone));
 
-        mainActivity(userName);
+        insertLoginQRCode(userName);
 
+    }
+
+    public void updateUserDeviceList(String androidID, String loginQRString){
+        Map<String, Object> map = new HashMap<>();
+        map.put("devices", FieldValue.arrayUnion(androidID));
+        db.collection(USERS_COLLECTION).document(loginQRString).update(map);
+
+    }
+
+    public void insertLoginQRCode(String userName){
+        db.collection(LOGIN_QRCODE_COLLECTION)
+                .add(setUpLoginQRCodeSubCollection(userName));
+
+        mainActivity(userName);
     }
 
     public void mainActivity (String userName){
@@ -170,8 +223,6 @@ public class LoginActivity extends AppCompatActivity {
         TextView accountExistsText = (TextView) findViewById(R.id.account_exists_text);
         accountExistsText.setVisibility(View.INVISIBLE);
 
-
-
     }
 
     public void enableSignUp(){
@@ -204,8 +255,9 @@ public class LoginActivity extends AppCompatActivity {
         SpannableString ss = new SpannableString("Already got an account? Login using your QR Code here.");
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
+            @RequiresApi(api = Build.VERSION_CODES.M)
             public void onClick(View textView) {
-                startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("Username","My link works kid"));
+                startActivity(new Intent(getApplicationContext(), QRScanActivity.class));
             }
             @Override
             public void updateDrawState(TextPaint ds) {
@@ -223,6 +275,12 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    Map<String, Object> setUpLoginQRCodeSubCollection(String userName){
+        Map<String, Object> data = new HashMap<>();
+        data.put("username",userName);
+
+        return data;
+    }
 
     Map<String, Object> setUpUserSubCollection(String email, String phone){
         Map<String, Object> data = new HashMap<>();

@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.search;
+package com.example.myapplication.fragments.search;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
