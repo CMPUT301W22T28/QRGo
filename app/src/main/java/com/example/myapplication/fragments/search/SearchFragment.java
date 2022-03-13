@@ -27,6 +27,22 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
 
+/**
+ *
+ * This Fragment displays registered users based on search term inputted by user of the app.
+ *
+ * @author Ervin Binu Joseph
+ *
+ * March 12, 2022
+ */
+
+/*
+ * Sources
+ *
+ * SearchView: https://www.geeksforgeeks.org/searchview-in-android-with-recyclerview/
+ *
+ */
+
 public class SearchFragment extends Fragment implements UserRecyclerAdapter.ItemClickListener{
 
     private FragmentSearchBinding binding;
@@ -35,6 +51,13 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
     UserRecyclerAdapter userRecyclerAdapter;
     FirebaseFirestore db;
 
+    /**
+     * Initially called when the search fragment is created.
+     * @param inflater The inflater for this view.
+     * @param container The container for this view, defined in the xml.
+     * @param savedInstanceState A saved state if there is one.
+     * @return The root View.
+     */
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         UserViewModel searchViewModel =
@@ -43,36 +66,16 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         binding = FragmentSearchBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textSearch;
-        searchViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
 
         return root;
     }
 
-    private void filter(String text) {
-        // creating a new array list to filter our data.
-        ArrayList<Player> filteredlist = new ArrayList<>();
 
-        // running a for loop to compare elements.
-        for (Player user : users) {
-            // checking if the entered string matched with any item of our recycler view.
-            if (user.getUsername().toLowerCase().contains(text.toLowerCase())) {
-                // if the item is matched we are
-                // adding it to our filtered list.
-                filteredlist.add(user);
-            }
-        }
-        if (filteredlist.isEmpty()) {
-            // if no item is added in filtered list we are
-            // displaying a toast message as no data found.
-            Toast.makeText(activity.getApplicationContext(), "No search results found", Toast.LENGTH_SHORT).show();
-        } else {
-            // at last we are passing that filtered
-            // list to our adapter class.
-            userRecyclerAdapter.filterList(filteredlist);
-        }
-    }
-
+    /**
+     * Called every after the view is initialized
+     * @param view The profile fragment view that was initialized.
+     * @param savedInstanceState A saved instance.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -88,9 +91,15 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         userRecyclerAdapter = new UserRecyclerAdapter(activity, users);
         userRecyclerAdapter.setClickListener(this);
         recyclerView.setAdapter(userRecyclerAdapter);
+        searchBar();
+    }
 
+    /**
+     * This method sets up the SearchView and accepts search queries to filter through the list of users
+     *
+     */
 
-        // search bar implementation
+    private void searchBar() {
         SearchView searchView = binding.searchBar;
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -106,9 +115,36 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
                 return false;
             }
         });
-
     }
 
+    /**
+     * This method filters the list of users based on text inputted on the search bar
+     *
+     * @param text
+     * search query used to filter out users on the search list
+     *
+     */
+    private void filter(String text) {
+        // creating a new array list to filter our data.
+        ArrayList<Player> filteredlist = new ArrayList<>();
+
+        // running a for loop to compare elements.
+        for (Player user : users) {
+            // checking if the entered string matched with any item of our recycler view.
+            if (user.getUsername().toLowerCase().startsWith(text.toLowerCase())) {
+                // if the item is matched we are
+                // adding it to our filtered list.
+                filteredlist.add(user);
+            }
+        }
+        userRecyclerAdapter.filterList(filteredlist);
+    }
+
+
+    /**
+     *This method gets all the registered users from the database and displays it onto the screen
+     *
+     */
     private void getUsersFromDatabase() {
 
         // setting persistence
@@ -134,9 +170,13 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
 
             userRecyclerAdapter.notifyDataSetChanged();
         });
-
     }
 
+    /**
+     * This method is called when a user on the search fragment has been clicked
+     * @param view The view that was clicked.
+     * @param position The position of the qr Code clicked in the recycler view.
+     */
     @Override
     public void onItemClick(View view, int position) {
         Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
@@ -150,7 +190,9 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
                 .commit();
     }
 
-    @Override
+    /**
+     * This method is called when the fragment is destroyed
+     */
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;

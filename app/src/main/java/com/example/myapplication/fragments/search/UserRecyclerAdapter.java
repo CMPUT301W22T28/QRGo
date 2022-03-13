@@ -65,12 +65,8 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
         }
     }
 
-    public void filterList(ArrayList<Player> filterllist) {
-        // below line is to add our filtered
-        // list in our course array list.
-        users = filterllist;
-        // below line is to notify our adapter
-        // as change in recycler view data.
+    public void filterList(ArrayList<Player> filterlist) {
+        users = filterlist;
         notifyDataSetChanged();
     }
 
