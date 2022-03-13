@@ -39,7 +39,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author:
+ * This Activity is responsible for the signup/automatic login/logging in via LoginQRCode.
+ * @author Amro Amanuddein
+ * @see QRScanActivity
+ *
  */
 public class LoginActivity extends AppCompatActivity {
     // Firestore collection names
@@ -54,11 +57,16 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         String res = this.getIntent().getStringExtra("LoginQRCode");
+        // If the getting string from the intent returns null, then no qrcode got scanned yet
         if (res != null) {
             disableSignUp();
             checkLoginQRCode(res);
         }
         else {
+            /**
+             * Link that helped with extracting device id of android device.
+             * @see "https://stackoverflow.com/questions/8769781/how-can-i-get-the-deviceid-of-my-android-emulator"
+             */
             String androidId = Secure.getString(getApplicationContext().getContentResolver(),
                     Secure.ANDROID_ID);
             getUsernameFromAndroidId(androidId);
@@ -73,8 +81,8 @@ public class LoginActivity extends AppCompatActivity {
                     TextInputEditText phoneField = (TextInputEditText) findViewById(R.id.phone_field);
 
                     String userNameInput = usernameField.getText().toString().trim();
-
-                    if (userNameInput.length() == 0) {
+                    // If the user enters only spaces into the username field or if they exceed 20 chars
+                    if (userNameInput.length() == 0 || userNameInput.length() > 20) {
                         TextInputLayout usernameContainer = (TextInputLayout) findViewById(R.id.username_field_container);
                         usernameContainer.setBoxStrokeColor(Color.RED);
                         usernameContainer.setError("Enter a valid username!");
@@ -87,7 +95,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * This method will
+     * This method will check if there is a user linked with the device's android id
+     * if it does find a user, it will start the MainActivity/Log them in automatically
+     * and if it does not find a user attributed with the android id, it will show the
+     * sign up page.
      * @param androidId id of the phone that is using the app currently
      */
     public void getUsernameFromAndroidId(String androidId){
@@ -101,6 +112,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
 
                             for (QueryDocumentSnapshot document : task.getResult()) {
+                                // Send the username found to MainActivity and log the user in
                                 mainActivity(document.getId());
                             }
                             // Added this condition to ensure signup page only shows if there are no users matching this device
@@ -116,6 +128,12 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * This method will validate using the db the string obtained from the qrcode that
+     * was scanned to login, if the qrcode is a valid LoginQRCode, they get redirected
+     * to the MainActivity/get logged in. Otherwise, a toast will be displayed.
+     * @param scannedString the string that is obtained when the qrcode is scanned
+     */
     public void checkLoginQRCode(String scannedString){
         db.collection(LOGIN_QRCODE_COLLECTION)
                 .whereEqualTo("username",scannedString)
@@ -141,6 +159,14 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * This method will check if the username entered for signup exists in the db,
+     * if it does then it will show an appropriate message for the user, if it doesn't
+     * then it will insert the username along with the contact info into the db.
+     * @param userName username entered by the user
+     * @param email email entered by the user
+     * @param phone phone number entered by the user
+     */
     public void checkUsernameExists(String userName, String email, String phone){
         db.collection(USERS_COLLECTION)
                 .document(userName)
@@ -165,7 +191,12 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-
+    /**
+     * Method to create a user document in the Users collection.
+     * @param userName name of the document within the user collection
+     * @param email value of the email subcollection within the userName document
+     * @param phone value of the phone subcollection within the userName document
+     */
     public void insertUserInfo(String userName, String email, String phone){
         db.collection(USERS_COLLECTION)
                 .document(userName)
@@ -175,6 +206,12 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Once a user logs in via a LoginQRCode, this method will run to update the
+     * user's device list with the device they just logged in from.
+     * @param androidID the device id
+     * @param loginQRString the string obtained from the qrcode scanner
+     */
     public void updateUserDeviceList(String androidID, String loginQRString){
         Map<String, Object> map = new HashMap<>();
         map.put("devices", FieldValue.arrayUnion(androidID));
@@ -182,6 +219,10 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Once a user signs up, this method will generate their respective LoginQRCode.
+     * @param userName the user's username that will be the string represented by the QRCode
+     */
     public void insertLoginQRCode(String userName){
         db.collection(LOGIN_QRCODE_COLLECTION)
                 .add(setUpLoginQRCodeSubCollection(userName));
@@ -189,10 +230,19 @@ public class LoginActivity extends AppCompatActivity {
         mainActivity(userName);
     }
 
+    /**
+     * This method will start the MainActivity activity and will pass in the username that
+     * was logged in using the Intent.
+     * @param userName the username that will be passed in with the intent
+     */
     public void mainActivity (String userName){
         startActivity(new Intent(this, MainActivity.class).putExtra("Username",userName));
     }
 
+    /**
+     * This method deals with the UI elements of the sign up page and disables the signup page
+     * elements and displays a spinning progress bar instead.
+     */
     public void disableSignUp(){
 
         ProgressBar spinner;
@@ -224,7 +274,9 @@ public class LoginActivity extends AppCompatActivity {
         accountExistsText.setVisibility(View.INVISIBLE);
 
     }
-
+    /**
+     * This method deals with the UI elements of the sign up page and enables the signup page.
+     */
     public void enableSignUp(){
         // Make progress bar invisible as user has to sign in now
         ProgressBar spinner;
@@ -275,6 +327,13 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * This method sets up & returns up the LoginQRCode subcollection that will be added to
+     * the LoginQRCode collection with an automatically generated document id.
+     * @param userName
+     * @return a map of the LoginQRCode subcollection that will be added to the db.
+     * @see
+     */
     Map<String, Object> setUpLoginQRCodeSubCollection(String userName){
         Map<String, Object> data = new HashMap<>();
         data.put("username",userName);
@@ -282,6 +341,13 @@ public class LoginActivity extends AppCompatActivity {
         return data;
     }
 
+    /**
+     * This method sets up & returns up the Users subcollection that will be added to
+     * the Users collection with the username as a document id.
+     * @param email the value of the email field.
+     * @param phone the value of the phone field.
+     * @return a map of the Users subcollection that will be added to the db
+     */
     Map<String, Object> setUpUserSubCollection(String email, String phone){
         Map<String, Object> data = new HashMap<>();
 
