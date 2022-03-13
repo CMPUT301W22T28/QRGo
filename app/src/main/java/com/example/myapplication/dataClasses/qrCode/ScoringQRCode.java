@@ -16,6 +16,7 @@ public class ScoringQRCode extends QRCode {
     private Double latitude = null;
     private Double longitude = null;
     private int score = -1;
+    private final String typeOfQrCode = "scoring";
 
     /**
      * constructor for ScoringQRCode class
@@ -57,7 +58,7 @@ public class ScoringQRCode extends QRCode {
 
     @Override
     public String getQRCodeType() {
-        return null;
+        return typeOfQrCode;
     }
 
     /**
