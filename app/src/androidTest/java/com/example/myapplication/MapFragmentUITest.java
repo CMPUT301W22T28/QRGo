@@ -10,6 +10,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.content.Intent;
 
+import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -53,12 +54,9 @@ public class MapFragmentUITest {
     @Before
     public void init() {
         mainActivityActivityTestRule.getActivity().getSupportFragmentManager().beginTransaction();
+        onView(withId(R.id.navigation_map)).perform(ViewActions.click());
     }
 
-
-    @Test
-    public void testProfileShowsUp() {
-        onView(withText(testUsername)).check(matches(isDisplayed()));
-    }
-
+    // no tests implemented yet because device location has to be set in emulator
+    // and tests would depend on location
 }
