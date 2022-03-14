@@ -40,8 +40,9 @@ import java.util.Map;
  * Testing the login activity
  *
  * @author Walter Ostrander
+ * @author Amro Amanuddein
  *
- *
+ * March 13, 2022
  */
 @RunWith(AndroidJUnit4.class)
 public class LoginActivityUITest {
@@ -66,7 +67,6 @@ public class LoginActivityUITest {
     // To synchronize data fetches
     private final Object actualUsernameSyncObject = new Object();
     private boolean actualUsernameNotifyCalled;
-
 
     /**
      * This function runs and removes the current user from the database if it exists

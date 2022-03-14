@@ -22,7 +22,7 @@ import java.util.ArrayList;
  * @author Walter Ostrander
  * @see ProfileFragment
  *
- * May 12, 2022
+ * March 12, 2022
  */
 public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAdapter.ViewHolder> {
     private ArrayList<ScoringQRCode> qrCodes;
