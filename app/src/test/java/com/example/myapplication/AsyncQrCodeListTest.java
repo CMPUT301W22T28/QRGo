@@ -15,7 +15,7 @@ import java.util.ArrayList;
  *
  * @author Walter Ostrander
  *
- * May 12 2022
+ * March 12 2022
  */
 public class AsyncQrCodeListTest implements ProfileEventListeners {
     private AsyncQrCodeList asyncQrCodeList;

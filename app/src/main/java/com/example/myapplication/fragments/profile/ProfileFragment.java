@@ -40,7 +40,7 @@ import java.util.ArrayList;
  * @see ProfileViewModel
  * @see ProfileEventListeners
  *
- * May 12, 2022
+ * March 12, 2022
  */
 public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
     private final String TAG = "ProfileFragment";
@@ -380,5 +380,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
     }
 
-
+    public ProfileViewModel getViewModel() {
+        return profileViewModel;
+    }
 }
