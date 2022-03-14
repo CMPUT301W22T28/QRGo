@@ -30,6 +30,7 @@ import com.example.myapplication.R;
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQueryBounds;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -64,6 +65,7 @@ public class MapFragment extends Fragment {
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private GeoPoint currentLocation;
     private FirebaseFirestore db;
+    private boolean flag;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,6 +73,8 @@ public class MapFragment extends Fragment {
 
         Context ctx = getActivity().getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
+
+        flag = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ctx) == com.google.android.gms.common.ConnectionResult.SUCCESS;
 
         db = FirebaseFirestore.getInstance();
 
@@ -105,7 +109,9 @@ public class MapFragment extends Fragment {
         // set up initial map config
         IMapController mapController = mMapView.getController();
         mapController.setZoom(16);
-        updateLocation(0);
+        if (flag){ // if google play services available
+            updateLocation(0);
+        }
         mapController.setCenter(currentLocation);
 
         // add myLocation overlay
@@ -125,7 +131,9 @@ public class MapFragment extends Fragment {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateLocation(1);
+                if (flag){ // if google play services available
+                    updateLocation(1);
+                }
             }
         });
     }

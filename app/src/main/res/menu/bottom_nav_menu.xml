@@ -5,7 +5,6 @@
     <item
         android:id="@+id/navigation_map"
         android:icon="@drawable/ic_map_24"
-        android:text="Map"
         android:title="@string/title_map" />
 
     <item

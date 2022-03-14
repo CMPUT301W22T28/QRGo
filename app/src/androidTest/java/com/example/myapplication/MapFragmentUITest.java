@@ -48,8 +48,8 @@ public class MapFragmentUITest {
 
 
     /**
-     * Runs before all tests and creates solo instance.
-     * @throws Exception
+     * Runs before all tests
+     *
      */
     @Before
     public void init() {
