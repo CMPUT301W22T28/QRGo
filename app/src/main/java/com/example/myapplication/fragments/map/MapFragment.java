@@ -57,7 +57,11 @@ import java.util.List;
  * Sources
  * Location permission: https://developer.android.com/training/permissions/requesting
  * Getting last location: https://developer.android.com/training/location/retrieve-current
+ * Checking google play services:
+ * https://stackoverflow.com/questions/62787511/programmatically-check-if-android-device-has-google-play
  *
+ * Known issue: On new device's first time launching the app, the map fragment might require moving
+ * to map fragment twice before showing location and markers
  */
 public class MapFragment extends Fragment {
 
