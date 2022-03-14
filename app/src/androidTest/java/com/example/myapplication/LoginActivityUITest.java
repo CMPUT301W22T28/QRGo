@@ -211,6 +211,31 @@ public class LoginActivityUITest {
     }
 
     /**
+     * TO
+     */
+    @Test
+    public void TestAutomaticLogin() {
+        Log.d(LOGIN_TEST_TAG, "started sign up test");
+
+        // make sure current activity is right.
+        solo.assertCurrentActivity("Wrong Activity", LoginActivity.class);
+
+        // type the username into the correct field
+        solo.enterText((TextInputEditText) solo.getView(R.id.username_field), testUsername);
+        Assert.assertTrue(solo.waitForText(testUsername, 1, 2000));
+
+        solo.clickOnView((Button) solo.getView(R.id.btn_sign_up));
+        Assert.assertTrue(solo.waitForText("Total Score:", 1, 2000));
+
+        // restart after signing up
+        solo.finishOpenedActivities();
+        rule.launchActivity(rule.getActivity().getIntent());
+
+        // wait for profile screen
+        Assert.assertTrue(solo.waitForText("Total Score:", 1, 2000));
+    }
+
+    /**
      * Runs after every test, puts the username back in the database then finishes open activities.
      */
     @After
