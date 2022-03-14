@@ -9,9 +9,11 @@ import java.util.ArrayList;
 /**
  * This class is a representation of the player. It holds information necessary such as type of user, their score,
  * if they are a player or an admin.
- * @author Walter
+ * @author Walter Ostrander
+ * @author Sankalp
  * @see ScoringQRCode
- * @version 1.0.0
+ *
+ * May 12, 2022
  */
 public class Player {
     private String username;
@@ -22,7 +24,7 @@ public class Player {
     private boolean isAdmin = false;
 
     /**
-     * constructor of the player class
+     * Constructor of the player class.
      * @param username the username of the player
      * @param isAdmin whether or not the player has admin privilages
      */
@@ -32,9 +34,9 @@ public class Player {
     }
 
     /**
-     * Clears the qrCode list so that you can add a new list of qr codes
+     * Clears the qrCode list so that you can add a new list of qr codes.
      */
-    public void resetQrCodeList() {
+    public void resetQRCodeList() {
         scannedQRCodes.clear();
     }
 
@@ -128,9 +130,9 @@ public class Player {
 
     /**
      * Allows someone to get the list of qr codes the player has.
-     * @return the list of qr codes on the player profile.
+     * @return The list of qr codes on the player profile.
      */
-    public ArrayList<ScoringQRCode> getQrCodes() {
+    public ArrayList<ScoringQRCode> getQRCodes() {
         return this.scannedQRCodes;
     }
 }
