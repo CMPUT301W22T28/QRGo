@@ -35,10 +35,20 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+/**
+ * This class represents the camera fragment that is responsible for scanning valid QRCodes,
+ * taking pictures of the qrcode if the user wants them saved and finally enable the geolocation
+ * feature so that the geolocation of the qr code is saved.
+ *
+ * @author: Mohamed Ali
+ * @see: CameraFragmentViewModel
+ *
+ */
 public class CameraFragment extends Fragment {
 
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int LOCATION_REQUEST_CODE = 2;
+    private static final int QRCODE_SCAN_CAPTURE = 6;
     private static final int MY_CAMERA_REQUEST_CODE = 100;
     private ImageView cameraImage;
     private TextView sizeImageText;
@@ -54,6 +64,14 @@ public class CameraFragment extends Fragment {
 
 
     private FragmentCameraBinding binding;
+
+    /**
+     *Inflates the camera fragment view so that it displays on the screen
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return View
+     */
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -76,14 +94,6 @@ public class CameraFragment extends Fragment {
         saveGeolocationSwitch = binding.geolocationSwitch;
 
         disablingButtons();
-
-//        if (getActivity().getIntent().getStringExtra("ScoringQRCode") !=null) {
-//
-//            enablingButtons();
-//
-//            QRCodeString = getActivity().getIntent().getStringExtra("ScoringQRCode");
-//
-//        }
 
         setQRCodeScanner();
 
@@ -115,6 +125,10 @@ public class CameraFragment extends Fragment {
         return root;
     }
 
+    /**
+     * enables the geolocation saving feature by asking the user for permission to access the
+     * geolocation if the permission is already not granted.
+     */
     private void setGeolocationSwitch() {
 
         saveGeolocationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -133,6 +147,10 @@ public class CameraFragment extends Fragment {
 
     }
 
+    /**
+     * checks if the user has granted permmission for the app to use their geolocation before
+     * proceeding to obtain the geolocation of the user.
+     */
     public void setLocation() {
 
         checkLocationPermission();
@@ -154,6 +172,10 @@ public class CameraFragment extends Fragment {
                 });
     }
 
+    /**
+     * this function checks if the user has allowed the app to obtain geolocation data on his behalf
+     * if not then a permission request is made on the screen of the user.
+     */
     public void checkLocationPermission() {
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -170,6 +192,10 @@ public class CameraFragment extends Fragment {
                 + PackageManager.PERMISSION_GRANTED + " " + ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION));
     }
 
+    /**
+     * this function checks if the user has allowed the app to obtain camera access on his behalf
+     * if not then a permission request is made on the screen of the user.
+     */
     public void checkCameraPermission() {
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA},
@@ -178,6 +204,11 @@ public class CameraFragment extends Fragment {
         }
     }
 
+    /**
+     * This method sets up the onClickListener needed to launch the qr code scanner using the
+     * zxing library, upon successful detection of valid qrcode, the fragment is relaunched.
+     * @see: QRScanActivity
+     */
     public void setQRCodeScanner() {
 
         checkCameraPermission();
@@ -200,6 +231,10 @@ public class CameraFragment extends Fragment {
         binding = null;
     }
 
+    /**
+     * sets the onClickListener for the switch responsible to save a picture of the qrcode, if
+     * enabled, the camera activity is launched.
+     */
     public void setSavePicture() {
 
         savePictureSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -222,6 +257,13 @@ public class CameraFragment extends Fragment {
 
     }
 
+    /**
+     * responsible for dealing with obtaining the permission of the user to use the geolocation of
+     * the user's device if he decided to save the geolocation of the qrcode he scanned.
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
@@ -246,7 +288,18 @@ public class CameraFragment extends Fragment {
         }
     }
 
-
+    /**
+     * This function deals with 2 situations. The first situation is when the user has chosen to
+     * save a picture of the qrcode, and he has taken a picture, this function executes after
+     * the user has taken a picture then updates the placeholder ic image of the camera icon to the
+     * actual image taken by the user's camera and saves the picture's bitmap to be stored in the
+     * post if the user agrees to set the respective image of his choice. The 2nd situation involves
+     * the user scanning a valid qr code and we obtain the result to that qrcode and calculate the
+     * score.
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
@@ -278,7 +331,7 @@ public class CameraFragment extends Fragment {
 
             }
         }
-        else if (requestCode == 6) {
+        else if (requestCode == QRCODE_SCAN_CAPTURE) {
             if(resultCode == RESULT_OK) {
                 // Get the result from the returned Intent
                 final String result = data.getStringExtra("ScoringQRCode");
@@ -293,6 +346,9 @@ public class CameraFragment extends Fragment {
 
     }
 
+    /**
+     * Disable the buttons on the screen. this is done initially as the fragment loads.
+     */
     public void disablingButtons() {
 
         savePostButton.setEnabled(false);
@@ -308,6 +364,10 @@ public class CameraFragment extends Fragment {
 
     }
 
+    /**
+     * allow the buttons to be clicked and interacted with on the screen. This is done after the
+     * user scans a valid QRCode.
+     */
     public void enablingButtons() {
 
         savePostButton.setEnabled(true);
