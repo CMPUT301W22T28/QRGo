@@ -30,6 +30,7 @@ import com.example.myapplication.R;
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQueryBounds;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -56,15 +57,19 @@ import java.util.List;
  * Sources
  * Location permission: https://developer.android.com/training/permissions/requesting
  * Getting last location: https://developer.android.com/training/location/retrieve-current
+ * Checking google play services:
+ * https://stackoverflow.com/questions/62787511/programmatically-check-if-android-device-has-google-play
  *
+ * Known issue: On new device's first time launching the app, the map fragment might require moving
+ * to map fragment twice before showing location and markers
  */
 public class MapFragment extends Fragment {
 
     private MapView mMapView;
-    FusedLocationProviderClient fusedLocationProviderClient;
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private GeoPoint currentLocation;
     private FirebaseFirestore db;
+    private boolean flag;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,6 +77,8 @@ public class MapFragment extends Fragment {
 
         Context ctx = getActivity().getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
+
+        flag = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ctx) == com.google.android.gms.common.ConnectionResult.SUCCESS;
 
         db = FirebaseFirestore.getInstance();
 
@@ -106,7 +113,9 @@ public class MapFragment extends Fragment {
         // set up initial map config
         IMapController mapController = mMapView.getController();
         mapController.setZoom(16);
-        updateLocation(0);
+        if (flag){ // if google play services available
+            updateLocation(0);
+        }
         mapController.setCenter(currentLocation);
 
         // add myLocation overlay
@@ -126,7 +135,9 @@ public class MapFragment extends Fragment {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateLocation(1);
+                if (flag){ // if google play services available
+                    updateLocation(1);
+                }
             }
         });
     }
@@ -147,7 +158,7 @@ public class MapFragment extends Fragment {
         if (ContextCompat.checkSelfPermission(
                 context, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED) {
-            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
+            FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
             fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
                 @Override
                 public void onComplete(@NonNull Task<Location> task) {

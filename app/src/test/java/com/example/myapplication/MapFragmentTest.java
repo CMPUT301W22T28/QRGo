@@ -8,4 +8,5 @@ package com.example.myapplication;
  */
 public class MapFragmentTest {
 
+
 }
