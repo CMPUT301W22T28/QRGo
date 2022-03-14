@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * @author Walter
  * @see ProfileFragment
  *
- * May 12, 2022
+ * March 12, 2022
  */
 public class ProfileViewModel extends ViewModel {
     private final MutableLiveData<String> username;

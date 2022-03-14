@@ -23,7 +23,7 @@ import org.junit.Test;
  *
  * @author Walter Ostrander
  *
- * May 14, 2022
+ * March 14, 2022
  */
 public class MainActivityTest {
     private final String testUsername = "bigvalthoss";
