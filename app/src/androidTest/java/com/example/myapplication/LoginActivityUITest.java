@@ -40,8 +40,9 @@ import java.util.Map;
  * Testing the login activity
  *
  * @author Walter Ostrander
+ * @author Amro Amanuddein
  *
- * May 13, 2022
+ * March 13, 2022
  */
 @RunWith(AndroidJUnit4.class)
 public class LoginActivityUITest {
