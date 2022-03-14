@@ -7,7 +7,9 @@ import static androidx.test.espresso.action.ViewActions.typeTextIntoFocusedView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withChild;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.content.Intent;
@@ -62,8 +64,11 @@ public class LeaderboardFragmentUITest {
     }
 
     @Test
-    public void checkCount() {
+    public void checkButtons() {
         onView(withText("COUNT")).perform(ViewActions.click());
+        onView(withText("SUM")).perform(ViewActions.click());
+        onView(withText("HIGHEST")).perform(ViewActions.click());
+        //onView(withParent(withText(myUsername))).check(matches(isDisplayed()));
         //onView(withText("7")).check(matches(isDisplayed()));
         //onView(withText("COUNT")).check(matches(isClickable()));
     }
