@@ -1,11 +1,10 @@
 package com.example.myapplication;
 
+
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.action.ViewActions.typeTextIntoFocusedView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -25,46 +24,56 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Testing everything appears correctly on the leaderboard
+ * Testing everything appears correctly on the profile
  *
- * @author Sankalp Saini
+ * @author Walter Ostrander
  *
- * March 14, 2022
+ * May 14, 2022
  *
  */
 @RunWith(AndroidJUnit4.class)
-public class LeaderboardFragmentUITest {
-    private final String myUsername = "sankalpsankalp";
+public class ProfileFragmentTesting {
 
+    private final String testUsername = "bigvalthoss";
+
+    /**
+    * The activity rule, passing in a username since we are not running the login activity
+    */
     @Rule
-    public ActivityTestRule<MainActivity> testRule = new ActivityTestRule<MainActivity>(MainActivity.class){
+    public ActivityTestRule<MainActivity> mainActivityActivityTestRule = new ActivityTestRule<MainActivity>(MainActivity.class){
         @Override
         protected Intent getActivityIntent() {
             Intent intent = new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(), MainActivity.class);
-            intent.putExtra("Username", myUsername);
+            intent.putExtra("Username", testUsername);
             return intent;
         }
     };
 
+    /**
+     * Initializing the test by starting the application
+     */
     @Before
     public void init() {
-        testRule.getActivity().getSupportFragmentManager().beginTransaction();
+        mainActivityActivityTestRule.getActivity().getSupportFragmentManager().beginTransaction();
 
         // assert it moves to profile fragment
-        onView(withId(R.id.navigation_leaderboard)).perform(ViewActions.click());
-        onView(withId(R.id.leaderboard_fragment)).check(matches(isDisplayed()));
+        onView(withId(R.id.navigation_profile)).perform(ViewActions.click());
+        onView(withId(R.id.profile_fragment)).check(matches(isDisplayed()));
     }
 
+    /**
+     * test that the username shows up when you navigate to the profile fragment.
+     */
     @Test
-    public void correctUsername() {
+    public void usernameShowsUpTest() {
+
+
         // check proper username
-        onView(withText(myUsername)).check(matches(isDisplayed()));
+        onView(withText(testUsername)).check(matches(isDisplayed()));
     }
 
     @Test
-    public void checkCount() {
-        onView(withText("COUNT")).perform(ViewActions.click());
-        //onView(withText("7")).check(matches(isDisplayed()));
-        //onView(withText("COUNT")).check(matches(isClickable()));
+    public void addQrCodeTest() {
+
     }
 }

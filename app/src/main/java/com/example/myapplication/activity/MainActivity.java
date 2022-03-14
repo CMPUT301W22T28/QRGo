@@ -25,19 +25,13 @@ import com.example.myapplication.fragments.profile.ProfileViewModel;
  * @see LoginActivity
  */
 public class MainActivity extends AppCompatActivity {
-    static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
     private ActivityMainBinding binding;
-    private String myUsername;
-    final String TAG = "MainActivity";
-    Player myPlayerProfile = null;
+    private final String TAG = "MainActivity";
     Context activityContext;
     final int MY_CAMERA_REQUEST_CODE = 100;
     final int QR_CODE_SCAN = 49374;
-    ProfileViewModel profileViewModel;
 
-    /**
-     * Overridden so that
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -94,8 +88,4 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-    public String getMyUsername() {
-        return this.myUsername;
-    }
-
 }

@@ -36,7 +36,7 @@ public class Player {
     /**
      * Clears the qrCode list so that you can add a new list of qr codes.
      */
-    public void resetQrCodeList() {
+    public void resetQRCodeList() {
         scannedQRCodes.clear();
     }
 
@@ -132,7 +132,7 @@ public class Player {
      * Allows someone to get the list of qr codes the player has.
      * @return The list of qr codes on the player profile.
      */
-    public ArrayList<ScoringQRCode> getQrCodes() {
+    public ArrayList<ScoringQRCode> getQRCodes() {
         return this.scannedQRCodes;
     }
 }

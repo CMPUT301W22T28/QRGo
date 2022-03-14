@@ -54,13 +54,13 @@ public class PlayerDataClassTest {
      */
     @Test
     public void qrCodeListTest() {
-        ArrayList<ScoringQRCode> list = player.getQrCodes();
+        ArrayList<ScoringQRCode> list = player.getQRCodes();
         int size = 0;
         Assert.assertEquals(list.size(), size);
 
         ScoringQRCode qrCode = new ScoringQRCode("hash");
         player.addScoringQRCode(qrCode);
-        list = player.getQrCodes();
+        list = player.getQRCodes();
         Assert.assertEquals(list.size(), size+1);
         Assert.assertEquals(list.get(0), qrCode);
     }
@@ -90,7 +90,7 @@ public class PlayerDataClassTest {
      */
     @Test
     public void qrCodeCountTest() {
-        player.resetQrCodeList();
+        player.resetQRCodeList();
         int numQrCodes = 45;
         for (int i = 0; i < numQrCodes; i++) {
             player.addScoringQRCode(new ScoringQRCode("hash"));

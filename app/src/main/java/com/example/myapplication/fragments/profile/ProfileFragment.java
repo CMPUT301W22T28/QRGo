@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +36,7 @@ import java.util.ArrayList;
 
 /**
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
- * @author Walter
+ * @author Walter Ostrander
  * @see ProfileViewModel
  * @see ProfileEventListeners
  *
@@ -46,14 +45,13 @@ import java.util.ArrayList;
 public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
     private final String TAG = "ProfileFragment";
     private FragmentProfileBinding binding;
-    MainActivity activity;
-    ArrayAdapter<ScoringQRCode> qrCodeArrayAdapter;
+    private MainActivity activity;
     private ProfileViewModel profileViewModel;
     private ArrayList<ScoringQRCode> myQrCodes;
     private RecyclerView recyclerView;
     private String myUsername = null;
     private Player myPlayerProfile;
-    QRCodeRecyclerAdapter scoringQRCodeAdapter;
+    private QRCodeRecyclerAdapter scoringQRCodeAdapter;
 
     /**
      * Initially called when the profile fragment is created.
@@ -262,7 +260,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         profileViewModel.getTotalScore().observe(getViewLifecycleOwner(), totalScoreTextView::setText);
 
         final TextView QRCodeCountTextView = binding.profileQrCodeCount;
-        profileViewModel.getQrCodeCount().observe(getViewLifecycleOwner(), QRCodeCountTextView::setText);
+        profileViewModel.getQRCodeCount().observe(getViewLifecycleOwner(), QRCodeCountTextView::setText);
 
         final TextView topQRCodeTextView = binding.profileTopQrCode;
         profileViewModel.getTopQRCodeScore().observe(getViewLifecycleOwner(), topQRCodeTextView::setText);
@@ -305,13 +303,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     @Override
     public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
         // fill the profile view with qrcodes
-        myPlayerProfile.resetQrCodeList();
+        myPlayerProfile.resetQRCodeList();
         for (ScoringQRCode qrCode: qrCodes) {
             myPlayerProfile.addScoringQRCode(qrCode);
         }
-        profileViewModel.setMutableProfileQrCodes(qrCodes);
+        profileViewModel.setMutableProfileQRCodes(qrCodes);
         updateHighestAndSumQrCode();
     }
+
 
     /**
      * This method is called after the onQrCodeListDoneFillingEvent is called. It
@@ -332,12 +331,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         int tempHighestQrCode = 0;
         int tempSumQrCodes = 0;
-        for (ScoringQRCode qrCode: myPlayerProfile.getQrCodes())
+        for (ScoringQRCode qrCode: myPlayerProfile.getQRCodes())
         {
             tempSumQrCodes += qrCode.getScore();
             tempHighestQrCode = Math.max(tempHighestQrCode, qrCode.getScore());
         }
-        Log.d(TAG,"total: "+tempSumQrCodes+", highest: "+tempSumQrCodes+", numQrCodes: "+myPlayerProfile.getQrCodes().size());
+        Log.d(TAG,"total: "+tempSumQrCodes+", highest: "+tempSumQrCodes+", numQrCodes: "+myPlayerProfile.getQRCodes().size());
         final int sumQrCodes = tempSumQrCodes;
         final int highestQrCode = tempHighestQrCode;
 

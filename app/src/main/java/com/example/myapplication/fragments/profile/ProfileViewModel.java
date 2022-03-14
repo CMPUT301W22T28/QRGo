@@ -16,12 +16,11 @@ import java.util.ArrayList;
  * May 12, 2022
  */
 public class ProfileViewModel extends ViewModel {
-    final String TAG = "ProfileViewModel";
     private final MutableLiveData<String> username;
     private final MutableLiveData<String> totalScore;
     private final MutableLiveData<String> qrCodeCount;
     private final MutableLiveData<String> topQRCodeScore;
-    private final MutableLiveData<ArrayList<ScoringQRCode>> mutableProfileQrCodes;
+    private final MutableLiveData<ArrayList<ScoringQRCode>> mutableProfileQRCodes;
 
     /**
      * the constructor for the profile view model, it initializes all the live data for the fragment.
@@ -31,7 +30,7 @@ public class ProfileViewModel extends ViewModel {
         totalScore = new MutableLiveData<>();
         qrCodeCount = new MutableLiveData<>();
         topQRCodeScore = new MutableLiveData<>();
-        mutableProfileQrCodes = new MutableLiveData<>();
+        mutableProfileQRCodes = new MutableLiveData<>();
     }
 
     /**
@@ -54,7 +53,7 @@ public class ProfileViewModel extends ViewModel {
      * A getter for the qrCodeCount.
      * @return the qrCodeCount livedata.
      */
-    public LiveData<String> getQrCodeCount() {
+    public LiveData<String> getQRCodeCount() {
         return qrCodeCount;
     }
 
@@ -70,7 +69,7 @@ public class ProfileViewModel extends ViewModel {
      * A getter for the profile Qr Code live data array.
      * @return The profile qr code array live data.
      */
-    public LiveData<ArrayList<ScoringQRCode>> getQrCodes() { return mutableProfileQrCodes; }
+    public LiveData<ArrayList<ScoringQRCode>> getQrCodes() { return mutableProfileQRCodes; }
 
     /**
      * Sets the username if it it is not the same as the current username.
@@ -106,8 +105,8 @@ public class ProfileViewModel extends ViewModel {
      * Sets the profile qr code array, along with the qr code count.
      * @param qrCodes The array of qr codes to update the profile to.
      */
-    public void setMutableProfileQrCodes(ArrayList<ScoringQRCode> qrCodes) {
-        this.mutableProfileQrCodes.setValue(qrCodes);
+    public void setMutableProfileQRCodes(ArrayList<ScoringQRCode> qrCodes) {
+        this.mutableProfileQRCodes.setValue(qrCodes);
         this.qrCodeCount.setValue(String.valueOf(qrCodes.size()));
     }
 }

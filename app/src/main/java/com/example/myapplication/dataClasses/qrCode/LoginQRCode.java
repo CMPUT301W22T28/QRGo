@@ -9,9 +9,12 @@ package com.example.myapplication.dataClasses.qrCode;
  */
 public class LoginQRCode extends QRCode {
 
+    private String hash;
+
+    private final String typeOfQrCode = "login";
     @Override
     public String getQRCodeType() {
-        return null;
+        return typeOfQrCode;
     }
 
 }
