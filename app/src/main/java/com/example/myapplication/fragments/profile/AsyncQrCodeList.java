@@ -14,10 +14,10 @@ import java.util.ArrayList;
  * May 12, 2022
  */
 public class AsyncQrCodeList {
-    ProfileEventListeners profileEventListeners;
-    int asyncTaskCount = 0;
-    final int numTasksToReach;
-    private final ArrayList<ScoringQRCode> qrCodes = new ArrayList<>();
+    private ProfileEventListeners profileEventListeners;
+    private int asyncTaskCount = 0;
+    private int numTasksToReach;
+    private ArrayList<ScoringQRCode> qrCodes = new ArrayList<>();
 
     /**
      * Constructor of AsyncQrCodeList

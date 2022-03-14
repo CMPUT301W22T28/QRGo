@@ -44,7 +44,7 @@ public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAd
          * The constructor for the view holder.
          * @param itemView The view inside each recycler view element.
          */
-        ViewHolder(View itemView) {
+        public ViewHolder(View itemView) {
             super(itemView);
             scoreTextView = itemView.findViewById(R.id.put_qr_score_here);
             geolocationTextView = itemView.findViewById(R.id.put_geolocation_here);
@@ -66,7 +66,7 @@ public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAd
      * @param context the context of the qr code adapter
      * @param qrCodes the list of qr codes to inflate inside the recycler view
      */
-    QRCodeRecyclerAdapter(Context context, ArrayList<ScoringQRCode> qrCodes) {
+    public QRCodeRecyclerAdapter(Context context, ArrayList<ScoringQRCode> qrCodes) {
         this.mInflater = LayoutInflater.from(context);
         this.qrCodes = qrCodes;
     }
@@ -110,7 +110,7 @@ public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAd
      * A method to add qr codes to the view model.
      * @param qrCode
      */
-    public void addQrCode(ScoringQRCode qrCode) {
+    public void addQRCode(ScoringQRCode qrCode) {
         qrCodes.add(qrCode);
         notifyItemInserted(0);
     }
@@ -120,7 +120,7 @@ public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAd
      * @param id The position of the qr code to get.
      * @return The qr code at position id.
      */
-    ScoringQRCode getItem(int id) {
+    public ScoringQRCode getItem(int id) {
         return qrCodes.get(id);
     }
 
@@ -128,7 +128,7 @@ public class QRCodeRecyclerAdapter extends RecyclerView.Adapter<QRCodeRecyclerAd
      * Allows clicks events to be caught.
      * @param itemClickListener the itemClickListener to set.
      */
-    void setClickListener(ItemClickListener itemClickListener) {
+    public void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
