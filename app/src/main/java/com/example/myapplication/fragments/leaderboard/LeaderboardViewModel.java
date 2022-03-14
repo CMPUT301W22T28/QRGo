@@ -31,6 +31,9 @@ public class LeaderboardViewModel extends ViewModel {
     private final MutableLiveData<String> personalScore;
     private final MutableLiveData<ArrayList<Player>> playerRankingList;
 
+    /**
+     * the constructor for the leaderboard view model, it initializes all the live data for the fragment.
+     */
     public LeaderboardViewModel() {
         personalUsername = new MutableLiveData<>();
         personalScore = new MutableLiveData<>();
@@ -40,8 +43,7 @@ public class LeaderboardViewModel extends ViewModel {
     /**
      * Returns the username of the active profile
      *
-     * @return  personalUsername
-     * username of the active profile
+     * @return  personalUsername username of the active profile
      *
      */
     public LiveData<String> getPersonalUsername() {
@@ -55,8 +57,7 @@ public class LeaderboardViewModel extends ViewModel {
     /**
      * Returns the placement of the active profile
      *
-     * @return  personalScore
-     * placement (integer) of the profile
+     * @return personalScore placement (integer) of the profile
      *
      */
     public LiveData<String> getPersonalScore() {
@@ -70,8 +71,7 @@ public class LeaderboardViewModel extends ViewModel {
     /**
      * Returns the ranked list of players
      *
-     * @return  playerRankingList
-     * list of players (ranked)
+     * @return  playerRankingList list of players (ranked)
      *
      */
     public LiveData<ArrayList<Player>> getRankingList() {return playerRankingList;}
@@ -79,8 +79,7 @@ public class LeaderboardViewModel extends ViewModel {
     /**
      * Creates a playerRankingList based on inputted list
      *
-     * @param  playerList
-     * playerList is a ranked list of type Player
+     * @param  playerList playerList is a ranked list of type Player
      *
      */
     public void setPlayerRankingList(ArrayList<Player> playerList) {
