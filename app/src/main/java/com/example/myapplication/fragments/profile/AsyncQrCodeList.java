@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * @author Walter
  * @see ProfileEventListeners
  *
- * May 12, 2022
+ * March 12, 2022
  */
 public class AsyncQrCodeList {
     private ProfileEventListeners profileEventListeners;
