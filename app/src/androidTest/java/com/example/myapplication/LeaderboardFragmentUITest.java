@@ -21,11 +21,19 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import com.example.myapplication.activity.MainActivity;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Testing everything appears correctly on the leaderboard
@@ -38,6 +46,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class LeaderboardFragmentUITest {
     private final String myUsername = "sankalpsankalp";
+    private final String testQrCode = "x7fZHWF2mivfZNBnUZfk";
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Rule
     public ActivityTestRule<MainActivity> testRule = new ActivityTestRule<MainActivity>(MainActivity.class){
@@ -48,6 +59,40 @@ public class LeaderboardFragmentUITest {
             return intent;
         }
     };
+
+    /**
+     * adds the test qr code to the database before testing
+     */
+    @BeforeClass
+    public static void addToDatabase() {
+        final String USERS_COLLECTION = "Users";
+        final String testUsername = "sankalpsankalp";
+        final String testQrCode = "x7fZHWF2mivfZNBnUZfk";
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        DocumentReference userRef = db.collection(USERS_COLLECTION).document(testUsername);
+        Map<String, Object> map = new HashMap<>();
+        map.put("scanned_qrcodes", FieldValue.arrayUnion(testQrCode));
+        userRef.update(map);
+    }
+
+    /**
+     * removes the test qr code from the database after testing is completed
+     */
+    @AfterClass
+    public static void removeFromDatabase() {
+        final String USERS_COLLECTION = "Users";
+        final String testUsername = "sankalpsaini";
+        final String testQrCode = "x7fZHWF2mivfZNBnUZfk";
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        DocumentReference userRef = db.collection(USERS_COLLECTION).document(testUsername);
+        Map<String, Object> map = new HashMap<>();
+        map.put("scanned_qrcodes", FieldValue.arrayRemove(testQrCode));
+        userRef.update(map);
+    }
 
     @Before
     public void init() {
@@ -62,7 +107,6 @@ public class LeaderboardFragmentUITest {
     public void correctUsername() {
         // check proper username
         onView(withId(R.id.personal_player_card_username)).check(matches(withText(myUsername)));
-        onView(withId(R.id.personal_player_card_score)).check(matches(withText("Ranking: 1")));
     }
 
     @Test
@@ -74,9 +118,6 @@ public class LeaderboardFragmentUITest {
         onView(withId(R.id.leaderboard_fragment)).check(matches(isDisplayed()));
         onView(withText("HIGHEST")).perform(ViewActions.click());
         onView(withId(R.id.leaderboard_fragment)).check(matches(isDisplayed()));
-        //onView(withParent(withText(myUsername))).check(matches(isDisplayed()));
-        //onView(withText("7")).check(matches(isDisplayed()));
-        //onView(withText("COUNT")).check(matches(isClickable()));
     }
 
     @Test
@@ -84,7 +125,7 @@ public class LeaderboardFragmentUITest {
         onView(withText("COUNT")).perform(ViewActions.click());
         onView(withId(R.id.personal_player_card_username)).check(matches(withText(myUsername)));
         onView(withId(R.id.personal_player_card_score)).check(matches(isDisplayed()));
-        onView(withId(R.id.personal_player_card_score)).check(matches(withText("Ranking: 8")));
+        onView(withId(R.id.personal_player_card_score)).check(matches(withText("Ranking: 6")));
     }
 
     @Test
@@ -100,6 +141,6 @@ public class LeaderboardFragmentUITest {
         onView(withText("HIGHEST")).perform(ViewActions.click());
         onView(withId(R.id.personal_player_card_username)).check(matches(withText(myUsername)));
         onView(withId(R.id.personal_player_card_score)).check(matches(isDisplayed()));
-        onView(withId(R.id.personal_player_card_score)).check(matches(withText("Ranking: 1")));
+        onView(withId(R.id.personal_player_card_score)).check(matches(withText("Ranking: 3")));
     }
 }
