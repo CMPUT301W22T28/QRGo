@@ -83,8 +83,7 @@ public class QRScanActivity extends AppCompatActivity implements ZXingScannerVie
         scannerView.stopCameraPreview();
         scannerView.stopCamera();
         // This if statement is to check which activity/fragment launched this activity to redirect accordingly
-        if (getIntent().getStringExtra("Prev").equals("CameraFragment")){
-
+        if (getIntent().getStringExtra("Prev") != null && getIntent().getStringExtra("Prev").equals("CameraFragment")){
             cameraFragment(rawResult.getText());
         }
         else{

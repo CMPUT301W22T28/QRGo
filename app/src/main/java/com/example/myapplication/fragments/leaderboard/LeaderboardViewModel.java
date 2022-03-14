@@ -55,7 +55,7 @@ public class LeaderboardViewModel extends ViewModel {
     }
 
     /**
-     * Returns the placement of the active profile
+     * Returns the placement of the active profile.
      *
      * @return personalScore placement (integer) of the profile
      *
