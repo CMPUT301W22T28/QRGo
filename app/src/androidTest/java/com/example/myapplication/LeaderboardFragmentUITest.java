@@ -7,6 +7,7 @@ import static androidx.test.espresso.action.ViewActions.typeTextIntoFocusedView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withChild;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withParent;
@@ -60,16 +61,45 @@ public class LeaderboardFragmentUITest {
     @Test
     public void correctUsername() {
         // check proper username
-        onView(withText(myUsername)).check(matches(isDisplayed()));
+        onView(withId(R.id.personal_player_card_username)).check(matches(withText(myUsername)));
+        onView(withId(R.id.personal_player_card_score)).check(matches(withText("Ranking: 1")));
     }
 
     @Test
-    public void checkButtons() {
+    public void checkButtonsClickable() {
+        // checks to make sure all of the buttons can be pressed
         onView(withText("COUNT")).perform(ViewActions.click());
+        onView(withId(R.id.leaderboard_fragment)).check(matches(isDisplayed()));
         onView(withText("SUM")).perform(ViewActions.click());
+        onView(withId(R.id.leaderboard_fragment)).check(matches(isDisplayed()));
         onView(withText("HIGHEST")).perform(ViewActions.click());
+        onView(withId(R.id.leaderboard_fragment)).check(matches(isDisplayed()));
         //onView(withParent(withText(myUsername))).check(matches(isDisplayed()));
         //onView(withText("7")).check(matches(isDisplayed()));
         //onView(withText("COUNT")).check(matches(isClickable()));
+    }
+
+    @Test
+    public void checkCount() {
+        onView(withText("COUNT")).perform(ViewActions.click());
+        onView(withId(R.id.personal_player_card_username)).check(matches(withText(myUsername)));
+        onView(withId(R.id.personal_player_card_score)).check(matches(isDisplayed()));
+        onView(withId(R.id.personal_player_card_score)).check(matches(withText("Ranking: 8")));
+    }
+
+    @Test
+    public void checkSum() {
+        onView(withText("SUM")).perform(ViewActions.click());
+        onView(withId(R.id.personal_player_card_username)).check(matches(withText(myUsername)));
+        onView(withId(R.id.personal_player_card_score)).check(matches(isDisplayed()));
+        onView(withId(R.id.personal_player_card_score)).check(matches(withText("Ranking: 5")));
+    }
+
+    @Test
+    public void checkHighest() {
+        onView(withText("HIGHEST")).perform(ViewActions.click());
+        onView(withId(R.id.personal_player_card_username)).check(matches(withText(myUsername)));
+        onView(withId(R.id.personal_player_card_score)).check(matches(isDisplayed()));
+        onView(withId(R.id.personal_player_card_score)).check(matches(withText("Ranking: 1")));
     }
 }
