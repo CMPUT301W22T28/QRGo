@@ -311,6 +311,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         updateHighestAndSumQrCode();
     }
 
+
     /**
      * This method is called after the onQrCodeListDoneFillingEvent is called. It
      * uses the gathered ScoringQrCodes to calculate the highest score and the sum of all
