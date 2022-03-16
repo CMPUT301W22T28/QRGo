@@ -38,12 +38,14 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
     private ItemClickListener mClickListener;
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView scoreLabel;
         TextView score;
         TextView username;
 
         // stores and recycles views as they are scrolled off screen
         ViewHolder(View itemView) {
             super(itemView);
+            scoreLabel = itemView.findViewById(R.id.leaderboard_score_text);
             score = itemView.findViewById(R.id.put_leaderboard_score_here);
             username = itemView.findViewById(R.id.put_leaderboard_username_here);
             itemView.setOnClickListener(this);
@@ -77,7 +79,7 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
     public void onBindViewHolder(ViewHolder holder, int position) {
         Player player = rankings.get(position);
         holder.score.setText((Integer.toString(player.getRankingScore())));
-
+        holder.scoreLabel.setText(player.getRankingLabel());
         holder.username.setText(player.getUsername());
     }
 

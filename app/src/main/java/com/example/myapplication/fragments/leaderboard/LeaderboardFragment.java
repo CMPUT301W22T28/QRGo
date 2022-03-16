@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -94,6 +95,7 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
 
         //initialize recyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        recyclerView.addItemDecoration(new DividerItemDecoration(activity, DividerItemDecoration.VERTICAL));
         rankingRecyclerAdapter = new RankingRecyclerAdapter(activity, myRankingList);
         rankingRecyclerAdapter.setClickListener(this);
         recyclerView.setAdapter(rankingRecyclerAdapter);
@@ -106,23 +108,22 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
         setViewListeners();
 
         //pulls data from Database (starting with scanned_highest)
-        getRankingsFromDatabase("scanned_highest");
+        getRankingsFromDatabase("scanned_highest", "Highest");
 
         //listens to which tabs were pressed and calls getRankingsFromDatabase() to sort accordingly
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                    @Override
                    public void onTabSelected(TabLayout.Tab tab) {
                        if (tab.getText().equals("Highest")) {
-                           Log.d(TAG, "here");
-                           getRankingsFromDatabase("scanned_highest");
+                           getRankingsFromDatabase("scanned_highest", "Highest");
                        }
                        if (tab.getText().equals("Count")) {
                            Log.d(TAG, "Current tab: " + tab.getText());
-                           getRankingsFromDatabase("scanned_count");
+                           getRankingsFromDatabase("scanned_count", "Count");
                        }
                        if (tab.getText().equals("Sum")) {
                            Log.d(TAG, "Current tab: " + tab.getText());
-                           getRankingsFromDatabase("scanned_sum");
+                           getRankingsFromDatabase("scanned_sum", "Sum");
                        }
                    }
 
@@ -145,7 +146,7 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
      * @param tabSort indicates what type of sort is needed based on the tab that is clicked
      *
      */
-    private void getRankingsFromDatabase(String tabSort) {
+    private void getRankingsFromDatabase(String tabSort, String tabLabel) {
 
         // database initalized
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -177,7 +178,7 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
                         Double rankingScore = document.getDouble(tabSort);
                         // create new player and add it to myRankingList
                         Player player = new Player(username, isAdmin);
-                        player.setRankingScore(rankingScore.intValue());
+                        player.setRankingScore(rankingScore.intValue(), tabLabel);
                         myRankingList.add(player);
 
                     }
