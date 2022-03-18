@@ -3,11 +3,13 @@ package com.example.myapplication.fragments.camera;
 import static android.app.Activity.RESULT_OK;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -22,18 +24,40 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.myapplication.activity.QRScanActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentCameraBinding;
+import com.firebase.geofire.GeoFireUtils;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.firebase.geofire.GeoLocation;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import org.osmdroid.util.GeoPoint;
+
+import java.io.ByteArrayOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 
 /**
  * This class represents the camera fragment that is responsible for scanning valid QRCodes,
@@ -54,13 +78,14 @@ public class CameraFragment extends Fragment {
     private TextView sizeImageText;
     private Switch savePictureSwitch;
     private Switch saveGeolocationSwitch;
-    private double longitude;
-    private double latitude;
     private double sizeImage;
     private Bitmap imageBitMap;
     private Button savePostButton;
     private String QRCodeString = null;
-    private FusedLocationProviderClient fusedLocationClient;
+    private GeoPoint currentLocation;
+    private boolean flag;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private StorageReference imageStore = FirebaseStorage.getInstance().getReference();
 
 
     private FragmentCameraBinding binding;
@@ -101,24 +126,17 @@ public class CameraFragment extends Fragment {
 
         setGeolocationSwitch();
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        currentLocation = new GeoPoint(0.0, 0.0); //null island
+
+        Context ctx = getActivity().getApplicationContext();
+        flag = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ctx) == com.google.android.gms.common.ConnectionResult.SUCCESS;
 
         Log.d("CameraFragment", getActivity().getIntent().getStringExtra("Username"));
-
 
         savePostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                if (saveGeolocationSwitch.isChecked()) {
-
-                    setLocation();
-                }
-
-                else {
-                    Log.d("MainActivity", longitude + " " + latitude);
-                }
-                //saveQRPost(String QRHash, );
+                savePost();
             }
         });
 
@@ -151,25 +169,35 @@ public class CameraFragment extends Fragment {
      * checks if the user has granted permmission for the app to use their geolocation before
      * proceeding to obtain the geolocation of the user.
      */
-    public void setLocation() {
+    public void updateLocation() {
+        final Context context = this.getActivity();
 
-        checkLocationPermission();
+        // always check location permissions
+        if (ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) {
+            FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
+            fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                @Override
+                public void onComplete(@NonNull Task<Location> task) {
 
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
+                    Log.d("CameraFragment", task.toString());
 
-                            //update the longitude and latitude
-
-                            latitude = location.getLatitude();
-
-                            longitude = location.getLongitude();
-                        }
+                    Location location = task.getResult();
+                    if (location != null){
+                        currentLocation.setLatitude(location.getLatitude());
+                        currentLocation.setLongitude(location.getLongitude());
                     }
-                });
+                }
+            });
+        } else {
+            // You can directly ask for the permission.
+            // The registered ActivityResultCallback gets the result of this request.
+//            requestPermissionLauncher.launch(
+//                    Manifest.permission.ACCESS_FINE_LOCATION);
+
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+        }
     }
 
     /**
@@ -177,19 +205,21 @@ public class CameraFragment extends Fragment {
      * if not then a permission request is made on the screen of the user.
      */
     public void checkLocationPermission() {
+        final Context context = this.getActivity();
 
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+        context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+        PackageManager.PERMISSION_GRANTED) {
+            //Do nothing you good.
+            Log.d("CameraFragment", "Location is already granted");
+            return;
+        }
+        else {
+            Log.d("CameraFragment", "Location not granted");
 
-            Log.d("MainActivity", "In the fucking if statement");
-
-
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                    LOCATION_REQUEST_CODE);
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST_CODE);
         }
 
-        Log.d("MainActivity" , "" + ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) + " "
-                + PackageManager.PERMISSION_GRANTED + " " + ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION));
     }
 
     /**
@@ -337,7 +367,8 @@ public class CameraFragment extends Fragment {
                 final String result = data.getStringExtra("ScoringQRCode");
 
                 // Use the data - in this case, display it in a Toast.
-                Log.d("CameraFragment",result);
+                QRCodeString = result;
+
                 enablingButtons();
             } else {
                 // AnotherActivity was not successful. No data to retrieve.
@@ -381,6 +412,122 @@ public class CameraFragment extends Fragment {
         savePictureSwitch.setEnabled(true);
         savePictureSwitch.setTextColor(Color.WHITE);
 
+
+    }
+
+    public static String sha256String(@NonNull String source) {
+        byte[] hash = null;
+        String hashCode = null;// w  ww  .  j  a va 2 s.c  o m
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            hash = digest.digest(source.getBytes());
+        } catch (NoSuchAlgorithmException e) {
+            Log.wtf("CameraFragment", "Can't calculate SHA-256");
+        }
+
+        if (hash != null) {
+            StringBuilder hashBuilder = new StringBuilder();
+            for (int i = 0; i < hash.length; i++) {
+                String hex = Integer.toHexString(hash[i]);
+                if (hex.length() == 1) {
+                    hashBuilder.append("0");
+                    hashBuilder.append(hex.charAt(hex.length() - 1));
+                } else {
+                    hashBuilder.append(hex.substring(hex.length() - 2));
+                }
+            }
+            hashCode = hashBuilder.toString();
+        }
+
+        return hashCode;
+    }
+
+    public void savePost() {
+
+        HashMap<String, Object> post = new HashMap<>();
+
+        String encodedQRCodeString = sha256String(QRCodeString);
+
+        Log.d("CameraFragment", encodedQRCodeString);
+
+        if (saveGeolocationSwitch.isChecked()) {
+
+            if (flag) {
+                updateLocation();
+            }
+
+            Log.d("CameraFragment", currentLocation.getLongitude() + " " + currentLocation.getLatitude());
+
+            post.put("latitude", currentLocation.getLatitude());
+            post.put("longitude", currentLocation.getLongitude());
+            post.put("geoHash", GeoFireUtils.getGeoHashForLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude())));
+        }
+
+        if (savePictureSwitch.isChecked()) {
+
+            //Update or upload an Image
+            StorageReference imageToStore = imageStore.child(String.format("images/%s", encodedQRCodeString));
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            if (imageBitMap!=null) {
+                imageBitMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] data = baos.toByteArray();
+
+                UploadTask uploadTask = imageToStore.putBytes(data);
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
+
+                        Toast.makeText(getContext(), "Post Couldn't be Saved", Toast.LENGTH_SHORT);
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                        // ...
+
+                        imageToStore.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+
+                            }
+                        });
+
+                        Toast.makeText(getContext(), "Post Saved Successfully!", Toast.LENGTH_LONG);
+                    }
+                });
+            }
+
+        }
+        //check if the QRCode is already in there, if so, update it's stats. If the document doesnt exist, create a new one
+        db.collection("ScoringQRCodes")
+                .document(encodedQRCodeString)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                updateQRPost(post);
+
+                            } else {
+                                createQRPost(post);
+                            }
+                        } else {
+                            Log.d("CameraFragment", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    public void createQRPost(HashMap<String, Object> post) {
+
+    }
+
+    public void updateQRPost(HashMap<String, Object> post) {
 
     }
 }
