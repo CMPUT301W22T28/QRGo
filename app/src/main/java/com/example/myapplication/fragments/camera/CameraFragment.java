@@ -64,6 +64,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * This class represents the camera fragment that is responsible for scanning valid QRCodes,
@@ -455,6 +456,14 @@ public class CameraFragment extends Fragment {
 
         HashMap<String, Object> scoringQRCodeData = new HashMap<>();
 
+        HashMap<String, Object> post = new HashMap<>();
+
+        post.put("comment_ids", new ArrayList<String>());
+
+        post.put("qrcode_hash", encodedQRCodeString);
+
+        post.put("username",getActivity().getIntent().getStringExtra("Username"));
+
         encodedQRCodeString = sha256String(QRCodeString);
 
         // User did not check location
@@ -473,7 +482,7 @@ public class CameraFragment extends Fragment {
            scoringQRCodeData.replace("geoHash", null, GeoFireUtils.getGeoHashForLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude())));
         }
 
-        scoringQRCodeData.put("url", null);
+        post.put("url", null);
 
         if (savePictureSwitch.isChecked()) {
             //Update or upload an Image
@@ -508,8 +517,8 @@ public class CameraFragment extends Fragment {
                                             Log.d("CameraFragment", "HERE!!!"
                                                     + task.getResult().toString());
 
-                                            scoringQRCodeData.replace("url", null, task.getResult().toString());
-                                            checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData);
+                                            post.replace("url", null, task.getResult().toString());
+                                            checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
 
                                         }
                                         else{
@@ -527,11 +536,12 @@ public class CameraFragment extends Fragment {
             }
         }
         else {
-            checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData);
+            checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
         }
     }
 
-    public void checkScoringQRCodeExists(String encodedQRCodeString, HashMap<String, Object> scoringQRCodeData) {
+    public void checkScoringQRCodeExists(String encodedQRCodeString, HashMap<String, Object> scoringQRCodeData,
+                                         HashMap<String, Object> post) {
         //check if the QRCode is already in there, if so, update it's stats. If the document doesnt exist, create a new one
         db.collection("ScoringQRCodes")
                 .document(encodedQRCodeString)
@@ -544,8 +554,13 @@ public class CameraFragment extends Fragment {
                             if (document.exists()) {
                                 updateScoringQRCode(scoringQRCodeData);
 
+                                //Check that this man isn't pulling some bs
+                                saveUserPost(post);
+
                             } else {
                                 createScoringQRCode(scoringQRCodeData);
+
+                                saveUserPost(post);
                             }
                         } else {
                             Log.d("CameraFragment", "Error getting documents: ", task.getException());
@@ -609,7 +624,7 @@ public class CameraFragment extends Fragment {
                     }
                 });
 
-        // TODO: for updating scanned_by in ScoringQRCodes use loginactivity function (username is in intent) ->arrayUnion
+        // TODO: for updating scanned_by in ScoringQRCodes use loginactivity function (username is in intent) ->arrayUnion -> done
 
         db.collection("Users").document(getActivity().getIntent().getStringExtra("Username"))
                 .get()
@@ -638,5 +653,12 @@ public class CameraFragment extends Fragment {
                     }
                 });
 
+    }
+
+    public void saveUserPost(HashMap<String, Object> post) {
+
+        String uuid= UUID.randomUUID().toString();
+
+        db.collection("Posts").document(uuid).set(post);
     }
 }
