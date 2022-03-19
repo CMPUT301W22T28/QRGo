@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,8 +25,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.myapplication.activity.LoginActivity;
 import com.example.myapplication.activity.QRScanActivity;
 import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentCameraBinding;
@@ -48,6 +49,8 @@ import com.firebase.geofire.GeoLocation;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -74,6 +77,7 @@ public class CameraFragment extends Fragment {
     private static final int LOCATION_REQUEST_CODE = 2;
     private static final int QRCODE_SCAN_CAPTURE = 6;
     private static final int MY_CAMERA_REQUEST_CODE = 100;
+    private final String GAME_STATUS_QRCODE_COLLECTION = "GameStatusQRCode";
     private ImageView cameraImage;
     private TextView sizeImageText;
     private Switch savePictureSwitch;
@@ -89,6 +93,7 @@ public class CameraFragment extends Fragment {
 
 
     private FragmentCameraBinding binding;
+    LoginActivity loginActivity = new LoginActivity();
 
     /**
      *Inflates the camera fragment view so that it displays on the screen
@@ -318,6 +323,30 @@ public class CameraFragment extends Fragment {
         }
     }
 
+    public void checkGameStatusQRCode(String scannedString, Context context ){
+        db.collection(GAME_STATUS_QRCODE_COLLECTION)
+                .whereEqualTo("username",scannedString)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                // TODO: redirect to the user profile that was scanned
+                                disablingButtons();
+                            }
+                            // If there are no matches, then it is a scoring qrcode
+                            if (task.getResult().size() == 0){
+                                enablingButtons();
+                            }
+                        } else {
+                            Log.d("CameraFragment", "Error getting documents: ", task.getException());
+                        }
+
+                    }
+                });
+    }
+
     /**
      * This function deals with 2 situations. The first situation is when the user has chosen to
      * save a picture of the qrcode, and he has taken a picture, this function executes after
@@ -368,10 +397,8 @@ public class CameraFragment extends Fragment {
 
                 // Use the data - in this case, display it in a Toast.
                 QRCodeString = result;
+                loginActivity.checkLoginQRCode(result, getContext(), this, "CameraFragment");
 
-                enablingButtons();
-            } else {
-                // AnotherActivity was not successful. No data to retrieve.
             }
         }
 
@@ -502,25 +529,25 @@ public class CameraFragment extends Fragment {
 
         }
         //check if the QRCode is already in there, if so, update it's stats. If the document doesnt exist, create a new one
-        db.collection("ScoringQRCodes")
-                .document(encodedQRCodeString)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                updateQRPost(post);
-
-                            } else {
-                                createQRPost(post);
-                            }
-                        } else {
-                            Log.d("CameraFragment", "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
+//        db.collection("ScoringQRCodes")
+//                .document(encodedQRCodeString)
+//                .get()
+//                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                        if (task.isSuccessful()) {
+//                            DocumentSnapshot document = task.getResult();
+//                            if (document.exists()) {
+//                                updateQRPost(post);
+//
+//                            } else {
+//                                createQRPost(post);
+//                            }
+//                        } else {
+//                            Log.d("CameraFragment", "Error getting documents: ", task.getException());
+//                        }
+//                    }
+//                });
     }
 
     public void createQRPost(HashMap<String, Object> post) {
