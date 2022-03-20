@@ -188,8 +188,8 @@
 
         <Button
             android:id="@+id/delete_profile_button"
-            android:layout_width="392dp"
-            android:layout_height="wrap_content"
+            android:layout_width="393dp"
+            android:layout_height="59dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="7dp"
             android:layout_marginEnd="10dp"
