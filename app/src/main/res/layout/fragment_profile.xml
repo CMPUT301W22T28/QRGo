@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/profile_fragment"
     android:orientation="vertical"
-    tools:context=".fragments.profile.ProfileFragment">
+    tools:context=".fragments.profile.ProfileFragment"
+    >
 
     <LinearLayout
         android:id="@+id/profile_top_bar"
@@ -140,7 +141,7 @@
     <LinearLayout
         android:id="@+id/profile_recycler_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="450dp"
         android:orientation="vertical">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -148,7 +149,53 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:listSelector="@android:color/darker_gray"
-            tools:listitem="@layout/profile_qr_code_list_item"/>
+            tools:listitem="@layout/profile_qr_code_list_item" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/button_container"
+        android:layout_width="match_parent"
+        android:layout_height="172dp"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:id="@+id/show_buttons_container"
+            android:layout_width="match_parent"
+            android:layout_height="76dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="0dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/show_login_qrcode_button"
+                android:layout_width="190dp"
+                android:layout_height="72dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/show_login_qrcode" />
+
+            <Button
+                android:id="@+id/show_gamestatus_qrcode_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="10dp"
+                android:text="@string/show_game_status_qrcode" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/delete_profile_button"
+            android:layout_width="392dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginEnd="10dp"
+            android:backgroundTint="@color/red"
+            android:text="@string/delete_profile" />
+
     </LinearLayout>
 
 
