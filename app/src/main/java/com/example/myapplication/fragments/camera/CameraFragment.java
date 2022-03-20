@@ -333,6 +333,7 @@ public class CameraFragment extends Fragment {
         }
     }
 
+    //pushin p
     public void checkGameStatusQRCode(String scannedString, Context context ){
         db.collection(GAME_STATUS_QRCODE_COLLECTION)
                 .whereEqualTo("username",scannedString)
