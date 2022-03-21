@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,9 +50,11 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private ProfileViewModel profileViewModel;
     private ArrayList<ScoringQRCode> myQrCodes;
     private RecyclerView recyclerView;
+    private Button deleteProfileButton;
     private String myUsername = null;
     private Player myPlayerProfile;
     private QRCodeRecyclerAdapter scoringQRCodeAdapter;
+    private boolean isAdmin;
 
     /**
      * Initially called when the profile fragment is created.
@@ -91,6 +94,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         // send the data to the view listeners
         getProfileFromDatabase();
+
+        // check to see if the delete button can be visible
+        deleteAllowed();
     }
 
     /**
@@ -265,6 +271,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         final TextView topQRCodeTextView = binding.profileTopQrCode;
         profileViewModel.getTopQRCodeScore().observe(getViewLifecycleOwner(), topQRCodeTextView::setText);
 
+        deleteProfileButton = binding.deleteProfileButton;
+
         profileViewModel.getQrCodes().observe(getViewLifecycleOwner(), new Observer<ArrayList<ScoringQRCode>>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -272,6 +280,38 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 myQrCodes.clear();
                 myQrCodes.addAll(qrCodes);
                 scoringQRCodeAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void deleteAllowed() {
+        Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
+
+        try { this.myUsername = getArguments().getString("Username");}
+        catch(Exception e) { this.myUsername = requireActivity().getIntent().getStringExtra("Username"); }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
+
+        MyUserDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error == null) {
+                    isAdmin = value.getBoolean("admin");
+                    if (isAdmin) {
+                        Log.d(TAG, "this profile is an admin");
+                        //deleteProfileButton.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        Log.d(TAG, "this profile is not an admin");
+                    }
+                }
+                else {
+                    // throw exception if any issues getting document
+                    Toast.makeText(activity.getApplicationContext(), "Error ", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Error getting document: ", error);
+                }
             }
         });
     }
