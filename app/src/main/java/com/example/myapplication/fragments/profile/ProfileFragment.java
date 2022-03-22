@@ -64,9 +64,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      */
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        ProfileViewModel profileViewModel =
+        profileViewModel =
                 new ViewModelProvider(this).get(ProfileViewModel.class);
-
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
@@ -141,8 +140,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         }
                     }
 
+                    String myEmail = snapshot.getString("email");
+                    String myPhone = snapshot.getString("phone");
                     // region setting text views in profile top bar
                     profileViewModel.setUsername(myUsername);
+                    profileViewModel.setEmail(myEmail);
+                    profileViewModel.setPhone(myPhone);
 
                     // endregion
                     Long scannedCount = snapshot.getLong("scanned_count");
@@ -253,6 +256,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      * change with it.
      */
     private void setViewListeners() {
+        getActivity().getViewModelStore().clear();
+
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
         final TextView usernameTextView = binding.profileUsername;
@@ -266,6 +271,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         final TextView topQRCodeTextView = binding.profileTopQrCode;
         profileViewModel.getTopQRCodeScore().observe(getViewLifecycleOwner(), topQRCodeTextView::setText);
+
+        final TextView emailTextView = binding.profileTopEmail;
+        profileViewModel.getEmail().observe(getViewLifecycleOwner(), emailTextView::setText);
+
+        final TextView phoneTextView = binding.profileTopPhone;
+        profileViewModel.getPhone().observe(getViewLifecycleOwner(), phoneTextView::setText);
 
         profileViewModel.getQrCodes().observe(getViewLifecycleOwner(), new Observer<ArrayList<ScoringQRCode>>() {
             @SuppressLint("NotifyDataSetChanged")
@@ -309,6 +320,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         super.onDestroyView();
         binding = null;
     }
+
+
 
     /**
      * An event listener, called when AsynQrCodeList is done filling with the prescribed
@@ -398,4 +411,5 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     public ProfileViewModel getViewModel() {
         return profileViewModel;
     }
+
 }

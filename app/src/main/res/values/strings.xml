@@ -22,6 +22,6 @@
     <string name="post_scanned_by_tab_name">Scanned by</string>
     <string name="post_comments_tab_name">Comments</string>
     <string name="post_post_tab_name">Post</string>
-
-
+    <string name="profile_static_email">Email:</string>
+    <string name="profile_static_phone">Phone:</string>
 </resources>
