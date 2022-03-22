@@ -13,15 +13,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.myapplication.R;
-import com.example.myapplication.databinding.FragmentProfileBinding;
-import com.example.myapplication.databinding.PostFragmentBinding;
-import com.example.myapplication.fragments.profile.ProfileViewModel;
+import com.example.myapplication.databinding.FragmentPostBinding;
 
 public class PostFragment extends Fragment {
 
     private PostViewModel postViewModel;
 
-    private PostFragmentBinding binding;
+    private FragmentPostBinding binding;
 
     public static PostFragment newInstance() {
         return new PostFragment();
@@ -33,7 +31,7 @@ public class PostFragment extends Fragment {
 
         postViewModel = new ViewModelProvider(this).get(PostViewModel.class);
 
-        binding = PostFragmentBinding.inflate(inflater, container, false);
+        binding = FragmentPostBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         return root;
