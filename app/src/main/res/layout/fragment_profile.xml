@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
+    android:background="@android:color/white"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,11 +10,12 @@
     tools:context=".fragments.profile.ProfileFragment">
 
     <LinearLayout
+        android:background="@android:color/darker_gray"
         android:id="@+id/profile_top_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -124,6 +126,58 @@
 
                 <TextView
                     android:id="@+id/profile_top_qr_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:gravity="end"
+                    android:text="@string/profile_filler_value"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#4d4d4d" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/profile_static_email"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#4d4d4d"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/profile_top_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    android:gravity="end"
+                    android:text="@string/profile_filler_value"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#4d4d4d" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="@string/profile_static_phone"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#4d4d4d"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/profile_top_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="5dp"

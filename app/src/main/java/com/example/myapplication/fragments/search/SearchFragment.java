@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -182,10 +183,11 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
         ProfileFragment profileFragment = new ProfileFragment();
         Bundle username = new Bundle();
-        username.putString("Username", userRecyclerAdapter.getItem(position).getUsername());
+        String name = userRecyclerAdapter.getItem(position).getUsername();
+        username.putString("Username", name);
         profileFragment.setArguments(username);
         getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.nav_host_fragment_activity_main, profileFragment, "findThisFragment")
+                .replace(R.id.nav_host_fragment_activity_main, profileFragment, "profileFragment"+name)
                 .addToBackStack(null)
                 .commit();
     }

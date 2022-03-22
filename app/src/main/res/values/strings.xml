@@ -16,4 +16,6 @@
     <string name="profile_static_total_qr_code_count">Total QR Code Count</string>
     <string name="profile_static_top_qr_code">Top QR Code:</string>
     <string name="map_search">Search Nearby</string>
+    <string name="profile_static_email">Email:</string>
+    <string name="profile_static_phone">Phone:</string>
 </resources>
