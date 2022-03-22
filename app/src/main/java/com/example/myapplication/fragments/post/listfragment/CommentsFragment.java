@@ -13,26 +13,27 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.myapplication.R;
+import com.example.myapplication.fragments.post.postcontent.PostInfoFragment;
 
-import com.example.myapplication.databinding.FragmentCommentsAndScannedByBinding;
+public class CommentsFragment extends Fragment {
 
-public class CommentsAndScannedByFragment extends Fragment {
+    private CommentsViewModel mViewModel;
 
-    private CommentsAndScannedByViewModel mViewModel;
+    private static final String ARG_QR = "argQR";
 
-    private FragmentCommentsAndScannedByBinding binding;
+    public static CommentsFragment newInstance(String qrHash) {
+        Bundle args = new Bundle();
+        args.putString(ARG_QR, qrHash);
 
-    public static CommentsAndScannedByFragment newInstance() {
-        return new CommentsAndScannedByFragment();
+        CommentsFragment fragment = new CommentsFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
-        mViewModel = new ViewModelProvider(this).get(CommentsAndScannedByViewModel.class);
-        binding = FragmentCommentsAndScannedByBinding.inflate(inflater, container, false);
-        return binding.getRoot();
+        return inflater.inflate(R.layout.fragment_comments, container, false);
     }
 
     @Override
@@ -41,4 +42,5 @@ public class CommentsAndScannedByFragment extends Fragment {
 
         // stuff in here
     }
+
 }
