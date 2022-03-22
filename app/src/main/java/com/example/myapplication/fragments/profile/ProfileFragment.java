@@ -67,9 +67,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         profileViewModel =
                 new ViewModelProvider(this).get(ProfileViewModel.class);
         binding = FragmentProfileBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
 
-        return root;
+        return binding.getRoot();
     }
 
     /**
@@ -215,6 +214,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                             });
                         }
                     }
+                    else {
+
+                    }
 
                     if (scannedCount == null || qrCodeHashes.size() != scannedCount.intValue()) {
                         MyUserDocRef.update(
@@ -301,11 +303,11 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         ScoringQRCode qrCode = myPlayerProfile.getQRCodes().get(position);
 
         PostFragment postFragment = new PostFragment();
-        Bundle username = new Bundle();
-        username.putString("qrCodeHash", qrCode.getHash());
+        Bundle postArguments = new Bundle();
+        postArguments.putString("qrCodeHash", qrCode.getHash());
 
 
-        postFragment.setArguments(username);
+        postFragment.setArguments(postArguments);
         requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.nav_host_fragment_activity_main, postFragment, "postFragment")
                 .addToBackStack(null)
@@ -320,7 +322,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         super.onDestroyView();
         binding = null;
     }
-
 
 
     /**
