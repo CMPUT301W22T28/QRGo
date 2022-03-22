@@ -18,10 +18,12 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
+import com.example.myapplication.fragments.post.PostFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -284,6 +286,19 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     @Override
     public void onItemClick(View view, int position) {
         Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
+
+        ScoringQRCode qrCode = myPlayerProfile.getQRCodes().get(position);
+
+        PostFragment postFragment = new PostFragment();
+        Bundle username = new Bundle();
+        username.putString("qrCodeHash", qrCode.getHash());
+
+
+        postFragment.setArguments(username);
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.nav_host_fragment_activity_main, postFragment, "postFragment")
+                .addToBackStack(null)
+                .commit();
     }
 
     /**
