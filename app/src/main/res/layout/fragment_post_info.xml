@@ -6,8 +6,13 @@
     tools:context=".fragments.post.postcontent.PostInfoFragment">
 
     <TextView
+        android:id="@+id/scanned_by_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Hello" />
+        android:text="Scanned by:" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Location:" />
 </FrameLayout>
