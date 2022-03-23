@@ -2,19 +2,26 @@ package com.example.myapplication.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.myapplication.R;
+import com.example.myapplication.dataClasses.qrCode.LoginQRCode;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
-
+/**
+ * @author Amro Amanuddein
+ * @see com.example.myapplication.fragments.profile.ProfileFragment
+ */
 public class QRShowActivity extends AppCompatActivity {
     private final String SHOW_TAG = "QRShowActivity";
 
@@ -55,6 +62,16 @@ public class QRShowActivity extends AppCompatActivity {
         else{
             qrCodeTextView.setText("Show this QR Code to others so they can see your stats!");
         }
+
+        // Added this since using the Manifest will not work
+        Button goBackButton = (Button) findViewById(R.id.go_back_button);
+        goBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // turns out finish retains the information on the ProfileFragment, no need for intents
+                finish();
+            }
+        });
 
     }
 }
