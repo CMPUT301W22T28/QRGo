@@ -86,6 +86,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         activity = (MainActivity) getActivity();
         assert activity != null;
 
+        deleteProfileButton = (Button) binding.deleteProfileButton;
+
         // getting the recycler view ready
         setupRecyclerView();
 
@@ -271,8 +273,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         final TextView topQRCodeTextView = binding.profileTopQrCode;
         profileViewModel.getTopQRCodeScore().observe(getViewLifecycleOwner(), topQRCodeTextView::setText);
 
-        deleteProfileButton = binding.deleteProfileButton;
-
         profileViewModel.getQrCodes().observe(getViewLifecycleOwner(), new Observer<ArrayList<ScoringQRCode>>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -301,7 +301,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     isAdmin = value.getBoolean("admin");
                     if (isAdmin) {
                         Log.d(TAG, "this profile is an admin");
-                        //deleteProfileButton.setVisibility(View.VISIBLE);
+                        deleteProfileButton.setVisibility(View.VISIBLE);
                     }
                     else {
                         Log.d(TAG, "this profile is not an admin");
