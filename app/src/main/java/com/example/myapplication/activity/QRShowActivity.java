@@ -5,14 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.myapplication.R;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+
 
 public class QRShowActivity extends AppCompatActivity {
     private final String SHOW_TAG = "QRShowActivity";
@@ -21,11 +22,10 @@ public class QRShowActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrshow);
-        Log.d(SHOW_TAG, getIntent().getStringExtra("Username"));
-        Log.d(SHOW_TAG, getIntent().getStringExtra("qrCodeType"));
 
+        ImageView qrCodeImage = ((ImageView) findViewById(R.id.generated_qr_image));
+        TextView qrCodeTextView = ((TextView) findViewById(R.id.generated_qr_text));
 
-        ImageView qrCodeImage = ((ImageView) findViewById(R.id.imageView2));
         QRCodeWriter writer = new QRCodeWriter();
 
         /**
@@ -47,6 +47,13 @@ public class QRShowActivity extends AppCompatActivity {
 
         } catch (WriterException e) {
             e.printStackTrace();
+        }
+
+        if (getIntent().getStringExtra("qrCodeType").equals("Login")){
+            qrCodeTextView.setText("Use this QR Code to login to your account using a different device!");
+        }
+        else{
+            qrCodeTextView.setText("Show this QR Code to others so they can see your stats!");
         }
 
     }

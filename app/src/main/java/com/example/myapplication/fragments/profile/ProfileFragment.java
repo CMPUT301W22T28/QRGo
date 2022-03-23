@@ -105,6 +105,13 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
     }
 
+    /**
+     * Method to start the QRShowActivity activity after the user clicks one of the generated qrcode
+     * buttons
+     * @param username the string to be represented by the qrcode
+     * @param qrCodeType the type of qrcode the user requested to generate
+     * @see QRShowActivity
+     */
     public void qrShowActivity (String username, String qrCodeType){
         Bundle extras = new Bundle();
         extras.putString("Username", username);

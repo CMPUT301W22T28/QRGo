@@ -7,13 +7,24 @@
     tools:context=".activity.QRShowActivity">
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/generated_qr_image"
         android:layout_width="300dp"
         android:layout_height="300dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintHorizontal_bias="0.531"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.315" />
+        app:layout_constraintTop_toBottomOf="@+id/generated_qr_text"
+        app:layout_constraintVertical_bias="0.157" />
+
+    <TextView
+        android:id="@+id/generated_qr_text"
+        android:layout_width="300dp"
+        android:layout_height="76dp"
+        android:layout_marginTop="64dp"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.541"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
