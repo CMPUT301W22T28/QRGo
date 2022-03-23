@@ -19,6 +19,9 @@
     <string name="delete_profile">Delete Profile</string>
     <string name="show_login_qrcode">Show Login QR Code</string>
     <string name="show_game_status_qrcode">Show Stats QR Code</string>
+    <string name="post_scanned_by_tab_name">Scanned by</string>
+    <string name="post_comments_tab_name">Comments</string>
+    <string name="post_post_tab_name">Post</string>
 
 
 </resources>

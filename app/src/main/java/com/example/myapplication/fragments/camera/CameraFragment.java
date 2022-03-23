@@ -25,7 +25,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
@@ -48,6 +49,7 @@ import com.google.android.gms.tasks.Task;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -60,7 +62,13 @@ import org.osmdroid.util.GeoPoint;
 import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * This class represents the camera fragment that is responsible for scanning valid QRCodes,
@@ -87,9 +95,10 @@ public class CameraFragment extends Fragment {
     private Button savePostButton;
     private String QRCodeString = null;
     private GeoPoint currentLocation;
+    private String encodedQRCodeString;
     private boolean flag;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private StorageReference imageStore = FirebaseStorage.getInstance().getReference();
+    private StorageReference imageStore = FirebaseStorage.getInstance("gs://qrgo-e62ee.appspot.com/").getReference();
 
 
     private FragmentCameraBinding binding;
@@ -139,6 +148,7 @@ public class CameraFragment extends Fragment {
         Log.d("CameraFragment", getActivity().getIntent().getStringExtra("Username"));
 
         savePostButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
                 savePost();
@@ -323,6 +333,7 @@ public class CameraFragment extends Fragment {
         }
     }
 
+    //pushin p
     public void checkGameStatusQRCode(String scannedString, Context context ){
         db.collection(GAME_STATUS_QRCODE_COLLECTION)
                 .whereEqualTo("username",scannedString)
@@ -399,6 +410,9 @@ public class CameraFragment extends Fragment {
                 QRCodeString = result;
                 loginActivity.checkLoginQRCode(result, getContext(), this, "CameraFragment");
 
+                enablingButtons();
+            } else {
+                // AnotherActivity was not successful. No data to retrieve.
             }
         }
 
@@ -469,35 +483,48 @@ public class CameraFragment extends Fragment {
         return hashCode;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void savePost() {
+
+        HashMap<String, Object> scoringQRCodeData = new HashMap<>();
 
         HashMap<String, Object> post = new HashMap<>();
 
-        String encodedQRCodeString = sha256String(QRCodeString);
+        post.put("comment_ids", new ArrayList<String>());
 
-        Log.d("CameraFragment", encodedQRCodeString);
+        post.put("qrcode_hash", encodedQRCodeString);
 
+        post.put("username",getActivity().getIntent().getStringExtra("Username"));
+
+        encodedQRCodeString = sha256String(QRCodeString);
+
+        // User did not check location
+        scoringQRCodeData.put("latitude", null);
+        scoringQRCodeData.put("longitude", null);
+        scoringQRCodeData.put("geoHash", null);
         if (saveGeolocationSwitch.isChecked()) {
 
             if (flag) {
                 updateLocation();
             }
 
-            Log.d("CameraFragment", currentLocation.getLongitude() + " " + currentLocation.getLatitude());
 
-            post.put("latitude", currentLocation.getLatitude());
-            post.put("longitude", currentLocation.getLongitude());
-            post.put("geoHash", GeoFireUtils.getGeoHashForLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude())));
+           scoringQRCodeData.replace("latitude", null , currentLocation.getLatitude());
+           scoringQRCodeData.replace("longitude", null, currentLocation.getLongitude());
+           scoringQRCodeData.replace("geoHash", null, GeoFireUtils.getGeoHashForLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude())));
         }
 
-        if (savePictureSwitch.isChecked()) {
+        post.put("url", null);
 
+        if (savePictureSwitch.isChecked()) {
             //Update or upload an Image
             StorageReference imageToStore = imageStore.child(String.format("images/%s", encodedQRCodeString));
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
             if (imageBitMap!=null) {
+
+
                 imageBitMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 byte[] data = baos.toByteArray();
 
@@ -507,54 +534,163 @@ public class CameraFragment extends Fragment {
                     public void onFailure(@NonNull Exception exception) {
                         // Handle unsuccessful uploads
 
-                        Toast.makeText(getContext(), "Post Couldn't be Saved", Toast.LENGTH_SHORT);
+                        Toast.makeText(getActivity(), "Post Couldn't be Saved", Toast.LENGTH_SHORT);
                     }
-                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-                        // ...
-
-                        imageToStore.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                })
+                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @RequiresApi(api = Build.VERSION_CODES.N)
                             @Override
-                            public void onSuccess(Uri uri) {
+                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                imageToStore.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Uri> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d("CameraFragment", "HERE!!!"
+                                                    + task.getResult().toString());
+
+                                            post.replace("url", null, task.getResult().toString());
+                                            checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
+
+                                        }
+                                        else{
+                                            Log.d("CameraFragment", "FAIL");
+                                        }
+
+                                    }
+
+                                });
 
                             }
                         });
 
-                        Toast.makeText(getContext(), "Post Saved Successfully!", Toast.LENGTH_LONG);
+                        Toast.makeText(getActivity(), "Post Saved Successfully!", Toast.LENGTH_LONG);
+            }
+        }
+        else {
+            checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
+        }
+    }
+
+    public void checkScoringQRCodeExists(String encodedQRCodeString, HashMap<String, Object> scoringQRCodeData,
+                                         HashMap<String, Object> post) {
+        //check if the QRCode is already in there, if so, update it's stats. If the document doesnt exist, create a new one
+        db.collection("ScoringQRCodes")
+                .document(encodedQRCodeString)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                updateScoringQRCode(scoringQRCodeData);
+
+                                //Check that this man isn't pulling some bs
+                                saveUserPost(post);
+
+                            } else {
+                                createScoringQRCode(scoringQRCodeData);
+
+                                saveUserPost(post);
+                            }
+                        } else {
+                            Log.d("CameraFragment", "Error getting documents: ", task.getException());
+                        }
                     }
                 });
+    }
+
+    public void createScoringQRCode(HashMap<String, Object> scoringQRCodeData) {
+        List<String> scannedBy = new ArrayList<>();
+
+        scannedBy.add(getActivity().getIntent().getStringExtra("Username"));
+
+        scoringQRCodeData.put("scanned_by", scannedBy);
+
+        // TODO: Proper calc score usage!, currently a placeholder of score 0.
+        scoringQRCodeData.put("score", 0);
+        // TODO: Call function to update user scanned_qrcodes field -> Done
+        db.collection("Users").document(getActivity().getIntent().getStringExtra("Username")).update("scanned_qrcodes",
+                FieldValue.arrayUnion(encodedQRCodeString));
+
+
+        // TODO: Save posts!
+
+        scoringQRCodeData.put("num_scanned_by", 1);
+
+        scoringQRCodeData.put("last_scanned", Calendar.getInstance().getTime());
+
+
+        db.collection("ScoringQRCodes")
+                .document(encodedQRCodeString)
+                .set(scoringQRCodeData).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d("CameraFragment", "Document written successfully");
             }
-
-        }
-        //check if the QRCode is already in there, if so, update it's stats. If the document doesnt exist, create a new one
-//        db.collection("ScoringQRCodes")
-//                .document(encodedQRCodeString)
-//                .get()
-//                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                        if (task.isSuccessful()) {
-//                            DocumentSnapshot document = task.getResult();
-//                            if (document.exists()) {
-//                                updateQRPost(post);
-//
-//                            } else {
-//                                createQRPost(post);
-//                            }
-//                        } else {
-//                            Log.d("CameraFragment", "Error getting documents: ", task.getException());
-//                        }
-//                    }
-//                });
-    }
-
-    public void createQRPost(HashMap<String, Object> post) {
+        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("CameraFragment", "Error writing document", e);
+                    }
+                });
 
     }
 
-    public void updateQRPost(HashMap<String, Object> post) {
+    public void updateScoringQRCode(HashMap<String, Object> scoringQRCodeData) {
 
+        scoringQRCodeData.put("last_scanned", Calendar.getInstance().getTime());
+
+        db.collection("ScoringQRCodes")
+                .document(encodedQRCodeString)
+                .update(scoringQRCodeData).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d("CameraFragment", "Document updated successfully");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("CameraFragment", "Error updating document", e);
+                    }
+                });
+
+        // TODO: for updating scanned_by in ScoringQRCodes use loginactivity function (username is in intent) ->arrayUnion -> done
+
+        db.collection("Users").document(getActivity().getIntent().getStringExtra("Username"))
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+
+                        if (task.isSuccessful()) {
+
+                            DocumentSnapshot document = task.getResult();
+
+                            Map<String,Object > userInstance = document.getData();
+
+                            if(Arrays.asList( (Object[]) userInstance.get("scanned_qrcodes")).contains(encodedQRCodeString)==false) {
+
+                                db.collection("ScoringQRCodes").document(encodedQRCodeString).update("num_scanned_by", FieldValue.increment(1));
+
+                                db.collection("ScoringQRCodes").document(encodedQRCodeString).update("scanned_by", FieldValue.arrayUnion(
+                                        getActivity().getIntent().getStringExtra("Username")
+                                ));
+
+
+                            }
+
+                        }
+                    }
+                });
+
+    }
+
+    public void saveUserPost(HashMap<String, Object> post) {
+
+        String uuid= UUID.randomUUID().toString();
+
+        db.collection("Posts").document(uuid).set(post);
     }
 }
