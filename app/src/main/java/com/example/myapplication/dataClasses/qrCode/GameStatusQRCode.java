@@ -16,6 +16,10 @@ public class GameStatusQRCode extends QRCode {
         this.hash = stringToSHA256(scannedString);
     }
 
+    public String getHash() {
+        return hash;
+    }
+
     @Override
     public String getQRCodeType() {
         return typeOfQrCode;

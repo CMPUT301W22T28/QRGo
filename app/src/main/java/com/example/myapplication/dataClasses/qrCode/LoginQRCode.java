@@ -12,10 +12,14 @@ public class LoginQRCode extends QRCode {
     private String hash;
     private final String typeOfQrCode = "login";
 
+
     public LoginQRCode(String scannedString) {
         this.hash = stringToSHA256(scannedString);
     }
 
+    public String getHash() {
+        return this.hash;
+    }
     @Override
     public String getQRCodeType() {
         return typeOfQrCode;

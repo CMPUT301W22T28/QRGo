@@ -24,6 +24,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
+import com.example.myapplication.dataClasses.qrCode.GameStatusQRCode;
+import com.example.myapplication.dataClasses.qrCode.LoginQRCode;
 import com.example.myapplication.fragments.camera.CameraFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -243,8 +245,10 @@ public class LoginActivity extends AppCompatActivity {
      * @param userName the user's username that will be the string represented by the QRCode
      */
     public void insertLoginQRCode(String userName){
+        LoginQRCode loginQRCode = new LoginQRCode(userName);
         db.collection(LOGIN_QRCODE_COLLECTION)
-                .add(setUpLoginQRCodeSubCollection(userName));
+                .document(loginQRCode.getHash())
+                .set(setUpLoginQRCodeSubCollection(userName));
 
         insertGameStatusQRCode(userName);
     }
@@ -254,8 +258,10 @@ public class LoginActivity extends AppCompatActivity {
      * @param userName the user's username that will be the string represented by the QRCode
      */
     public void insertGameStatusQRCode(String userName){
+        GameStatusQRCode gameStatusQRCode = new GameStatusQRCode(userName);
         db.collection(GAME_STATUS_QRCODE_COLLECTION)
-                .add(setUpLoginQRCodeSubCollection(userName));
+                .document(gameStatusQRCode.getHash())
+                .set(setUpLoginQRCodeSubCollection(userName));
 
         mainActivity(userName);
     }
