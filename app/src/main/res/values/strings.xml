@@ -16,4 +16,12 @@
     <string name="profile_static_total_qr_code_count">Total QR Code Count</string>
     <string name="profile_static_top_qr_code">Top QR Code:</string>
     <string name="map_search">Search Nearby</string>
+    <string name="delete_profile">Delete Profile</string>
+    <string name="show_login_qrcode">Show Login QR Code</string>
+    <string name="show_game_status_qrcode">Show Stats QR Code</string>
+    <string name="post_scanned_by_tab_name">Scanned by</string>
+    <string name="post_comments_tab_name">Comments</string>
+    <string name="post_post_tab_name">Post</string>
+
+
 </resources>
