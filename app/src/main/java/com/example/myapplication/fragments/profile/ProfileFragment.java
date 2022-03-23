@@ -35,6 +35,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
@@ -215,7 +216,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         }
                     }
                     else {
-
+                        resetAndFillQRCodes(myQrCodes);
                     }
 
                     if (scannedCount == null || qrCodeHashes.size() != scannedCount.intValue()) {
@@ -258,7 +259,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      * change with it.
      */
     private void setViewListeners() {
-        getActivity().getViewModelStore().clear();
+        if (getArguments() != null) {
+            requireActivity().getViewModelStore().clear();
+        }
 
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
@@ -331,13 +334,19 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      */
     @Override
     public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
+        resetAndFillQRCodes(qrCodes);
+    }
+
+    public void resetAndFillQRCodes(ArrayList<ScoringQRCode> qrCodes) {
         // fill the profile view with qrcodes
         myPlayerProfile.resetQRCodeList();
         for (ScoringQRCode qrCode: qrCodes) {
             myPlayerProfile.addScoringQRCode(qrCode);
         }
         profileViewModel.setMutableProfileQRCodes(qrCodes);
-        updateHighestAndSumQrCode();
+        if (qrCodes.size() > 0) {
+            updateHighestAndSumQrCode();
+        }
     }
 
 
