@@ -10,11 +10,17 @@ package com.example.myapplication.dataClasses.qrCode;
 public class LoginQRCode extends QRCode {
 
     private String hash;
-    private final String typeOfQrCode = "login";
+    private String scannedString;
+    private final String typeOfQrCode = "Login";
 
 
     public LoginQRCode(String scannedString) {
+        this.scannedString = scannedString;
         this.hash = stringToSHA256(scannedString);
+    }
+
+    public String getScannedString() {
+        return scannedString;
     }
 
     public String getHash() {

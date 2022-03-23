@@ -9,11 +9,16 @@ package com.example.myapplication.dataClasses.qrCode;
  */
 public class GameStatusQRCode extends QRCode {
     private String hash;
-
-    private final String typeOfQrCode = "profile";
+    private String scannedString;
+    private final String typeOfQrCode = "GameStatus";
 
     public GameStatusQRCode(String scannedString){
+        this.scannedString = scannedString;
         this.hash = stringToSHA256(scannedString);
+    }
+
+    public String getScannedString() {
+        return scannedString;
     }
 
     public String getHash() {

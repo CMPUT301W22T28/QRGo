@@ -239,7 +239,6 @@ public class LoginActivity extends AppCompatActivity {
         db.collection(USERS_COLLECTION).document(loginQRString).update(map);
 
     }
-    // TODO: Use hash for document ids for both of following functions
     /**
      * Once a user signs up, this method will generate their respective LoginQRCode.
      * @param userName the user's username that will be the string represented by the QRCode
