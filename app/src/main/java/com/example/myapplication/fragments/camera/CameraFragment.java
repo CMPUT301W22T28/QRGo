@@ -60,6 +60,7 @@ import com.google.firebase.storage.UploadTask;
 import org.osmdroid.util.GeoPoint;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -702,9 +703,13 @@ public class CameraFragment extends Fragment {
 
                             Map<String,Object > userInstance = document.getData();
 
-                            List<String> list = Stream.of(userInstance.get("scanned_qrcodes")).map(Object::toString).collect(Collectors.toList());
+                            ArrayList<String> qrCodeHashes = getUserQRCodes(userInstance);
 
-                            if( list.contains(encodedQRCodeString)==false) {
+                            for (String s: qrCodeHashes) {
+                                Log.d("CameraFragment", s + " is the scanned qr code son");
+                            }
+
+                            if( qrCodeHashes.contains(encodedQRCodeString)==false) {
 
                                 db.collection("ScoringQRCodes").document(encodedQRCodeString).update("num_scanned_by", FieldValue.increment(1));
 
@@ -721,11 +726,35 @@ public class CameraFragment extends Fragment {
 
     }
 
+    public ArrayList<String> getUserQRCodes(Map<String, Object> userInstance) {
+        Iterable<?> ar = (Iterable<?>) userInstance.get("scanned_qrcodes");
+        ArrayList<String> qrCodeHashes = new ArrayList<>();
+        assert ar != null;
+        for (Object x : ar) {
+            qrCodeHashes.add((String) x);
+        }
+
+        return qrCodeHashes;
+    }
+
     public void saveUserPost(HashMap<String, Object> post) {
 
         String uuid= UUID.randomUUID().toString();
 
-        db.collection("Posts").document(uuid).set(post);
+        db.collection("Posts")
+        .whereEqualTo("qrcode_hash", post.get("qrcode_username"))
+                .whereEqualTo("username", post.get("username"))
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                QuerySnapshot doc = task.getResult();
+
+                if (doc.isEmpty()) {
+                    db.collection("Posts").document(uuid).set(post);
+
+                }
+            }
+        });
 
         //need to add posts to the posts array.
     }
