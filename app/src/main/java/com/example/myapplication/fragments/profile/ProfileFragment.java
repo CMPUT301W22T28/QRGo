@@ -24,6 +24,7 @@ import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -32,8 +33,11 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
@@ -107,6 +111,67 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         else {
             deleteProfileButton.setVisibility(View.VISIBLE);
         }
+
+        // Deletes profile when pressed
+        deleteProfileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println(myUsername);
+
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                db.collection("Users").document(myUsername).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        System.out.println("Printed Successfully!");
+                    }
+                });
+
+                db.collection("LoginQRCode").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+
+                db.collection("GameStatusQRCode").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+
+                db.collection("Comments").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+
+                db.collection("Posts").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+            }
+        });
     }
 
     /**
