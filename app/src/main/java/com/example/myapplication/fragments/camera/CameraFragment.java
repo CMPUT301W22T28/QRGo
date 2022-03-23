@@ -65,10 +65,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class represents the camera fragment that is responsible for scanning valid QRCodes,
@@ -94,7 +97,7 @@ public class CameraFragment extends Fragment {
     private Bitmap imageBitMap;
     private Button savePostButton;
     private String QRCodeString = null;
-    private GeoPoint currentLocation;
+    private GeoPoint currentLocation = new GeoPoint(0.0, 0.0); //null island;
     private String encodedQRCodeString;
     private boolean flag;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -140,10 +143,10 @@ public class CameraFragment extends Fragment {
 
         setGeolocationSwitch();
 
-        currentLocation = new GeoPoint(0.0, 0.0); //null island
-
         Context ctx = getActivity().getApplicationContext();
         flag = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ctx) == com.google.android.gms.common.ConnectionResult.SUCCESS;
+
+        Log.d("CameraFragment", flag + " is the fag");
 
         Log.d("CameraFragment", getActivity().getIntent().getStringExtra("Username"));
 
@@ -184,15 +187,22 @@ public class CameraFragment extends Fragment {
      * checks if the user has granted permmission for the app to use their geolocation before
      * proceeding to obtain the geolocation of the user.
      */
-    public void updateLocation() {
+    public void updateLocation(HashMap<String, Object> container) {
+
+        final int[] requestResult = {-1};
         final Context context = this.getActivity();
 
         // always check location permissions
         if (ContextCompat.checkSelfPermission(
                 context, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED) {
+
+            Log.d("CameraFragment","Obtaining location ");
             FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
+
+            requestResult[0] = 1;
             fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+                @RequiresApi(api = Build.VERSION_CODES.N)
                 @Override
                 public void onComplete(@NonNull Task<Location> task) {
 
@@ -202,9 +212,27 @@ public class CameraFragment extends Fragment {
                     if (location != null){
                         currentLocation.setLatitude(location.getLatitude());
                         currentLocation.setLongitude(location.getLongitude());
+
+                        if (container !=null) {
+                            container.replace("latitude" , null, currentLocation.getLatitude());
+                            container.replace("longitude" , null, currentLocation.getLongitude());
+
+                            container.replace("geoHash", null, GeoFireUtils.getGeoHashForLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude())));
+
+                        }
+
+                        Log.d("CameraFragment","Location is " + currentLocation.getLatitude() + " " + currentLocation.getLongitude());
+
                     }
                 }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(), "Failed to obtain Current Location", Toast.LENGTH_LONG).show();
+
+                }
             });
+
         } else {
             // You can directly ask for the permission.
             // The registered ActivityResultCallback gets the result of this request.
@@ -212,6 +240,8 @@ public class CameraFragment extends Fragment {
 //                    Manifest.permission.ACCESS_FINE_LOCATION);
 
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
+
+                requestResult[0] = 0;
         }
     }
 
@@ -227,7 +257,6 @@ public class CameraFragment extends Fragment {
         PackageManager.PERMISSION_GRANTED) {
             //Do nothing you good.
             Log.d("CameraFragment", "Location is already granted");
-            return;
         }
         else {
             Log.d("CameraFragment", "Location not granted");
@@ -490,13 +519,13 @@ public class CameraFragment extends Fragment {
 
         HashMap<String, Object> post = new HashMap<>();
 
-        post.put("comment_ids", new ArrayList<String>());
+        scoringQRCodeData.put("comment_ids", new ArrayList<String>());
+
+        encodedQRCodeString = sha256String(QRCodeString);
 
         post.put("qrcode_hash", encodedQRCodeString);
 
         post.put("username",getActivity().getIntent().getStringExtra("Username"));
-
-        encodedQRCodeString = sha256String(QRCodeString);
 
         // User did not check location
         scoringQRCodeData.put("latitude", null);
@@ -504,14 +533,17 @@ public class CameraFragment extends Fragment {
         scoringQRCodeData.put("geoHash", null);
         if (saveGeolocationSwitch.isChecked()) {
 
+            checkLocationPermission();
+
             if (flag) {
-                updateLocation();
+                updateLocation(scoringQRCodeData);
             }
 
+            Log.d("CameraFragment", "The location is before saving " + currentLocation.getLongitude() + " " + currentLocation.getLatitude());
 
-           scoringQRCodeData.replace("latitude", null , currentLocation.getLatitude());
-           scoringQRCodeData.replace("longitude", null, currentLocation.getLongitude());
-           scoringQRCodeData.replace("geoHash", null, GeoFireUtils.getGeoHashForLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude())));
+//            scoringQRCodeData.replace("latitude", null , currentLocation.getLatitude());
+//            scoringQRCodeData.replace("longitude", null, currentLocation.getLongitude());
+//            scoringQRCodeData.replace("geoHash", null, GeoFireUtils.getGeoHashForLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude())));
         }
 
         post.put("url", null);
@@ -523,7 +555,6 @@ public class CameraFragment extends Fragment {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
             if (imageBitMap!=null) {
-
 
                 imageBitMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 byte[] data = baos.toByteArray();
@@ -564,7 +595,7 @@ public class CameraFragment extends Fragment {
                             }
                         });
 
-                        Toast.makeText(getActivity(), "Post Saved Successfully!", Toast.LENGTH_LONG);
+                        Toast.makeText(getContext(), "Post Saved Successfully!", Toast.LENGTH_LONG).show();
             }
         }
         else {
@@ -661,6 +692,7 @@ public class CameraFragment extends Fragment {
         db.collection("Users").document(getActivity().getIntent().getStringExtra("Username"))
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
 
@@ -670,7 +702,9 @@ public class CameraFragment extends Fragment {
 
                             Map<String,Object > userInstance = document.getData();
 
-                            if(Arrays.asList( (Object[]) userInstance.get("scanned_qrcodes")).contains(encodedQRCodeString)==false) {
+                            List<String> list = Stream.of(userInstance.get("scanned_qrcodes")).map(Object::toString).collect(Collectors.toList());
+
+                            if( list.contains(encodedQRCodeString)==false) {
 
                                 db.collection("ScoringQRCodes").document(encodedQRCodeString).update("num_scanned_by", FieldValue.increment(1));
 
@@ -692,5 +726,7 @@ public class CameraFragment extends Fragment {
         String uuid= UUID.randomUUID().toString();
 
         db.collection("Posts").document(uuid).set(post);
+
+        //need to add posts to the posts array.
     }
 }
