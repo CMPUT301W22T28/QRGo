@@ -292,6 +292,10 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         });
     }
 
+    /**
+     * Method that checks to see if the delete button should be visible or not. This is based on whether or
+     * not the user is registered as an Administrator
+     */
     private void deleteAllowed() {
         Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
 
@@ -308,11 +312,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 if (error == null) {
                     isAdmin = value.getBoolean("admin");
                     if (isAdmin) {
-                        Log.d(TAG, "this profile is an admin");
                         deleteProfileButton.setVisibility(View.VISIBLE);
                     }
                     else {
-                        Log.d(TAG, "this profile is not an admin");
                     }
                 }
                 else {

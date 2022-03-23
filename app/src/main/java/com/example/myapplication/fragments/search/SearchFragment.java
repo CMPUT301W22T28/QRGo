@@ -179,6 +179,10 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         });
     }
 
+    /**
+     * Method that checks to see if the delete button should be visible or not. This is based on whether or
+     * not the user is registered as an Administrator
+     */
     private void deleteAllowed() {
         Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
         try { this.myUsername = getArguments().getString("Username");}
