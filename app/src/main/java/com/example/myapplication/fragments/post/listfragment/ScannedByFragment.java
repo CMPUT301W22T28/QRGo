@@ -1,4 +1,4 @@
-package com.example.myapplication.fragments.post.postcontent;
+package com.example.myapplication.fragments.post.listfragment;
 
 import androidx.lifecycle.ViewModelProvider;
 
@@ -14,22 +14,17 @@ import android.view.ViewGroup;
 
 import com.example.myapplication.R;
 
-import com.example.myapplication.databinding.FragmentCommentsAndScannedByBinding;
-import com.example.myapplication.databinding.FragmentPostInfoBinding;
+public class ScannedByFragment extends Fragment {
 
-public class PostInfoFragment extends Fragment {
-
-    private PostInfoViewModel mViewModel;
+    private ScannedByViewModel mViewModel;
 
     private static final String ARG_QR = "argQR";
 
-    FragmentPostInfoBinding binding;
-
-    public static PostInfoFragment newInstance(String qrHash) {
+    public static ScannedByFragment newInstance(String qrHash) {
         Bundle args = new Bundle();
         args.putString(ARG_QR, qrHash);
 
-        PostInfoFragment fragment = new PostInfoFragment();
+        ScannedByFragment fragment = new ScannedByFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -37,11 +32,7 @@ public class PostInfoFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        mViewModel = new ViewModelProvider(this).get(PostInfoViewModel.class);
-
-        binding = FragmentPostInfoBinding.inflate(inflater, container, false);
-
-        return binding.getRoot();
+        return inflater.inflate(R.layout.fragment_scanned_by, container, false);
     }
 
     @Override
@@ -50,4 +41,5 @@ public class PostInfoFragment extends Fragment {
 
         // stuff in here
     }
+
 }

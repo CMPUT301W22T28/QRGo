@@ -8,13 +8,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentPostBinding;
+import com.example.myapplication.fragments.post.listfragment.CommentsFragment;
+import com.example.myapplication.fragments.post.listfragment.ScannedByFragment;
+import com.example.myapplication.fragments.post.postcontent.PostInfoFragment;
 import com.google.android.material.tabs.TabLayout;
 
 public class PostFragment extends Fragment {
@@ -24,6 +26,8 @@ public class PostFragment extends Fragment {
     private FragmentPostBinding binding;
 
     TabLayout tabLayout;
+
+    private String qrHash;
 
     public static PostFragment newInstance() {
         return new PostFragment();
@@ -47,19 +51,39 @@ public class PostFragment extends Fragment {
 
         tabLayout = binding.postTabLayout;
 
-        // start post info as default fragment
+        this.qrHash = getArguments().getString("qrCodeHash");
+
+        PostInfoFragment postInfoFragment = PostInfoFragment.newInstance(qrHash);
+        CommentsFragment commentsFragment = CommentsFragment.newInstance(qrHash);
+        ScannedByFragment scannedByFragment = ScannedByFragment.newInstance(qrHash);
+
+
+        // launch post info by default
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.post_host_fragment, postInfoFragment, "postInfoFragment")
+                .addToBackStack(null)
+                .commit();
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if (tab.getText().equals("Post")) {
-                    // display post info fragment
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.post_host_fragment, postInfoFragment, "postInfoFragment")
+                            .addToBackStack(null)
+                            .commit();
                 }
                 if (tab.getText().equals("Comments")) {
-                    // display comments fragment
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.post_host_fragment, commentsFragment, "commentsFragment")
+                            .addToBackStack(null)
+                            .commit();
                 }
                 if (tab.getText().equals("Scanned by")) {
-                    // display users that also scanned
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.post_host_fragment, scannedByFragment, "scannedByFragment")
+                            .addToBackStack(null)
+                            .commit();
                 }
             }
 
