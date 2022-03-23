@@ -27,10 +27,17 @@ public class PostFragment extends Fragment {
 
     TabLayout tabLayout;
 
-    private String qrHash;
+    private static final String ARG_QR = "argQR";
+    private static final String ARG_USER = "argUser";
 
-    public static PostFragment newInstance() {
-        return new PostFragment();
+    public static PostFragment newInstance(String qrHash, String username) {
+        Bundle args = new Bundle();
+        args.putString(ARG_QR, qrHash);
+        args.putString(ARG_USER, username);
+
+        PostFragment fragment = new PostFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -51,7 +58,8 @@ public class PostFragment extends Fragment {
 
         tabLayout = binding.postTabLayout;
 
-        this.qrHash = getArguments().getString("qrCodeHash");
+        String qrHash = getArguments().getString("argQR");
+        String username = getArguments().getString("argUser");
 
         PostInfoFragment postInfoFragment = PostInfoFragment.newInstance(qrHash);
         CommentsFragment commentsFragment = CommentsFragment.newInstance(qrHash);
