@@ -61,6 +61,8 @@ public class PostFragment extends Fragment {
         String qrHash = getArguments().getString("argQR");
         String username = getArguments().getString("argUser");
 
+        // need to get postId from user and QRHash here, call
+
         PostInfoFragment postInfoFragment = PostInfoFragment.newInstance(qrHash);
         CommentsFragment commentsFragment = CommentsFragment.newInstance(qrHash);
         ScannedByFragment scannedByFragment = ScannedByFragment.newInstance(qrHash);

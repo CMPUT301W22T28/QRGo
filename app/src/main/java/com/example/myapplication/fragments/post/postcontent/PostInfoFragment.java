@@ -20,13 +20,13 @@ public class PostInfoFragment extends Fragment {
 
     private PostInfoViewModel mViewModel;
 
-    private static final String ARG_QR = "argQR";
+    private static final String ARG_POST = "argPost";
 
     FragmentPostInfoBinding binding;
 
-    public static PostInfoFragment newInstance(String qrHash) {
+    public static PostInfoFragment newInstance(String postId) {
         Bundle args = new Bundle();
-        args.putString(ARG_QR, qrHash);
+        args.putString(ARG_POST, postId);
 
         PostInfoFragment fragment = new PostInfoFragment();
         fragment.setArguments(args);
@@ -47,6 +47,7 @@ public class PostInfoFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // stuff in here
+        String postId = getArguments().getString(ARG_POST);
+
     }
 }
