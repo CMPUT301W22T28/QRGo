@@ -8,6 +8,7 @@ import com.firebase.geofire.GeoLocation;
  *
  * @author Walter Ostrander
  * @author Marc-Andre Haley
+ * @author Amro Amanuddein
  *
  * March 10 2022
  */
@@ -21,11 +22,11 @@ public class ScoringQRCode extends QRCode {
 
     /**
      * constructor for ScoringQRCode class
-     * @param hash
+     * @param scannedString
      * hash of QR code object
      */
-    public ScoringQRCode(String hash) {
-        this.hash = hash;
+    public ScoringQRCode(String scannedString) {
+        this.hash = stringToSHA256(scannedString);
         this.score = calculateScore();
     }
 
@@ -45,7 +46,19 @@ public class ScoringQRCode extends QRCode {
      * Score of QR code object
      */
     private int calculateScore() {
-        return -1;
+        int n = 0;
+        // not using this.score since it is used in constructor
+        int score_local = 0;
+        for (int i = 1; i < this.hash.length(); i++){
+            if (this.hash.charAt(i) == this.hash.charAt(i-1)){
+                n++;
+            }
+            else{
+                score_local += Math.pow( (int) this.hash.charAt(i), n);
+                n = 0;
+            }
+        }
+        return score_local;
     }
 
     /**

@@ -449,7 +449,7 @@ public class CameraFragment extends Fragment {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             hash = digest.digest(source.getBytes());
         } catch (NoSuchAlgorithmException e) {
-            Log.wtf("CameraFragment", "Can't calculate SHA-256");
+            Log.d("CameraFragment", "Can't calculate SHA-256");
         }
 
         if (hash != null) {
