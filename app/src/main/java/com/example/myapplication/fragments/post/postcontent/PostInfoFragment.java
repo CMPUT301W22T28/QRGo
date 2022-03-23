@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 
 import com.example.myapplication.R;
 
-import com.example.myapplication.databinding.FragmentCommentsAndScannedByBinding;
 import com.example.myapplication.databinding.FragmentPostInfoBinding;
 
 public class PostInfoFragment extends Fragment {

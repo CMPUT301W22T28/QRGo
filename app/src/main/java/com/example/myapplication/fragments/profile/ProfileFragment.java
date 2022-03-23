@@ -267,8 +267,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      * change with it.
      */
     private void setViewListeners() {
-        if (getArguments() != null) {
-            requireActivity().getViewModelStore().clear();
+        if (myPlayerProfile != null) {
+            myPlayerProfile.resetQRCodeList();
         }
 
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
