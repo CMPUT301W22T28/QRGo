@@ -4,11 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/1Projects/Walter/School/2021-2022/Winter/cmput301/team_project/QRGo/app/src/main/res/layout/activity_main.xml" value="0.22826086956521738" />
-        <entry key="..\:/Users/Amro Amanuddein/AndroidStudioProjects/QRGo/app/src/main/res/drawable/rounded_corners.xml" value="0.2365" />
-        <entry key="..\:/Users/Amro Amanuddein/AndroidStudioProjects/QRGo/app/src/main/res/layout/activity_login.xml" value="0.264" />
-        <entry key="..\:/Users/Amro Amanuddein/AndroidStudioProjects/QRGo/app/src/main/res/layout/activity_login_scan.xml" value="0.1" />
-        <entry key="..\:/Users/Amro Amanuddein/AndroidStudioProjects/QRGo/app/src/main/res/layout/activity_main.xml" value="0.536" />
-        <entry key="..\:/Users/Amro Amanuddein/AndroidStudioProjects/QRGo/app/src/main/res/layout/fragment_profile.xml" value="0.536" />
+        <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/activity_main.xml" value="0.26875" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_camera.xml" value="0.26875" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_leaderboard.xml" value="0.26875" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_map.xml" value="0.26875" />
@@ -18,6 +14,7 @@
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/profile_qr_code_list_item.xml" value="0.26875" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/search_list_item.xml" value="0.18803418803418803" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/menu/bottom_nav_menu.xml" value="0.26875" />
+
         <entry key="..\:/Users/moham/AndroidStudioProjects/QRGo/app/src/main/res/drawable/ic_outline_photo_camera_24.xml" value="0.108" />
         <entry key="..\:/Users/moham/AndroidStudioProjects/QRGo/app/src/main/res/layout/activity_login.xml" value="0.3333333333333333" />
         <entry key="..\:/Users/moham/AndroidStudioProjects/QRGo/app/src/main/res/layout/activity_main.xml" value="0.3231578947368421" />
@@ -25,6 +22,7 @@
         <entry key="..\:/Users/moham/AndroidStudioProjects/QRGo/app/src/main/res/layout/fragment_profile.xml" value="0.19083969465648856" />
         <entry key="..\:/Users/moham/AndroidStudioProjects/QRGo/app/src/main/res/layout/profile_qr_code_list_item.xml" value="0.4466666666666667" />
         <entry key="..\:/Users/moham/AndroidStudioProjects/QRGo/app/src/main/res/menu/bottom_nav_menu.xml" value="0.4466666666666667" />
+        
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.252" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/drawable/back.xml" value="0.118" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/drawable/ic_dashboard_black_24dp.xml" value="0.252" />
@@ -35,23 +33,18 @@
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/drawable/ic_profile_24.xml" value="0.114" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/drawable/ic_qr_code_scanner_24.xml" value="0.114" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/activity_login.xml" value="0.4" />
-        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/activity_main.xml" value="0.176" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_dashboard.xml" value="0.10462962962962963" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_leaderboard.xml" value="0.1" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_map.xml" value="0.1" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_notifications.xml" value="0.23333333333333334" />
-        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_profile.xml" value="0.6" />
+        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_post.xml" value="0.264" />
+        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_post_info.xml" value="0.3302083333333333" />
+        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_profile.xml" value="0.2" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/fragment_search.xml" value="0.1" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/leaderboard_list_item.xml" value="0.27685185185185185" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/profile_qr_code_list_item.xml" value="0.5779816513761468" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/menu/bottom_nav_menu.xml" value="0.23333333333333334" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.375" />
-        <entry key="app/src/main/res/layout/fragment_camera.xml" value="0.4979166666666667" />
-        <entry key="app/src/main/res/layout/fragment_leaderboard.xml" value="0.32708333333333334" />
-        <entry key="app/src/main/res/layout/fragment_map.xml" value="0.36018518518518516" />
-        <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.4979166666666667" />
-        <entry key="app/src/main/res/layout/leaderboard_list_item.xml" value="0.32708333333333334" />
-        <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.5635416666666667" />
       </map>
     </option>
   </component>

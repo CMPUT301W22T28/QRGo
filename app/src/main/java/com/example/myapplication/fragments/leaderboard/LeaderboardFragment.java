@@ -174,13 +174,20 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
                         String username = document.getId();
                         listForUsernames.add(username);
                         // determine if the user is an Admin
-                        boolean isAdmin = document.getBoolean("admin");
+                        Boolean isAdmin = document.getBoolean("admin");
                         Double rankingScore = document.getDouble(tabSort);
                         // create new player and add it to myRankingList
+                        if (isAdmin == null) {
+                            isAdmin = false;
+                        }
                         Player player = new Player(username, isAdmin);
-                        player.setRankingScore(rankingScore.intValue(), tabLabel);
+                        if (rankingScore != null) {
+                            player.setRankingScore(rankingScore.intValue(), tabLabel);
+                        }
+                        else {
+                            player.setRankingScore(0, tabLabel);
+                        }
                         myRankingList.add(player);
-
                     }
                     // myScore is updated using listForUsernames (this is for the top player card)
                     myScore = listForUsernames.indexOf(myUsername) + 1;
