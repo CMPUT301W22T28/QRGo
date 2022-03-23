@@ -22,7 +22,7 @@ public class AsyncQrCodeList {
     /**
      * Constructor of AsyncQrCodeList
      * @param max Number of qr codes to accepts until it triggers the event
-     * @param profileEventListeners Tthe event listener to trigger
+     * @param profileEventListeners The event listener to trigger
      */
     public AsyncQrCodeList(int max, ProfileEventListeners profileEventListeners) {
         numTasksToReach = max;
