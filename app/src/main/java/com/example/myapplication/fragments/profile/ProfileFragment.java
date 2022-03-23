@@ -88,6 +88,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         deleteProfileButton = (Button) binding.deleteProfileButton;
 
+        try { this.isAdmin = getArguments().getBoolean("isAdmin");}
+        catch(Exception e) { this.isAdmin = false; }
+
         // getting the recycler view ready
         setupRecyclerView();
 
@@ -98,7 +101,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         getProfileFromDatabase();
 
         // check to see if the delete button can be visible
-        deleteAllowed();
+        if (!isAdmin) {
+            deleteAllowed();
+        }
+        else {
+            deleteProfileButton.setVisibility(View.VISIBLE);
+        }
     }
 
     /**

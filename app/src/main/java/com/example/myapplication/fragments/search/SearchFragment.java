@@ -22,7 +22,11 @@ import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentSearchBinding;
 import com.example.myapplication.fragments.profile.ProfileFragment;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
@@ -50,6 +54,8 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
     ArrayList<Player> users;
     UserRecyclerAdapter userRecyclerAdapter;
     FirebaseFirestore db;
+    private boolean isAdmin;
+    private String myUsername = null;
 
     /**
      * Initially called when the search fragment is created.
@@ -92,6 +98,7 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         userRecyclerAdapter.setClickListener(this);
         recyclerView.setAdapter(userRecyclerAdapter);
         searchBar();
+        deleteAllowed();
     }
 
     /**
@@ -172,6 +179,31 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         });
     }
 
+    private void deleteAllowed() {
+        Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
+        try { this.myUsername = getArguments().getString("Username");}
+        catch(Exception e) { this.myUsername = requireActivity().getIntent().getStringExtra("Username"); }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
+
+        MyUserDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error == null) {
+                    isAdmin = value.getBoolean("admin");
+                    System.out.println("inside the function" + isAdmin);
+                }
+                else {
+                    // throw exception if any issues getting document
+                    Toast.makeText(activity.getApplicationContext(), "Error ", Toast.LENGTH_SHORT).show();
+                    //Log.d(TAG, "Error getting document: ", error);
+                }
+            }
+        });
+    }
+
     /**
      * This method is called when a user on the search fragment has been clicked
      * @param view The view that was clicked.
@@ -183,6 +215,7 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         ProfileFragment profileFragment = new ProfileFragment();
         Bundle username = new Bundle();
         username.putString("Username", userRecyclerAdapter.getItem(position).getUsername());
+        username.putBoolean("isAdmin", isAdmin);
         profileFragment.setArguments(username);
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.nav_host_fragment_activity_main, profileFragment, "findThisFragment")
