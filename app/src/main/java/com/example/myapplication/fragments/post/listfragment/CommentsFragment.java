@@ -31,15 +31,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CommentsFragment extends Fragment implements AddCommentFragment.OnFragmentInteractionListener{
+public class CommentsFragment extends Fragment{
     private ArrayList<Comment> comments = new ArrayList<>();
     FragmentCommentsBinding binding;
     CommentsAdapter commentsAdapter;
 
     private String username;
     private String qrHash;
-
-    private FirebaseFirestore db;
 
     private static final String USER = "USER";
     private static final String QR = "QR";
@@ -58,24 +56,22 @@ public class CommentsFragment extends Fragment implements AddCommentFragment.OnF
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
+        binding = FragmentCommentsBinding.inflate(inflater, container, false);
+
+        username = getArguments().getString(USER);
+        qrHash = getArguments().getString(QR);
         // listen to fab to show fragment. Code from labs
         final FloatingActionButton addCityButton = binding.floatingActionButton;
         addCityButton.setOnClickListener((view) -> {
-            new AddCommentFragment().show(getActivity().getSupportFragmentManager(),"ADD_CITY");
+            AddCommentFragment.newInstance(username,qrHash).show(getChildFragmentManager(),"ADD_COMMENT");
         });
 
-        binding = FragmentCommentsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        db = FirebaseFirestore.getInstance();
-
-        username = getArguments().getString(USER);
-        qrHash = getArguments().getString(QR);
 
         setupListView();
 
@@ -100,18 +96,4 @@ public class CommentsFragment extends Fragment implements AddCommentFragment.OnF
         });
     }
 
-    @Override
-    public void onOkPressed(String comment) {
-        // add comment to database
-        Map<String, Object> data = new HashMap<>();
-        data.put("comment", comment);
-        data.put("username", username);
-        DocumentReference newCommentRef = db.collection("Comments").document();
-        newCommentRef.set(data);
-
-        // add comment id to QR code comment list
-        String commentId = newCommentRef.getId().toString();
-        db.collection("ScoringQRCodes").document(qrHash)
-                .update("comment_ids", FieldValue.arrayUnion(commentId));
-    }
 }

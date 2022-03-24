@@ -49,8 +49,8 @@ public class PostInfoFragment extends Fragment {
     private void setViewListeners() {
         PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
 
-        final TextView titleTextView = binding.titleText;
-        postInfoViewModel.getGeoLocation().observe(getViewLifecycleOwner(), titleTextView::setText);
+        final TextView locationTextView = binding.lastLocation;
+        postInfoViewModel.getGeoLocation().observe(getViewLifecycleOwner(), locationTextView::setText);
 
         final TextView scoreTextView = binding.scoreText;
         postInfoViewModel.getScore().observe(getViewLifecycleOwner(), scoreTextView::setText);
