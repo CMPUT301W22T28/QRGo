@@ -85,6 +85,8 @@ public class PostFragment extends Fragment implements QRGoEventListener<ScoringQ
         qrHash = getArguments().getString("argQR");
         username = getArguments().getString("argUser");
 
+        // need to get postId from user and QRHash here, call
+
         PostInfoFragment postInfoFragment = PostInfoFragment.newInstance(qrHash);
         CommentsFragment commentsFragment = CommentsFragment.newInstance(qrHash);
         ScannedByFragment scannedByFragment = ScannedByFragment.newInstance(qrHash);

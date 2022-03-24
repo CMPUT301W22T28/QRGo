@@ -17,17 +17,16 @@ import android.widget.TextView;
 import com.example.myapplication.R;
 
 import com.example.myapplication.databinding.FragmentPostInfoBinding;
-import com.example.myapplication.fragments.profile.ProfileViewModel;
 
 public class PostInfoFragment extends Fragment {
 
-    private static final String ARG_QR = "argQR";
+    private static final String ARG_POST = "argQR";
 
     FragmentPostInfoBinding binding;
 
-    public static PostInfoFragment newInstance(String qrHash) {
+    public static PostInfoFragment newInstance(String postId) {
         Bundle args = new Bundle();
-        args.putString(ARG_QR, qrHash);
+        args.putString(ARG_POST, postId);
 
         PostInfoFragment fragment = new PostInfoFragment();
         fragment.setArguments(args);
