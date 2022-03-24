@@ -11,14 +11,15 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.myapplication.R;
 
 import com.example.myapplication.databinding.FragmentPostInfoBinding;
+import com.example.myapplication.fragments.profile.ProfileViewModel;
 
 public class PostInfoFragment extends Fragment {
-
-    private PostInfoViewModel mViewModel;
 
     private static final String ARG_QR = "argQR";
 
@@ -36,7 +37,7 @@ public class PostInfoFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        mViewModel = new ViewModelProvider(this).get(PostInfoViewModel.class);
+
 
         binding = FragmentPostInfoBinding.inflate(inflater, container, false);
 
@@ -47,6 +48,25 @@ public class PostInfoFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+        setViewListeners();
         // stuff in here
+    }
+
+
+    private void setViewListeners() {
+        PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
+
+        final TextView titleTextView = binding.titleText;
+        postInfoViewModel.getTitle().observe(getViewLifecycleOwner(), titleTextView::setText);
+
+        final ImageView imageView = binding.cameraImageHolder;
+        postInfoViewModel.getImage().observe(getViewLifecycleOwner(), imageView::setImageBitmap);
+
+        final TextView scoreTextView = binding.scoreText;
+        postInfoViewModel.getScore().observe(getViewLifecycleOwner(), scoreTextView::setText);
+
+        final TextView scannedByTextView = binding.scannedByText;
+        postInfoViewModel.getScannedByText().observe(getViewLifecycleOwner(), scannedByTextView::setText);
     }
 }

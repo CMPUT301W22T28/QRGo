@@ -1,8 +1,8 @@
 package com.example.myapplication;
 
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
-import com.example.myapplication.fragments.profile.AsyncQrCodeList;
-import com.example.myapplication.fragments.profile.ProfileEventListeners;
+import com.example.myapplication.dataClasses.asyncdata.AsyncList;
+import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,8 +17,8 @@ import java.util.ArrayList;
  *
  * March 12 2022
  */
-public class AsyncQrCodeListTest implements ProfileEventListeners {
-    private AsyncQrCodeList asyncQrCodeList;
+public class AsyncListTest implements QRGoEventListener<ScoringQRCode> {
+    private AsyncList<ScoringQRCode> asyncList;
     private int myMax = 5;
     private ArrayList<ScoringQRCode> qrCodes;
     final Object syncObject = new Object();
@@ -40,7 +40,7 @@ public class AsyncQrCodeListTest implements ProfileEventListeners {
      */
     @Before
     public void setup() {
-        asyncQrCodeList = new AsyncQrCodeList(myMax, this);
+        asyncList = new AsyncList<>(myMax, this);
         hasEventTriggered = false;
     }
 
@@ -50,7 +50,7 @@ public class AsyncQrCodeListTest implements ProfileEventListeners {
     @Test
     public void TestTrigger() {
         for (int i = 0; i < myMax; i++) {
-            asyncQrCodeList.addToArray(new ScoringQRCode("hash"));
+            asyncList.addToArray(new ScoringQRCode("hash"));
         }
         Assert.assertTrue(hasEventTriggered);
     }
@@ -61,7 +61,7 @@ public class AsyncQrCodeListTest implements ProfileEventListeners {
     @Test
     public void arraySizeTest() {
         for (int i = 0; i < myMax; i++) {
-            asyncQrCodeList.addToArray(new ScoringQRCode("hash"));
+            asyncList.addToArray(new ScoringQRCode("hash"));
         }
         Assert.assertEquals(this.qrCodes.size(), myMax);
     }
@@ -74,7 +74,7 @@ public class AsyncQrCodeListTest implements ProfileEventListeners {
         ArrayList<ScoringQRCode> testCodes = new ArrayList<>();
         for (int i = 0; i < myMax; i++) {
             ScoringQRCode code = new ScoringQRCode("hash" + i);
-            asyncQrCodeList.addToArray(code);
+            asyncList.addToArray(code);
             testCodes.add(code);
         }
         for (int i = 0; i < myMax; i++) {

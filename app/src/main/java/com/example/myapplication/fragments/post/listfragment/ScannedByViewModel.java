@@ -4,4 +4,6 @@ import androidx.lifecycle.ViewModel;
 
 public class ScannedByViewModel extends ViewModel {
     // TODO: Implement the ViewModel
+
+
 }

@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
+import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
+import com.example.myapplication.dataClasses.asyncdata.AsyncList;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
@@ -36,17 +38,16 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
  * @author Walter Ostrander
  * @see ProfileViewModel
- * @see ProfileEventListeners
+ * @see QRGoEventListener
  *
  * March 12, 2022
  */
-public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
+public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, QRGoEventListener<ScoringQRCode> {
     private final String TAG = "ProfileFragment";
     private FragmentProfileBinding binding;
     private MainActivity activity;
@@ -167,7 +168,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         qrCodeHashes.add((String) x);
                     }
 
-                    AsyncQrCodeList asyncQrCodeList = new AsyncQrCodeList(qrCodeHashes.size(), profileFragment);
+                    AsyncList<ScoringQRCode> asyncList = new AsyncList<>(qrCodeHashes.size(), profileFragment);
                     CollectionReference scoringQrCodeColRef = db.collection("ScoringQRCodes");
 
                     if (qrCodeHashes.size() != myPlayerProfile.getQRCodeCount()) {
@@ -197,24 +198,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
                                             // setting latitude
                                             latitude = document.getDouble("latitude");
-                                            if (latitude != null) {
-                                                tempQrCode.setLatitude(latitude);
-                                            }
-                                            else {
-                                                tempQrCode.setLatitude(null);
-                                            }
+                                            tempQrCode.setLatitude(latitude);
 
                                             // setting longitude
                                             longitude = document.getDouble("longitude");
-                                            if (longitude != null) {
-                                                tempQrCode.setLongitude(longitude);
-                                            }
-                                            else {
-                                                tempQrCode.setLongitude(null);
-                                            }
+                                            tempQrCode.setLongitude(longitude);
 
                                             // adding qrCode to array
-                                            asyncQrCodeList.addToArray(tempQrCode);
+                                            asyncList.addToArray(tempQrCode);
                                         }
                                     } else {
                                         Log.d(TAG, "Cached ScoringQRCodeDocument document with hash: "+hash+" failed with exception: ", task.getException());
