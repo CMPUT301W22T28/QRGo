@@ -18,11 +18,11 @@ public class ScannedByFragment extends Fragment {
 
     private ScannedByViewModel mViewModel;
 
-    private static final String ARG_QR = "argQR";
+    private static final String ARG_POST = "argPost";
 
-    public static ScannedByFragment newInstance(String qrHash) {
+    public static ScannedByFragment newInstance(String postId) {
         Bundle args = new Bundle();
-        args.putString(ARG_QR, qrHash);
+        args.putString(ARG_POST, postId);
 
         ScannedByFragment fragment = new ScannedByFragment();
         fragment.setArguments(args);

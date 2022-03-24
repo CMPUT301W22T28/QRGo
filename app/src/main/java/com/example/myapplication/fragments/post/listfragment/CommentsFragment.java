@@ -19,11 +19,11 @@ public class CommentsFragment extends Fragment {
 
     private CommentsViewModel mViewModel;
 
-    private static final String ARG_QR = "argQR";
+    private static final String ARG_POST = "argPost";
 
-    public static CommentsFragment newInstance(String qrHash) {
+    public static CommentsFragment newInstance(String postId) {
         Bundle args = new Bundle();
-        args.putString(ARG_QR, qrHash);
+        args.putString(ARG_POST, postId);
 
         CommentsFragment fragment = new CommentsFragment();
         fragment.setArguments(args);
