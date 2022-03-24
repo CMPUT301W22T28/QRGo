@@ -30,15 +30,9 @@ public class CommentsFragment extends Fragment {
     FragmentCommentsBinding binding;
     CommentsAdapter commentsAdapter;
 
-    private static final String ARG_POST = "argPost";
+    public static CommentsFragment newInstance() {
 
-    public static CommentsFragment newInstance(String postId) {
-        Bundle args = new Bundle();
-        args.putString(ARG_POST, postId);
-
-        CommentsFragment fragment = new CommentsFragment();
-        fragment.setArguments(args);
-        return fragment;
+        return new CommentsFragment();
     }
 
     @Override

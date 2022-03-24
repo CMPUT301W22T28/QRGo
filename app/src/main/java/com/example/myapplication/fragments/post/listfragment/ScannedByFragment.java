@@ -24,15 +24,9 @@ public class ScannedByFragment extends Fragment {
 
     ArrayList<String> scannedByList = new ArrayList<>();
 
-    private static final String ARG_POST = "argPost";
+    public static ScannedByFragment newInstance() {
 
-    public static ScannedByFragment newInstance(String postId) {
-        Bundle args = new Bundle();
-        args.putString(ARG_POST, postId);
-
-        ScannedByFragment fragment = new ScannedByFragment();
-        fragment.setArguments(args);
-        return fragment;
+        return new ScannedByFragment();
     }
 
     @Override
