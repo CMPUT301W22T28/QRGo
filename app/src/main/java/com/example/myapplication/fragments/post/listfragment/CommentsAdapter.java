@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.Comment;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class CommentsAdapter extends ArrayAdapter<Comment> {
         View view = convertView;
         if (view == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.comments_content, null);
+            view = inflater.inflate(R.layout.comment_content, null);
         }
 
         TextView username_text = view.findViewById(R.id.username_text);
