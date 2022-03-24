@@ -19,7 +19,6 @@ import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.Comment;
 import com.example.myapplication.dataClasses.asyncdata.AsyncList;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
-import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.databinding.FragmentPostBinding;
 import com.example.myapplication.fragments.post.listfragment.CommentsFragment;
 import com.example.myapplication.fragments.post.listfragment.CommentsViewModel;
@@ -44,8 +43,6 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 
 public class PostFragment extends Fragment implements QRGoEventListener<Comment> {
-
-    private PostViewModel postViewModel;
 
     private FragmentPostBinding binding;
 
@@ -74,9 +71,6 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
-        postViewModel = new ViewModelProvider(this).get(PostViewModel.class);
-
         binding = FragmentPostBinding.inflate(inflater, container, false);
 
         return binding.getRoot();
@@ -102,7 +96,6 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         // launch post info by default
         requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.post_host_fragment, postInfoFragment, "postInfoFragment")
-                .addToBackStack(null)
                 .commit();
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -111,19 +104,16 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
                 if (tab.getText().equals("Post")) {
                     requireActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.post_host_fragment, postInfoFragment, "postInfoFragment")
-                            .addToBackStack(null)
                             .commit();
                 }
                 if (tab.getText().equals("Comments")) {
                     requireActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.post_host_fragment, commentsFragment, "commentsFragment")
-                            .addToBackStack(null)
                             .commit();
                 }
                 if (tab.getText().equals("Scanned by")) {
                     requireActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.post_host_fragment, scannedByFragment, "scannedByFragment")
-                            .addToBackStack(null)
                             .commit();
                 }
             }
@@ -138,8 +128,10 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
 
             }
         });
-        getPostFromDatabase();
-        getQRCodeAndCommentsFromDatabase();
+        if (qrHash != null) {
+            getPostFromDatabase();
+            getQRCodeAndCommentsFromDatabase();
+        }
 
     }
 
