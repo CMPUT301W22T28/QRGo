@@ -13,7 +13,7 @@ import org.junit.Assert;
  *
  * March 10 2022
  */
-public class ScoringQrCodeTest {
+public class ScoringQRCodeTest {
     private ScoringQRCode scoringQRCode;
 
     @Before

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
+import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
+import com.example.myapplication.dataClasses.asyncdata.AsyncList;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
@@ -35,26 +38,26 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
  * @author Walter Ostrander
  * @see ProfileViewModel
- * @see ProfileEventListeners
+ * @see QRGoEventListener
  *
  * March 12, 2022
  */
-public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
+public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, QRGoEventListener<ScoringQRCode> {
     private final String TAG = "ProfileFragment";
     private FragmentProfileBinding binding;
     private MainActivity activity;
     private ProfileViewModel profileViewModel;
     private ArrayList<ScoringQRCode> myQrCodes;
-    private RecyclerView recyclerView;
+    private Button deleteProfileButton;
     private String myUsername = null;
     private Player myPlayerProfile;
     private QRCodeRecyclerAdapter scoringQRCodeAdapter;
+    private boolean isAdmin;
 
     /**
      * Initially called when the profile fragment is created.
@@ -84,6 +87,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         activity = (MainActivity) getActivity();
         assert activity != null;
 
+        deleteProfileButton = (Button) binding.deleteProfileButton;
+
         // getting the recycler view ready
         setupRecyclerView();
 
@@ -92,6 +97,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         // send the data to the view listeners
         getProfileFromDatabase();
+
+        // check to see if the delete button can be visible
+        deleteAllowed();
     }
 
     /**
@@ -159,7 +167,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         qrCodeHashes.add((String) x);
                     }
 
-                    AsyncQrCodeList asyncQrCodeList = new AsyncQrCodeList(qrCodeHashes.size(), profileFragment);
+                    AsyncList<ScoringQRCode> asyncList = new AsyncList<>(qrCodeHashes.size(), profileFragment);
                     CollectionReference scoringQrCodeColRef = db.collection("ScoringQRCodes");
 
                     if (qrCodeHashes.size() != myPlayerProfile.getQRCodeCount()) {
@@ -189,24 +197,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
                                             // setting latitude
                                             latitude = document.getDouble("latitude");
-                                            if (latitude != null) {
-                                                tempQrCode.setLatitude(latitude);
-                                            }
-                                            else {
-                                                tempQrCode.setLatitude(null);
-                                            }
+                                            tempQrCode.setLatitude(latitude);
 
                                             // setting longitude
                                             longitude = document.getDouble("longitude");
-                                            if (longitude != null) {
-                                                tempQrCode.setLongitude(longitude);
-                                            }
-                                            else {
-                                                tempQrCode.setLongitude(null);
-                                            }
+                                            tempQrCode.setLongitude(longitude);
 
                                             // adding qrCode to array
-                                            asyncQrCodeList.addToArray(tempQrCode);
+                                            asyncList.addToArray(tempQrCode);
                                         }
                                     } else {
                                         Log.d(TAG, "Cached ScoringQRCodeDocument document with hash: "+hash+" failed with exception: ", task.getException());
@@ -241,14 +239,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         // testing the custom array adapter
         this.myQrCodes = new ArrayList<>();
 
-        recyclerView = binding.scoringQrCodeList;
+        RecyclerView recyclerView = binding.scoringQrCodeList;
         LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setHasFixedSize(true);
-        scoringQRCodeAdapter = new QRCodeRecyclerAdapter(activity, myQrCodes);
+        scoringQRCodeAdapter = new QRCodeRecyclerAdapter(activity, this.myQrCodes);
         scoringQRCodeAdapter.setClickListener(this);
         recyclerView.setAdapter(scoringQRCodeAdapter);
     }
@@ -259,8 +257,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      * change with it.
      */
     private void setViewListeners() {
-        if (getArguments() != null) {
-            requireActivity().getViewModelStore().clear();
+        if (myPlayerProfile != null) {
+            myPlayerProfile.resetQRCodeList();
         }
 
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
@@ -290,6 +288,38 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 myQrCodes.clear();
                 myQrCodes.addAll(qrCodes);
                 scoringQRCodeAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void deleteAllowed() {
+        Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
+
+        try { this.myUsername = getArguments().getString("Username");}
+        catch(Exception e) { this.myUsername = requireActivity().getIntent().getStringExtra("Username"); }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
+
+        MyUserDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error == null) {
+                    isAdmin = value.getBoolean("admin");
+                    if (isAdmin) {
+                        Log.d(TAG, "this profile is an admin");
+                        deleteProfileButton.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        Log.d(TAG, "this profile is not an admin");
+                    }
+                }
+                else {
+                    // throw exception if any issues getting document
+                    Toast.makeText(activity.getApplicationContext(), "Error ", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Error getting document: ", error);
+                }
             }
         });
     }
@@ -333,7 +363,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      * @param qrCodes The list of qr codes that was filled asynchronously
      */
     @Override
-    public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
+    public void onListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
         resetAndFillQRCodes(qrCodes);
     }
 
