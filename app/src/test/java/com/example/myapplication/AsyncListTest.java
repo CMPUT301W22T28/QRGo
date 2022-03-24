@@ -30,7 +30,7 @@ public class AsyncListTest implements QRGoEventListener<ScoringQRCode> {
      * @param qrCodes The list of qr codes that was filled asynchronously
      */
     @Override
-    public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
+    public void onListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
         this.qrCodes = qrCodes;
         hasEventTriggered = true;
     }

@@ -3,9 +3,9 @@ package com.example.myapplication.dataClasses.asyncdata;
 import java.util.ArrayList;
 
 /**
- * This class lets a person add qr codes to a list asynchronously. So that
+ * This class lets a person add elements to a list asynchronously. So that
  * asynchronous database fetches can happen, then notify a listener that all the
- * qr codes have been added to a list
+ * elements have been added to a list
  * @author Walter
  * @see QRGoEventListener
  *
@@ -18,8 +18,8 @@ public class AsyncList<T> {
     private final ArrayList<T> arrayToFill = new ArrayList<>();
 
     /**
-     * Constructor of AsyncQrCodeList
-     * @param max Number of qr codes to accepts until it triggers the event
+     * Constructor of AsyncList
+     * @param max Number of elements to accepts until it triggers the event
      * @param QRGoEventListener The event listener to trigger
      */
     public AsyncList(int max, QRGoEventListener<T> QRGoEventListener) {
@@ -29,15 +29,15 @@ public class AsyncList<T> {
     }
 
     /**
-     * A method to add qr codes to a list safely from different threads.
-     * @param qrCode The qr code to add to the list.
+     * A method to add elements to a list safely from different threads.
+     * @param element The element to add to the list.
      */
-    public void addToArray(T qrCode) {
+    public void addToArray(T element) {
         synchronized (this) {
             index++;
-            arrayToFill.add(qrCode);
+            arrayToFill.add(element);
             if (index >= maxNumElements) {
-                QRGoEventListener.onQrCodeListDoneFillingEvent(arrayToFill);
+                QRGoEventListener.onListDoneFillingEvent(arrayToFill);
             }
         }
     }

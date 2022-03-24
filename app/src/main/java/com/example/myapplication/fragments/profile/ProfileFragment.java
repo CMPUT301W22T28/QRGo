@@ -53,7 +53,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private MainActivity activity;
     private ProfileViewModel profileViewModel;
     private ArrayList<ScoringQRCode> myQrCodes;
-    private RecyclerView recyclerView;
     private Button deleteProfileButton;
     private String myUsername = null;
     private Player myPlayerProfile;
@@ -240,14 +239,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         // testing the custom array adapter
         this.myQrCodes = new ArrayList<>();
 
-        recyclerView = binding.scoringQrCodeList;
+        RecyclerView recyclerView = binding.scoringQrCodeList;
         LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setHasFixedSize(true);
-        scoringQRCodeAdapter = new QRCodeRecyclerAdapter(activity, myQrCodes);
+        scoringQRCodeAdapter = new QRCodeRecyclerAdapter(activity, this.myQrCodes);
         scoringQRCodeAdapter.setClickListener(this);
         recyclerView.setAdapter(scoringQRCodeAdapter);
     }
@@ -364,7 +363,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      * @param qrCodes The list of qr codes that was filled asynchronously
      */
     @Override
-    public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
+    public void onListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
         resetAndFillQRCodes(qrCodes);
     }
 

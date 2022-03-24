@@ -14,7 +14,7 @@ public interface QRGoEventListener<T> {
     /**
      * Defines a event listener that will trigger when there are a defined number of qr codes in
      * the list.
-     * @param qrCodes The list of qr codes that was filled asynchronously
+     * @param elements The list of qr codes that was filled asynchronously
      */
-    public void onQrCodeListDoneFillingEvent(ArrayList<T> qrCodes);
+    public void onListDoneFillingEvent(ArrayList<T> elements);
 }

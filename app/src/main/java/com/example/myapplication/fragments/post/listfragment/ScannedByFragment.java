@@ -11,12 +11,18 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
-import com.example.myapplication.R;
+import com.example.myapplication.databinding.FragmentScannedByBinding;
+
+import java.util.ArrayList;
 
 public class ScannedByFragment extends Fragment {
+    FragmentScannedByBinding binding;
+    ArrayAdapter<String> scannedByAdapter;
 
-    private ScannedByViewModel mViewModel;
+    ArrayList<String> scannedByList = new ArrayList<>();
 
     private static final String ARG_POST = "argPost";
 
@@ -32,14 +38,35 @@ public class ScannedByFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_scanned_by, container, false);
+        binding = FragmentScannedByBinding.inflate(inflater, container, false);
+
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // stuff in here
+        // setup the list view for peoples names
+        setupListView();
+
+        //
+        setViewListeners();
     }
 
+    private void setupListView() {
+        scannedByAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, scannedByList);
+        ListView listView = binding.userList;
+        listView.setAdapter(scannedByAdapter);
+    }
+
+    private void setViewListeners() {
+        ScannedByViewModel scannedByViewModel = new ViewModelProvider(requireActivity()).get(ScannedByViewModel.class);
+
+        scannedByViewModel.getScannedByLiveData().observe(getViewLifecycleOwner(), newUsernames -> {
+            scannedByList.clear();
+            scannedByList.addAll(newUsernames);
+            scannedByAdapter.notifyDataSetChanged();
+        });
+    }
 }

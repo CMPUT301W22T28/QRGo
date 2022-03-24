@@ -2,6 +2,8 @@ package com.example.myapplication.fragments.post;
 
 import androidx.lifecycle.ViewModelProvider;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,12 +16,17 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.myapplication.R;
+import com.example.myapplication.dataClasses.Comment;
+import com.example.myapplication.dataClasses.asyncdata.AsyncList;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.databinding.FragmentPostBinding;
 import com.example.myapplication.fragments.post.listfragment.CommentsFragment;
+import com.example.myapplication.fragments.post.listfragment.CommentsViewModel;
 import com.example.myapplication.fragments.post.listfragment.ScannedByFragment;
+import com.example.myapplication.fragments.post.listfragment.ScannedByViewModel;
 import com.example.myapplication.fragments.post.postcontent.PostInfoFragment;
+import com.example.myapplication.fragments.post.postcontent.PostInfoViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -36,7 +43,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 
-public class PostFragment extends Fragment implements QRGoEventListener<ScoringQRCode> {
+public class PostFragment extends Fragment implements QRGoEventListener<Comment> {
 
     private PostViewModel postViewModel;
 
@@ -131,11 +138,15 @@ public class PostFragment extends Fragment implements QRGoEventListener<ScoringQ
 
             }
         });
+        getPostFromDatabase();
+        getQRCodeAndCommentsFromDatabase();
 
     }
 
     private void getPostFromDatabase() {
 
+        // get view models to use
+        PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -161,7 +172,9 @@ public class PostFragment extends Fragment implements QRGoEventListener<ScoringQ
                                         myPhoto.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                                             @Override
                                             public void onSuccess(byte[] bytes) {
-                                                // TODO: we got the photo, send to picture view
+                                                // source: https://stackoverflow.com/questions/13854742/byte-array-of-image-into-imageview
+                                                Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                                                postInfoViewModel.setImage(bmp);
                                             }
                                         });
                                     }
@@ -183,6 +196,10 @@ public class PostFragment extends Fragment implements QRGoEventListener<ScoringQ
     }
 
     private void getQRCodeAndCommentsFromDatabase() {
+
+        ScannedByViewModel scannedByViewModel = new ViewModelProvider(requireActivity()).get(ScannedByViewModel.class);
+        PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         DocumentReference scoringQRCodeDocRef = db.collection("ScoringQRCodes").document(qrHash);
@@ -204,28 +221,32 @@ public class PostFragment extends Fragment implements QRGoEventListener<ScoringQ
                         // set null
                     }
                     // endregion
+                    String geolocationString = "QR scanned by user at [";
 
                     //region getting the latitude
                     Double latitude = snapshot.getDouble("latitude");
                     // check if exists
-                    if (latitude != null) {
+                    if (latitude == null) {
                         // fill view model
+                        geolocationString+="null";
                     }
-                    else {
-                        // set null
+                    else{
+                        geolocationString+=latitude+", ";
                     }
                     // endregion
 
                     //region getting the longitude
                     Double longitude = snapshot.getDouble("longitude");
                     // check if exists
-                    if (longitude != null) {
+                    if (longitude == null) {
                         // fill view model
+                        geolocationString += "null]";
                     }
                     else {
-                        // set null
+                        geolocationString += longitude + "]";
                     }
                     // endregion
+                    postInfoViewModel.setTitle(geolocationString);
 
                     //region get scanned_by
                     ArrayList<String> scannedByList = new ArrayList<>();
@@ -237,6 +258,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<ScoringQ
                         for (Object x : ar) {
                             scannedByList.add((String) x);
                         }
+                        scannedByViewModel.setScannedByLiveDataList(scannedByList);
                     }
                     else {
                         Log.d(TAG, "scanned_by array is null...");
@@ -250,6 +272,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<ScoringQ
                         // update value in scannedQRCodes
                         scoringQRCodeDocRef.update("num_scanned_by", scannedByList.size());
                     }
+                    postInfoViewModel.setScannedByText(scannedByList.size());
                     //endregion
 
                     // TODO: update the view models with the above information
@@ -262,7 +285,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<ScoringQ
                         Iterable<?> ar = (Iterable<?>) object;
 
                         for (Object x : ar) {
-                            scannedByList.add((String) x);
+                            commentIds.add((String) x);
                         }
                     }
                     else {
@@ -272,9 +295,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<ScoringQ
 
                     CollectionReference commentColReference = db.collection("Comments");
 
-                    // TODO: once comment class is made, import and add to array list here:
-                    // AsyncList<Comment> asyncList = new AsyncList<>(commentIds.size(), postFragment);
-
+                    AsyncList<Comment> asyncList = new AsyncList<>(commentIds.size(), postFragment);
 
                     for (String commentId : commentIds) {
                         commentColReference.document(commentId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -283,21 +304,24 @@ public class PostFragment extends Fragment implements QRGoEventListener<ScoringQ
                                 if (task.isSuccessful()) {
                                     DocumentSnapshot document = task.getResult();
                                     if (document != null && document.exists()) {
-                                        String comment = document.getString("comment");
+                                        String commentText = document.getString("comment");
                                         String username = document.getString("username");
 
                                         // TODO: fill comment out and pass it to the asyncList
+                                        if (commentText == null) {
+                                            commentText = "";
+                                        }
+                                        if (username == null) {
+                                            username = "";
+                                        }
+                                        Comment comment = new Comment(commentText, username);
+
+                                        asyncList.addToArray(comment);
                                     }
                                 }
                             }
                         });
-
-
                     }
-
-
-
-
                 }
             }
         });
@@ -306,7 +330,8 @@ public class PostFragment extends Fragment implements QRGoEventListener<ScoringQ
     }
 
     @Override
-    public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
-
+    public void onListDoneFillingEvent(ArrayList<Comment> comments) {
+        CommentsViewModel commentsViewModel = new ViewModelProvider(requireActivity()).get(CommentsViewModel.class);
+        commentsViewModel.setComments(comments);
     }
 }
