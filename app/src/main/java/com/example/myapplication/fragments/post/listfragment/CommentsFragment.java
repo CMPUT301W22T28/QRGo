@@ -22,22 +22,47 @@ import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.databinding.FragmentProfileBinding;
 import com.example.myapplication.fragments.post.postcontent.PostInfoFragment;
 import com.example.myapplication.fragments.post.postcontent.PostInfoViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class CommentsFragment extends Fragment {
+public class CommentsFragment extends Fragment implements AddCommentFragment.OnFragmentInteractionListener{
     private ArrayList<Comment> comments = new ArrayList<>();
     FragmentCommentsBinding binding;
     CommentsAdapter commentsAdapter;
 
-    public static CommentsFragment newInstance() {
+    private String username;
+    private String qrHash;
 
-        return new CommentsFragment();
+    private FirebaseFirestore db;
+
+    private static final String USER = "USER";
+    private static final String QR = "QR";
+
+    public static CommentsFragment newInstance(String username, String qrHash) {
+        Bundle args = new Bundle();
+        args.putString(USER, username);
+        args.putString(QR, qrHash);
+
+        CommentsFragment fragment = new CommentsFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
+        // listen to fab to show fragment. Code from labs
+        final FloatingActionButton addCityButton = binding.floatingActionButton;
+        addCityButton.setOnClickListener((view) -> {
+            new AddCommentFragment().show(getActivity().getSupportFragmentManager(),"ADD_CITY");
+        });
 
         binding = FragmentCommentsBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -46,6 +71,11 @@ public class CommentsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        db = FirebaseFirestore.getInstance();
+
+        username = getArguments().getString(USER);
+        qrHash = getArguments().getString(QR);
 
         setupListView();
 
@@ -70,4 +100,18 @@ public class CommentsFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onOkPressed(String comment) {
+        // add comment to database
+        Map<String, Object> data = new HashMap<>();
+        data.put("comment", comment);
+        data.put("username", username);
+        DocumentReference newCommentRef = db.collection("Comments").document();
+        newCommentRef.set(data);
+
+        // add comment id to QR code comment list
+        String commentId = newCommentRef.getId().toString();
+        db.collection("ScoringQRCodes").document(qrHash)
+                .update("comment_ids", FieldValue.arrayUnion(commentId));
+    }
 }

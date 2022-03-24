@@ -47,20 +47,23 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     private FragmentPostBinding binding;
 
     private String qrHash;
-    private String username;
+    private String postOwner; // username of post owner
+    private String username; // main user
 
     TabLayout tabLayout;
 
     private static final String ARG_QR = "argQR";
+    private static final String ARG_POST_USER = "argPostUser";
     private static final String ARG_USER = "argUser";
     private static final String POST_COLLECTION = "Posts";
     private static final String TAG = "PostFragment";
 
     private final StorageReference storageRef = FirebaseStorage.getInstance("gs://qrgo-e62ee.appspot.com/").getReference();
 
-    public static PostFragment newInstance(String qrHash, String username) {
+    public static PostFragment newInstance(String qrHash, String postOwner, String username) {
         Bundle args = new Bundle();
         args.putString(ARG_QR, qrHash);
+        args.putString(ARG_POST_USER, postOwner);
         args.putString(ARG_USER, username);
 
         PostFragment fragment = new PostFragment();
@@ -83,13 +86,14 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         tabLayout = binding.postTabLayout;
 
         assert getArguments() != null;
-        qrHash = getArguments().getString("argQR");
-        username = getArguments().getString("argUser");
+        qrHash = getArguments().getString(ARG_QR);
+        postOwner = getArguments().getString(ARG_POST_USER);
+        username = getArguments().getString(ARG_USER);
 
         // need to get postId from user and QRHash here, call
 
         PostInfoFragment postInfoFragment = PostInfoFragment.newInstance();
-        CommentsFragment commentsFragment = CommentsFragment.newInstance();
+        CommentsFragment commentsFragment = CommentsFragment.newInstance(username, qrHash);
         ScannedByFragment scannedByFragment = ScannedByFragment.newInstance();
 
 
@@ -143,7 +147,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection(POST_COLLECTION)
-                .whereEqualTo("username", username)
+                .whereEqualTo("username", postOwner)
                 .whereEqualTo("qrcode_hash", qrHash)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -213,7 +217,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
                         // set null
                     }
                     // endregion
-                    String geolocationString = "QR scanned by user at [";
+                    String geolocationString = "[";
 
                     //region getting the latitude
                     Double latitude = snapshot.getDouble("latitude");
@@ -238,7 +242,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
                         geolocationString += longitude + "]";
                     }
                     // endregion
-                    postInfoViewModel.setTitle(geolocationString);
+                    postInfoViewModel.setGeoLocation(geolocationString);
 
                     //region get scanned_by
                     ArrayList<String> scannedByList = new ArrayList<>();
