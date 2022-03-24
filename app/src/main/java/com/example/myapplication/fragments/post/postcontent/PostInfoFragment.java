@@ -27,17 +27,11 @@ import java.util.ArrayList;
 
 public class PostInfoFragment extends Fragment {
 
-    private static final String ARG_POST = "argQR";
-
     FragmentPostInfoBinding binding;
 
-    public static PostInfoFragment newInstance(String postId) {
-        Bundle args = new Bundle();
-        args.putString(ARG_POST, postId);
+    public static PostInfoFragment newInstance() {
 
-        PostInfoFragment fragment = new PostInfoFragment();
-        fragment.setArguments(args);
-        return fragment;
+        return new PostInfoFragment();
     }
 
     @Override
