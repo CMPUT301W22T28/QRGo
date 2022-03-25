@@ -24,16 +24,22 @@ import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
@@ -54,7 +60,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private String myUsername = null;
     private Player myPlayerProfile;
     private QRCodeRecyclerAdapter scoringQRCodeAdapter;
-    private boolean isAdmin;
+    private Boolean isAdmin;
 
     /**
      * Initially called when the profile fragment is created.
@@ -86,7 +92,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         activity = (MainActivity) getActivity();
         assert activity != null;
 
+        // initialises the delete profile button
         deleteProfileButton = (Button) binding.deleteProfileButton;
+
+        // checks to see if the profile (that was searched) is an admin
+        try { this.isAdmin = getArguments().getBoolean("isAdmin");}
+        catch(Exception e) { this.isAdmin = false; }
 
         // getting the recycler view ready
         setupRecyclerView();
@@ -98,7 +109,92 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         getProfileFromDatabase();
 
         // check to see if the delete button can be visible
-        deleteAllowed();
+        if (!isAdmin) {
+            deleteAllowed();
+        }
+        else {
+            deleteProfileButton.setVisibility(View.VISIBLE);
+        }
+
+        // Deletes profile when pressed
+        deleteProfileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                System.out.println(myUsername);
+
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                db.collection("Users").document(myUsername).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        System.out.println("User Deleted Successfully!");
+                    }
+                });
+
+                db.collection("LoginQRCode").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+
+                db.collection("GameStatusQRCode").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+
+                db.collection("Comments").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+
+                db.collection("Posts").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+
+                db.collection("ScoringQRCodes").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                            for (DocumentSnapshot document : documents) {
+                                Map<String, Object> map = new HashMap<>();
+                                map.put("scanned_by", FieldValue.arrayRemove(myUsername));
+                                db.collection("ScoringQRCodes").document(document.getId()).update(map);
+                            }
+                        }
+                    }
+                });
+
+                getParentFragmentManager().popBackStackImmediate();
+                Toast.makeText(activity.getApplicationContext(), "Profile Deleted Successfully", Toast.LENGTH_SHORT).show();
+
+            }
+        });
     }
 
     /**
@@ -284,6 +380,10 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         });
     }
 
+    /**
+     * Method that checks to see if the delete button should be visible or not. This is based on whether or
+     * not the user is registered as an Administrator
+     */
     private void deleteAllowed() {
         Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
 
@@ -299,12 +399,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error == null) {
                     isAdmin = value.getBoolean("admin");
-                    if (isAdmin) {
-                        Log.d(TAG, "this profile is an admin");
-                        deleteProfileButton.setVisibility(View.VISIBLE);
-                    }
-                    else {
-                        Log.d(TAG, "this profile is not an admin");
+                    if (isAdmin == null) {
+                        isAdmin = false;
                     }
                 }
                 else {
