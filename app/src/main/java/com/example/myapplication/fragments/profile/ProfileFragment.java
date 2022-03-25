@@ -61,7 +61,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private Player myPlayerProfile;
     private QRCodeRecyclerAdapter scoringQRCodeAdapter;
     private Boolean isAdmin;
-    //private boolean isAdminMain;
 
     /**
      * Initially called when the profile fragment is created.
@@ -191,10 +190,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     }
                 });
 
-
-                //getActivity().finish();
-
-                //Toast.makeText(activity.getApplicationContext(), "Profile Deleted Successfully", Toast.LENGTH_SHORT).show();
+                getParentFragmentManager().popBackStackImmediate();
+                Toast.makeText(activity.getApplicationContext(), "Profile Deleted Successfully", Toast.LENGTH_SHORT).show();
 
             }
         });
