@@ -54,7 +54,7 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
     ArrayList<Player> users;
     UserRecyclerAdapter userRecyclerAdapter;
     FirebaseFirestore db;
-    private boolean isAdmin;
+    private Boolean isAdmin;
     private String myUsername = null;
 
     /**
@@ -197,12 +197,13 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error == null) {
                     isAdmin = value.getBoolean("admin");
-                    System.out.println("inside the function" + isAdmin);
+                    if (isAdmin == null) {
+                        isAdmin = false;
+                    }
                 }
                 else {
                     // throw exception if any issues getting document
                     Toast.makeText(activity.getApplicationContext(), "Error ", Toast.LENGTH_SHORT).show();
-                    //Log.d(TAG, "Error getting document: ", error);
                 }
             }
         });

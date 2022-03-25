@@ -58,7 +58,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private String myUsername = null;
     private Player myPlayerProfile;
     private QRCodeRecyclerAdapter scoringQRCodeAdapter;
-    private boolean isAdmin;
+    private Boolean isAdmin;
+    //private boolean isAdminMain;
 
     /**
      * Initially called when the profile fragment is created.
@@ -90,8 +91,10 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         activity = (MainActivity) getActivity();
         assert activity != null;
 
+        // initialises the delete profile button
         deleteProfileButton = (Button) binding.deleteProfileButton;
 
+        // checks to see if the profile (that was searched) is an admin
         try { this.isAdmin = getArguments().getBoolean("isAdmin");}
         catch(Exception e) { this.isAdmin = false; }
 
@@ -116,6 +119,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         deleteProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 System.out.println(myUsername);
 
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -123,7 +127,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 db.collection("Users").document(myUsername).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        System.out.println("Printed Successfully!");
+                        System.out.println("User Deleted Successfully!");
                     }
                 });
 
@@ -170,6 +174,11 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         }
                     }
                 });
+
+                //getActivity().finish();
+
+                //Toast.makeText(activity.getApplicationContext(), "Profile Deleted Successfully", Toast.LENGTH_SHORT).show();
+
             }
         });
     }
@@ -376,10 +385,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error == null) {
                     isAdmin = value.getBoolean("admin");
-                    if (isAdmin) {
-                        deleteProfileButton.setVisibility(View.VISIBLE);
-                    }
-                    else {
+                    if (isAdmin == null) {
+                        isAdmin = false;
                     }
                 }
                 else {
