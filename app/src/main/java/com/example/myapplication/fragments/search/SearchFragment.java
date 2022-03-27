@@ -219,11 +219,12 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
         ProfileFragment profileFragment = new ProfileFragment();
         Bundle username = new Bundle();
-        username.putString("Username", userRecyclerAdapter.getItem(position).getUsername());
+        String name = userRecyclerAdapter.getItem(position).getUsername();
+        username.putString("Username", name);
         username.putBoolean("isAdmin", isAdmin);
         profileFragment.setArguments(username);
         getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.nav_host_fragment_activity_main, profileFragment, "findThisFragment")
+                .replace(R.id.nav_host_fragment_activity_main, profileFragment, "profileFragment"+name)
                 .addToBackStack(null)
                 .commit();
     }

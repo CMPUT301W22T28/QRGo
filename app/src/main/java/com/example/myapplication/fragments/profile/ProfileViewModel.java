@@ -9,7 +9,7 @@ import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import java.util.ArrayList;
 
 /**
- * The view model that holds all the livedata for the profile framgent
+ * The view model that holds all the livedata for the profile fragment
  * @author Walter
  * @see ProfileFragment
  *
@@ -21,6 +21,8 @@ public class ProfileViewModel extends ViewModel {
     private final MutableLiveData<String> qrCodeCount;
     private final MutableLiveData<String> topQRCodeScore;
     private final MutableLiveData<ArrayList<ScoringQRCode>> mutableProfileQRCodes;
+    private final MutableLiveData<String> email;
+    private final MutableLiveData<String> phone;
 
     /**
      * the constructor for the profile view model, it initializes all the live data for the fragment.
@@ -31,6 +33,8 @@ public class ProfileViewModel extends ViewModel {
         qrCodeCount = new MutableLiveData<>();
         topQRCodeScore = new MutableLiveData<>();
         mutableProfileQRCodes = new MutableLiveData<>();
+        email = new MutableLiveData<>();
+        phone = new MutableLiveData<>();
     }
 
     /**
@@ -72,6 +76,18 @@ public class ProfileViewModel extends ViewModel {
     public LiveData<ArrayList<ScoringQRCode>> getQrCodes() { return mutableProfileQRCodes; }
 
     /**
+     * A getter for the profile email live data.
+     * @return The email live data.
+     */
+    public LiveData<String> getEmail () { return email; }
+
+    /**
+     * A getter for the profile phone live data.
+     * @return The phone live data.
+     */
+    public LiveData<String> getPhone () { return phone; }
+
+    /**
      * Sets the username if it it is not the same as the current username.
      * @param username The new username to change the profile to.
      */
@@ -108,5 +124,17 @@ public class ProfileViewModel extends ViewModel {
     public void setMutableProfileQRCodes(ArrayList<ScoringQRCode> qrCodes) {
         this.mutableProfileQRCodes.setValue(qrCodes);
         this.qrCodeCount.setValue(String.valueOf(qrCodes.size()));
+    }
+
+    public void setEmail(String email) {
+        if (!String.valueOf(this.email.getValue()).equals(email)) {
+            this.email.setValue(email);
+        }
+    }
+
+    public void setPhone(String phone) {
+        if (!String.valueOf(this.phone.getValue()).equals(phone)) {
+            this.phone.setValue(phone);
+        }
     }
 }

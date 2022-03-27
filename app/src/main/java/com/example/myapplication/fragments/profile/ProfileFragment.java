@@ -19,10 +19,14 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
+import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
+import com.example.myapplication.dataClasses.asyncdata.AsyncList;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
+import com.example.myapplication.fragments.post.PostFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -45,17 +49,16 @@ import java.util.Map;
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
  * @author Walter Ostrander
  * @see ProfileViewModel
- * @see ProfileEventListeners
+ * @see QRGoEventListener
  *
  * March 12, 2022
  */
-public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, ProfileEventListeners {
+public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.ItemClickListener, QRGoEventListener<ScoringQRCode> {
     private final String TAG = "ProfileFragment";
     private FragmentProfileBinding binding;
     private MainActivity activity;
     private ProfileViewModel profileViewModel;
     private ArrayList<ScoringQRCode> myQrCodes;
-    private RecyclerView recyclerView;
     private Button deleteProfileButton;
     private String myUsername = null;
     private Player myPlayerProfile;
@@ -71,13 +74,11 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      */
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        ProfileViewModel profileViewModel =
+        profileViewModel =
                 new ViewModelProvider(this).get(ProfileViewModel.class);
-
         binding = FragmentProfileBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
 
-        return root;
+        return binding.getRoot();
     }
 
     /**
@@ -243,8 +244,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         }
                     }
 
+                    String myEmail = snapshot.getString("email");
+                    String myPhone = snapshot.getString("phone");
                     // region setting text views in profile top bar
                     profileViewModel.setUsername(myUsername);
+                    profileViewModel.setEmail(myEmail);
+                    profileViewModel.setPhone(myPhone);
 
                     // endregion
                     Long scannedCount = snapshot.getLong("scanned_count");
@@ -258,7 +263,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         qrCodeHashes.add((String) x);
                     }
 
-                    AsyncQrCodeList asyncQrCodeList = new AsyncQrCodeList(qrCodeHashes.size(), profileFragment);
+                    AsyncList<ScoringQRCode> asyncList = new AsyncList<>(qrCodeHashes.size(), profileFragment);
                     CollectionReference scoringQrCodeColRef = db.collection("ScoringQRCodes");
 
                     if (qrCodeHashes.size() != myPlayerProfile.getQRCodeCount()) {
@@ -288,24 +293,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
                                             // setting latitude
                                             latitude = document.getDouble("latitude");
-                                            if (latitude != null) {
-                                                tempQrCode.setLatitude(latitude);
-                                            }
-                                            else {
-                                                tempQrCode.setLatitude(null);
-                                            }
+                                            tempQrCode.setLatitude(latitude);
 
                                             // setting longitude
                                             longitude = document.getDouble("longitude");
-                                            if (longitude != null) {
-                                                tempQrCode.setLongitude(longitude);
-                                            }
-                                            else {
-                                                tempQrCode.setLongitude(null);
-                                            }
+                                            tempQrCode.setLongitude(longitude);
 
                                             // adding qrCode to array
-                                            asyncQrCodeList.addToArray(tempQrCode);
+                                            asyncList.addToArray(tempQrCode);
                                         }
                                     } else {
                                         Log.d(TAG, "Cached ScoringQRCodeDocument document with hash: "+hash+" failed with exception: ", task.getException());
@@ -313,6 +308,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                                 }
                             });
                         }
+                    }
+                    else {
+                        resetAndFillQRCodes(myQrCodes);
                     }
 
                     if (scannedCount == null || qrCodeHashes.size() != scannedCount.intValue()) {
@@ -337,14 +335,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         // testing the custom array adapter
         this.myQrCodes = new ArrayList<>();
 
-        recyclerView = binding.scoringQrCodeList;
+        RecyclerView recyclerView = binding.scoringQrCodeList;
         LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
         recyclerView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 layoutManager.getOrientation());
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setHasFixedSize(true);
-        scoringQRCodeAdapter = new QRCodeRecyclerAdapter(activity, myQrCodes);
+        scoringQRCodeAdapter = new QRCodeRecyclerAdapter(activity, this.myQrCodes);
         scoringQRCodeAdapter.setClickListener(this);
         recyclerView.setAdapter(scoringQRCodeAdapter);
     }
@@ -355,6 +353,10 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      * change with it.
      */
     private void setViewListeners() {
+        if (myPlayerProfile != null) {
+            myPlayerProfile.resetQRCodeList();
+        }
+
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
         final TextView usernameTextView = binding.profileUsername;
@@ -368,6 +370,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         final TextView topQRCodeTextView = binding.profileTopQrCode;
         profileViewModel.getTopQRCodeScore().observe(getViewLifecycleOwner(), topQRCodeTextView::setText);
+
+        final TextView emailTextView = binding.profileTopEmail;
+        profileViewModel.getEmail().observe(getViewLifecycleOwner(), emailTextView::setText);
+
+        final TextView phoneTextView = binding.profileTopPhone;
+        profileViewModel.getPhone().observe(getViewLifecycleOwner(), phoneTextView::setText);
 
         profileViewModel.getQrCodes().observe(getViewLifecycleOwner(), new Observer<ArrayList<ScoringQRCode>>() {
             @SuppressLint("NotifyDataSetChanged")
@@ -420,6 +428,19 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     @Override
     public void onItemClick(View view, int position) {
         Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
+
+        ScoringQRCode qrCode = myPlayerProfile.getQRCodes().get(position);
+
+        PostFragment postFragment = new PostFragment();
+        Bundle postArguments = new Bundle();
+        postArguments.putString("qrCodeHash", qrCode.getHash());
+
+
+        postFragment.setArguments(postArguments);
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.nav_host_fragment_activity_main, postFragment, "postFragment")
+                .addToBackStack(null)
+                .commit();
     }
 
     /**
@@ -431,20 +452,27 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         binding = null;
     }
 
+
     /**
      * An event listener, called when AsynQrCodeList is done filling with the prescribed
      * number of Qr Codes.
      * @param qrCodes The list of qr codes that was filled asynchronously
      */
     @Override
-    public void onQrCodeListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
+    public void onListDoneFillingEvent(ArrayList<ScoringQRCode> qrCodes) {
+        resetAndFillQRCodes(qrCodes);
+    }
+
+    public void resetAndFillQRCodes(ArrayList<ScoringQRCode> qrCodes) {
         // fill the profile view with qrcodes
         myPlayerProfile.resetQRCodeList();
         for (ScoringQRCode qrCode: qrCodes) {
             myPlayerProfile.addScoringQRCode(qrCode);
         }
         profileViewModel.setMutableProfileQRCodes(qrCodes);
-        updateHighestAndSumQrCode();
+        if (qrCodes.size() > 0) {
+            updateHighestAndSumQrCode();
+        }
     }
 
 
@@ -519,4 +547,5 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     public ProfileViewModel getViewModel() {
         return profileViewModel;
     }
+
 }

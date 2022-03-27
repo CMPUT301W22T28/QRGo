@@ -13,8 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.user.Player;
-import com.example.myapplication.fragments.profile.ProfileFragment;
-import com.example.myapplication.fragments.profile.QRCodeRecyclerAdapter;
 
 import java.util.ArrayList;
 

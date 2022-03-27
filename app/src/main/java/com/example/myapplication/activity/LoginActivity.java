@@ -34,6 +34,8 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +56,7 @@ public class LoginActivity extends AppCompatActivity {
     // Tag for Logcat
     private final String LOGIN_TAG = "LoginActivity";
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private StorageReference storageRef = FirebaseStorage.getInstance("gs://qrgo-e62ee.appspot.com/").getReference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
