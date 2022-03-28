@@ -432,7 +432,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         ScoringQRCode qrCode = myPlayerProfile.getQRCodes().get(position);
 
         String currentUser = requireActivity().getIntent().getStringExtra("Username");
-        PostFragment postFragment = PostFragment.newInstance(qrCode.getHash(), viewedUser, currentUser);
+
+        PostFragment postFragment = PostFragment.newInstance(qrCode.getHash(), viewedUser, currentUser, isAdmin);
 
         requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.nav_host_fragment_activity_main, postFragment, "postFragment")

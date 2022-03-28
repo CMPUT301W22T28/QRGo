@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.myapplication.R;
@@ -54,6 +55,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     private String qrHash;
     private String postOwner; // username of post owner
     private String username; // main user
+    private Boolean isAdmin;
     private PostInfoViewModel postInfoViewModel;
     private CommentsViewModel commentsViewModel;
     private ScannedByViewModel scannedByViewModel;
@@ -63,16 +65,18 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     private static final String ARG_QR = "argQR";
     private static final String ARG_POST_USER = "argPostUser";
     private static final String ARG_USER = "argUser";
+    private static final String ARG_ADMIN = "argAdmin";
     private static final String POST_COLLECTION = "Posts";
     private static final String TAG = "PostFragment";
 
     private final StorageReference storageRef = FirebaseStorage.getInstance("gs://qrgo-e62ee.appspot.com/").getReference();
 
-    public static PostFragment newInstance(String qrHash, String postOwner, String username) {
+    public static PostFragment newInstance(String qrHash, String postOwner, String username, Boolean isAdmin) {
         Bundle args = new Bundle();
         args.putString(ARG_QR, qrHash);
         args.putString(ARG_POST_USER, postOwner);
         args.putString(ARG_USER, username);
+        args.putBoolean(ARG_ADMIN, isAdmin);
 
         PostFragment fragment = new PostFragment();
         fragment.setArguments(args);
@@ -97,10 +101,11 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         qrHash = getArguments().getString(ARG_QR);
         postOwner = getArguments().getString(ARG_POST_USER);
         username = getArguments().getString(ARG_USER);
+        isAdmin = getArguments().getBoolean(ARG_ADMIN);
 
         // need to get postId from user and QRHash here, call
 
-        PostInfoFragment postInfoFragment = PostInfoFragment.newInstance();
+        PostInfoFragment postInfoFragment = PostInfoFragment.newInstance(qrHash, postOwner, username, isAdmin);
         CommentsFragment commentsFragment = CommentsFragment.newInstance(username, qrHash);
         ScannedByFragment scannedByFragment = ScannedByFragment.newInstance();
 
