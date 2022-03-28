@@ -132,11 +132,9 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
             getPostFromDatabase();
             getQRCodeAndCommentsFromDatabase();
         }
-
     }
 
     private void getPostFromDatabase() {
-
         // get view models to use
         PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
 

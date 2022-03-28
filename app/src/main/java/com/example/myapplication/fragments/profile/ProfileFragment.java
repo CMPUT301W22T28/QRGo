@@ -15,6 +15,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -325,6 +328,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     }
 
     /**
+     * gets "this", so that we can find the nav fragment
+     * @return this, an instance of the fragment
+     */
+    private ProfileFragment getFragment() {
+        return this;
+    }
+
+    /**
      * To implement later, a method called when a qr code is clicked in the list of Scoring Qr Codes.
      * @param view The view that was clicked.
      * @param position The position of the qr Code clicked in the recycler view.
@@ -339,6 +350,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         Bundle postArguments = new Bundle();
         postArguments.putString("qrCodeHash", qrCode.getHash());
 
+        MainActivity activity = (MainActivity) requireActivity();
+        NavController navController = activity.getNavController();
+
+        NavOptions navOptions = new NavOptions.Builder()
+                .setPopUpTo(R.id.post_parent_fragment, true)
+                .build();
 
         postFragment.setArguments(postArguments);
         requireActivity().getSupportFragmentManager().beginTransaction()

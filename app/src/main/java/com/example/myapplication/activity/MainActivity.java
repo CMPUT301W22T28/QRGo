@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
     Context activityContext;
     final int MY_CAMERA_REQUEST_CODE = 100;
-    final int QR_CODE_SCAN = 49374;
+    NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
         assert navHostFragment != null;
-        NavController navController = navHostFragment.getNavController();
+        navController = navHostFragment.getNavController();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
     }
@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
         actionBar.hide();
     }
 
+    public NavController getNavController() {
+        return navController;
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -83,8 +86,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
 
                 Toast.makeText(getApplicationContext(), "camera permission denied", Toast.LENGTH_LONG).show();
-
-
             }
 
         }
