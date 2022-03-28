@@ -7,20 +7,20 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class PostInfoViewModel extends ViewModel {
-    private final MutableLiveData<String> title;
+    private final MutableLiveData<String> geoLocation;
     private final MutableLiveData<Bitmap> image;
     private final MutableLiveData<String> score;
     private final MutableLiveData<String> scannedByText;
 
     public PostInfoViewModel() {
-        title = new MutableLiveData<>();
+        geoLocation = new MutableLiveData<>();
         image = new MutableLiveData<>();
         score = new MutableLiveData<>();
         scannedByText = new MutableLiveData<>();
     }
 
-    public void setTitle(String newTitle) {
-        title.setValue(newTitle);
+    public void setGeoLocation(String newLocation) {
+        geoLocation.setValue(newLocation);
     }
 
     public void setImage(Bitmap newImage) {
@@ -35,8 +35,8 @@ public class PostInfoViewModel extends ViewModel {
         this.scannedByText.setValue("Scanned by "+numScannedBy+" users");
     }
 
-    public LiveData<String> getTitle() {
-        return title;
+    public LiveData<String> getGeoLocation() {
+        return geoLocation;
     }
 
     public LiveData<Bitmap> getImage() {

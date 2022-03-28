@@ -60,7 +60,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private ProfileViewModel profileViewModel;
     private ArrayList<ScoringQRCode> myQrCodes;
     private Button deleteProfileButton;
-    private String myUsername = null;
+    private String viewedUser = null;
     private Player myPlayerProfile;
     private QRCodeRecyclerAdapter scoringQRCodeAdapter;
     private Boolean isAdmin = null;
@@ -122,18 +122,18 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
             @Override
             public void onClick(View view) {
 
-                System.out.println(myUsername);
+                //System.out.println(myUsername);
 
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                db.collection("Users").document(myUsername).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                db.collection("Users").document(viewedUser).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
                         System.out.println("User Deleted Successfully!");
                     }
                 });
 
-                db.collection("LoginQRCode").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                db.collection("LoginQRCode").whereEqualTo("username", viewedUser).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         List<DocumentSnapshot> documents = task.getResult().getDocuments();
@@ -144,7 +144,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     }
                 });
 
-                db.collection("GameStatusQRCode").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                db.collection("GameStatusQRCode").whereEqualTo("username", viewedUser).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         List<DocumentSnapshot> documents = task.getResult().getDocuments();
@@ -155,7 +155,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     }
                 });
 
-                db.collection("Comments").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                db.collection("Comments").whereEqualTo("username", viewedUser).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         List<DocumentSnapshot> documents = task.getResult().getDocuments();
@@ -166,7 +166,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     }
                 });
 
-                db.collection("Posts").whereEqualTo("username", myUsername).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                db.collection("Posts").whereEqualTo("username", viewedUser).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         List<DocumentSnapshot> documents = task.getResult().getDocuments();
@@ -184,7 +184,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                             List<DocumentSnapshot> documents = task.getResult().getDocuments();
                             for (DocumentSnapshot document : documents) {
                                 Map<String, Object> map = new HashMap<>();
-                                map.put("scanned_by", FieldValue.arrayRemove(myUsername));
+                                map.put("scanned_by", FieldValue.arrayRemove(viewedUser));
                                 db.collection("ScoringQRCodes").document(document.getId()).update(map);
                             }
                         }
@@ -208,8 +208,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private void getProfileFromDatabase() {
         Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
 
-        try { this.myUsername = getArguments().getString("Username");}
-        catch(Exception e) { this.myUsername = requireActivity().getIntent().getStringExtra("Username"); }
+        try { this.viewedUser = getArguments().getString("Username");}
+        catch(Exception e) { this.viewedUser = requireActivity().getIntent().getStringExtra("Username"); }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -219,7 +219,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 .build();
         db.setFirestoreSettings(settings);
 
-        DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
+        DocumentReference MyUserDocRef = db.collection("Users").document(this.viewedUser);
 
         ProfileFragment profileFragment = this;
 
@@ -237,17 +237,17 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
                     if (myPlayerProfile == null) {
                         if (isAdmin == null || !isAdmin) {
-                            myPlayerProfile = new Player(myUsername, false);
+                            myPlayerProfile = new Player(viewedUser, false);
                         }
                         else {
-                            myPlayerProfile = new Player(myUsername, true);
+                            myPlayerProfile = new Player(viewedUser, true);
                         }
                     }
 
                     String myEmail = snapshot.getString("email");
                     String myPhone = snapshot.getString("phone");
                     // region setting text views in profile top bar
-                    profileViewModel.setUsername(myUsername);
+                    profileViewModel.setUsername(viewedUser);
                     profileViewModel.setEmail(myEmail);
                     profileViewModel.setPhone(myPhone);
 
@@ -395,12 +395,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private void deleteAllowed() {
         Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
 
-        try { this.myUsername = getArguments().getString("Username");}
-        catch(Exception e) { this.myUsername = requireActivity().getIntent().getStringExtra("Username"); }
+        try { this.viewedUser = getArguments().getString("Username");}
+        catch(Exception e) { this.viewedUser = requireActivity().getIntent().getStringExtra("Username"); }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
+        DocumentReference MyUserDocRef = db.collection("Users").document(this.viewedUser);
 
         MyUserDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -431,12 +431,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         ScoringQRCode qrCode = myPlayerProfile.getQRCodes().get(position);
 
-        PostFragment postFragment = new PostFragment();
-        Bundle postArguments = new Bundle();
-        postArguments.putString("qrCodeHash", qrCode.getHash());
-        postArguments.putBoolean("isAdmin", isAdmin);
+        String currentUser = requireActivity().getIntent().getStringExtra("Username");
+        PostFragment postFragment = PostFragment.newInstance(qrCode.getHash(), viewedUser, currentUser);
 
-        postFragment.setArguments(postArguments);
         requireActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.nav_host_fragment_activity_main, postFragment, "postFragment")
                 .addToBackStack(null)
@@ -490,7 +487,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 .build();
         db.setFirestoreSettings(settings);
 
-        DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
+        DocumentReference MyUserDocRef = db.collection("Users").document(this.viewedUser);
 
 
         int tempHighestQrCode = 0;

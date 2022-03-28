@@ -12,9 +12,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:padding="10dp"
-        android:text="UserName:"
-        android:textSize="10sp"
-        />
+        android:text="@string/username"
+        android:textSize="12sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/comment_text"
@@ -23,8 +23,8 @@
         android:layout_weight="1"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:text="This is a very long comment blah blah blah. This is a very long comment blah blah blah."
-        android:textSize="10sp"
+        android:text="@string/long_comment"
+        android:textSize="12sp"
         app:layout_constraintStart_toEndOf="@+id/username_text"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
