@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.Comment;
@@ -50,6 +51,8 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     private String username;
 
     TabLayout tabLayout;
+
+    private Button deletePostButton;
 
     private static final String ARG_QR = "argQR";
     private static final String ARG_USER = "argUser";

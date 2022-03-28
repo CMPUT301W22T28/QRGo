@@ -221,7 +221,10 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         Bundle username = new Bundle();
         String name = userRecyclerAdapter.getItem(position).getUsername();
         username.putString("Username", name);
+
         username.putBoolean("isAdmin", isAdmin);
+        if (name.equals(myUsername)) { username.putBoolean("isAdmin", false); }
+
         profileFragment.setArguments(username);
         getActivity().getSupportFragmentManager().beginTransaction()
                 .replace(R.id.nav_host_fragment_activity_main, profileFragment, "profileFragment"+name)

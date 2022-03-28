@@ -63,7 +63,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private String myUsername = null;
     private Player myPlayerProfile;
     private QRCodeRecyclerAdapter scoringQRCodeAdapter;
-    private Boolean isAdmin;
+    private Boolean isAdmin = null;
 
     /**
      * Initially called when the profile fragment is created.
@@ -110,10 +110,10 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         getProfileFromDatabase();
 
         // check to see if the delete button can be visible
-        if (!isAdmin) {
+        if (isAdmin == null) {
             deleteAllowed();
         }
-        else {
+        else if (isAdmin == true) {
             deleteProfileButton.setVisibility(View.VISIBLE);
         }
 
@@ -434,7 +434,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         PostFragment postFragment = new PostFragment();
         Bundle postArguments = new Bundle();
         postArguments.putString("qrCodeHash", qrCode.getHash());
-
+        postArguments.putBoolean("isAdmin", isAdmin);
 
         postFragment.setArguments(postArguments);
         requireActivity().getSupportFragmentManager().beginTransaction()
