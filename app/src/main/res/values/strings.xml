@@ -26,8 +26,10 @@
     <string name="profile_static_phone">Phone:</string>
     <string name="long_comment">This is a very long comment blah blah blah. This is a very long comment blah blah blah.</string>
     <string name="username">UserName:</string>
-    <string name="post_title">QR scanned by user at [geo,location]</string>
+    <string name="last_location">Last know coordinates</string>
     <string name="post_score">SCORE</string>
     <string name="post_score_value">100</string>
     <string name="scanned_by_n_users">Scanned by n users</string>
+    <string name="lat_lon">[lat, lon]</string>
+    <string name="add_comment_hint">add comment</string>
 </resources>

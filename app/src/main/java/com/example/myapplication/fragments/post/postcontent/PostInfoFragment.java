@@ -1,9 +1,7 @@
 package com.example.myapplication.fragments.post.postcontent;
 
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 
@@ -17,13 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.myapplication.R;
-
-import com.example.myapplication.dataClasses.Comment;
-import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.databinding.FragmentPostInfoBinding;
-
-import java.util.ArrayList;
 
 public class PostInfoFragment extends Fragment {
 
@@ -57,8 +49,8 @@ public class PostInfoFragment extends Fragment {
     private void setViewListeners() {
         PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
 
-        final TextView titleTextView = binding.titleText;
-        postInfoViewModel.getTitle().observe(getViewLifecycleOwner(), titleTextView::setText);
+        final TextView locationTextView = binding.lastLocation;
+        postInfoViewModel.getGeoLocation().observe(getViewLifecycleOwner(), locationTextView::setText);
 
         final TextView scoreTextView = binding.scoreText;
         postInfoViewModel.getScore().observe(getViewLifecycleOwner(), scoreTextView::setText);

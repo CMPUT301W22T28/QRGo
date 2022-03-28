@@ -1,7 +1,9 @@
 package com.example.myapplication.fragments.post;
 
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -14,11 +16,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.Comment;
 import com.example.myapplication.dataClasses.asyncdata.AsyncList;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
+import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.databinding.FragmentPostBinding;
 import com.example.myapplication.fragments.post.listfragment.CommentsFragment;
 import com.example.myapplication.fragments.post.listfragment.CommentsViewModel;
@@ -26,6 +30,7 @@ import com.example.myapplication.fragments.post.listfragment.ScannedByFragment;
 import com.example.myapplication.fragments.post.listfragment.ScannedByViewModel;
 import com.example.myapplication.fragments.post.postcontent.PostInfoFragment;
 import com.example.myapplication.fragments.post.postcontent.PostInfoViewModel;
+import com.example.myapplication.fragments.profile.ProfileViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -47,20 +52,26 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     private FragmentPostBinding binding;
 
     private String qrHash;
-    private String username;
+    private String postOwner; // username of post owner
+    private String username; // main user
+    private PostInfoViewModel postInfoViewModel;
+    private CommentsViewModel commentsViewModel;
+    private ScannedByViewModel scannedByViewModel;
 
     TabLayout tabLayout;
 
     private static final String ARG_QR = "argQR";
+    private static final String ARG_POST_USER = "argPostUser";
     private static final String ARG_USER = "argUser";
     private static final String POST_COLLECTION = "Posts";
     private static final String TAG = "PostFragment";
 
     private final StorageReference storageRef = FirebaseStorage.getInstance("gs://qrgo-e62ee.appspot.com/").getReference();
 
-    public static PostFragment newInstance(String qrHash, String username) {
+    public static PostFragment newInstance(String qrHash, String postOwner, String username) {
         Bundle args = new Bundle();
         args.putString(ARG_QR, qrHash);
+        args.putString(ARG_POST_USER, postOwner);
         args.putString(ARG_USER, username);
 
         PostFragment fragment = new PostFragment();
@@ -83,13 +94,14 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         tabLayout = binding.postTabLayout;
 
         assert getArguments() != null;
-        qrHash = getArguments().getString("argQR");
-        username = getArguments().getString("argUser");
+        qrHash = getArguments().getString(ARG_QR);
+        postOwner = getArguments().getString(ARG_POST_USER);
+        username = getArguments().getString(ARG_USER);
 
         // need to get postId from user and QRHash here, call
 
         PostInfoFragment postInfoFragment = PostInfoFragment.newInstance();
-        CommentsFragment commentsFragment = CommentsFragment.newInstance();
+        CommentsFragment commentsFragment = CommentsFragment.newInstance(username, qrHash);
         ScannedByFragment scannedByFragment = ScannedByFragment.newInstance();
 
 
@@ -141,7 +153,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection(POST_COLLECTION)
-                .whereEqualTo("username", username)
+                .whereEqualTo("username", postOwner)
                 .whereEqualTo("qrcode_hash", qrHash)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -211,7 +223,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
                         // set null
                     }
                     // endregion
-                    String geolocationString = "QR scanned by user at [";
+                    String geolocationString = "[";
 
                     //region getting the latitude
                     Double latitude = snapshot.getDouble("latitude");
@@ -236,7 +248,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
                         geolocationString += longitude + "]";
                     }
                     // endregion
-                    postInfoViewModel.setTitle(geolocationString);
+                    postInfoViewModel.setGeoLocation(geolocationString);
 
                     //region get scanned_by
                     ArrayList<String> scannedByList = new ArrayList<>();
@@ -324,4 +336,5 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         CommentsViewModel commentsViewModel = new ViewModelProvider(requireActivity()).get(CommentsViewModel.class);
         commentsViewModel.setComments(comments);
     }
+
 }

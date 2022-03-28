@@ -18,14 +18,21 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.ActivityMainBinding;
+import com.example.myapplication.fragments.post.listfragment.AddCommentFragment;
 import com.example.myapplication.fragments.profile.ProfileViewModel;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The main activity that runs all our fragments
  * @author Walter, Mohamed Ali
  * @see LoginActivity
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private ActivityMainBinding binding;
     private final String TAG = "MainActivity";
@@ -90,4 +97,5 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
 }

@@ -22,17 +22,34 @@ import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.databinding.FragmentProfileBinding;
 import com.example.myapplication.fragments.post.postcontent.PostInfoFragment;
 import com.example.myapplication.fragments.post.postcontent.PostInfoViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class CommentsFragment extends Fragment {
+public class CommentsFragment extends Fragment{
     private ArrayList<Comment> comments = new ArrayList<>();
     FragmentCommentsBinding binding;
     CommentsAdapter commentsAdapter;
 
-    public static CommentsFragment newInstance() {
+    private String username;
+    private String qrHash;
 
-        return new CommentsFragment();
+    private static final String USER = "USER";
+    private static final String QR = "QR";
+
+    public static CommentsFragment newInstance(String username, String qrHash) {
+        Bundle args = new Bundle();
+        args.putString(USER, username);
+        args.putString(QR, qrHash);
+
+        CommentsFragment fragment = new CommentsFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -40,6 +57,15 @@ public class CommentsFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
 
         binding = FragmentCommentsBinding.inflate(inflater, container, false);
+
+        username = getArguments().getString(USER);
+        qrHash = getArguments().getString(QR);
+        // listen to fab to show fragment. Code from labs
+        final FloatingActionButton addCityButton = binding.floatingActionButton;
+        addCityButton.setOnClickListener((view) -> {
+            AddCommentFragment.newInstance(username,qrHash).show(getChildFragmentManager(),"ADD_COMMENT");
+        });
+
         return binding.getRoot();
     }
 
