@@ -308,7 +308,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
                     //region get comment ids
                     ArrayList<String> commentIds = new ArrayList<>();
 
-                    Object object = snapshot.get("scanned_by");
+                    Object object = snapshot.get("comment_ids");
                     if (object != null) {
                         Iterable<?> ar = (Iterable<?>) object;
 
@@ -359,6 +359,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
 
     @Override
     public void onListDoneFillingEvent(ArrayList<Comment> comments) {
+        Log.d(TAG, "we are here, here are the comments lol: "+comments);
         CommentsViewModel commentsViewModel = new ViewModelProvider(requireActivity()).get(CommentsViewModel.class);
         commentsViewModel.setComments(comments);
     }

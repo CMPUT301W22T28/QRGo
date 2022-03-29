@@ -32,7 +32,7 @@ import java.util.Map;
  * @author Walter, Mohamed Ali
  * @see LoginActivity
  */
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private ActivityMainBinding binding;
     private final String TAG = "MainActivity";

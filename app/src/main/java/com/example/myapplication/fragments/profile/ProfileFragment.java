@@ -15,6 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -338,10 +340,21 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         String currentUser = requireActivity().getIntent().getStringExtra("Username");
         PostFragment postFragment = PostFragment.newInstance(qrCode.getHash(), viewedUser, currentUser);
 
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.nav_host_fragment_activity_main, postFragment, "postFragment")
-                .addToBackStack(null)
-                .commit();
+        //region passing arguments while navigating fragments
+
+        // all of this is define in "mobile_navigation.xml", the class ProfileFragmentDirections is created automatically.
+        ProfileFragmentDirections.ActionNavigationProfileToNavigationPost action = ProfileFragmentDirections.actionNavigationProfileToNavigationPost(
+                currentUser, // the username of the person viewing the post
+                viewedUser, // the username of the person who's profile you are on
+                qrCode.getHash()); // the hash of the qr code of the post.
+
+        NavHostFragment.findNavController(this).navigate(action);
+        //endregion
+
+//        requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true)
+//                .replace(R.id.nav_host_fragment_activity_main, postFragment, "postFragment")
+//                .addToBackStack(null)
+//                .commit();
     }
 
     /**
