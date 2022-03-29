@@ -49,6 +49,9 @@ public class PostInfoFragment extends Fragment {
     private void setViewListeners() {
         PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
 
+        final TextView imageNotAvailableTextView = binding.imageNotAvailableText;
+        postInfoViewModel.getImageNotAvailableText().observe(getViewLifecycleOwner(), imageNotAvailableTextView::setText);
+
         final TextView locationTextView = binding.lastLocation;
         postInfoViewModel.getGeoLocation().observe(getViewLifecycleOwner(), locationTextView::setText);
 
