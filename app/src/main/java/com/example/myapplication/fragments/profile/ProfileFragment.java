@@ -122,7 +122,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
             @Override
             public void onClick(View view) {
 
-                //System.out.println(myUsername);
 
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
