@@ -2,6 +2,7 @@ package com.example.myapplication.fragments.map;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -69,6 +70,7 @@ public class MapFragment extends Fragment {
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private GeoPoint currentLocation;
     private FirebaseFirestore db;
+    private IMapController mapController;
     private boolean flag;
 
     @Override
@@ -93,6 +95,12 @@ public class MapFragment extends Fragment {
                     if (isGranted) {
                         updateLocation(0);
                     } else {
+                        mapController.setCenter(currentLocation);
+                        // add myLocation overlay
+                        MyLocationNewOverlay myLocationoverlay = new MyLocationNewOverlay(mMapView);
+                        myLocationoverlay.enableFollowLocation();
+                        myLocationoverlay.enableMyLocation();
+                        mMapView.getOverlays().add(myLocationoverlay);
                         // Explain to the user that the feature is unavailable because the
                         // features requires a permission that the user has denied. At the
                         // same time, respect the user's decision. Don't link to system
@@ -111,18 +119,11 @@ public class MapFragment extends Fragment {
         mMapView.setDestroyMode(false);
 
         // set up initial map config
-        IMapController mapController = mMapView.getController();
+        mapController = mMapView.getController();
         mapController.setZoom(16);
-        if (flag){ // if google play services available
+        if (flag) { // if google play services available
             updateLocation(0);
         }
-        mapController.setCenter(currentLocation);
-
-        // add myLocation overlay
-        MyLocationNewOverlay myLocationoverlay = new MyLocationNewOverlay(mMapView);
-        myLocationoverlay.enableFollowLocation();
-        myLocationoverlay.enableMyLocation();
-        mMapView.getOverlays().add(myLocationoverlay);
 
         return v;
     }
@@ -172,6 +173,12 @@ public class MapFragment extends Fragment {
                             getNearbyCodes();
                         }
                     }
+                    mapController.setCenter(currentLocation);
+                    // add myLocation overlay
+                    MyLocationNewOverlay myLocationoverlay = new MyLocationNewOverlay(mMapView);
+                    myLocationoverlay.enableFollowLocation();
+                    myLocationoverlay.enableMyLocation();
+                    mMapView.getOverlays().add(myLocationoverlay);
                 }
             });
         } else {
@@ -227,14 +234,14 @@ public class MapFragment extends Fragment {
                                     Marker marker = new Marker(mMapView);
                                     marker.setPosition(new GeoPoint(lat, lng));
                                     marker.setId(doc.getId());
-                                    marker.setTitle(doc.getId());
+                                    String title = String.format("Score: %d", doc.getLong("score").intValue());
+                                    marker.setTitle(title);
                                     marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                                     mMapView.getOverlays().add(marker);
                                     mMapView.invalidate();
                                 }
                             }
                         }
-                        // matchingDocs contains the results
                     }
                 });
     }
