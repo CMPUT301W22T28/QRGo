@@ -246,6 +246,10 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
                     else {
                         // set null
                     }
+
+                    // set score
+                    postInfoViewModel.setScore(snapshot.getLong("score").intValue());
+
                     // endregion
                     String geolocationString = "[";
 
