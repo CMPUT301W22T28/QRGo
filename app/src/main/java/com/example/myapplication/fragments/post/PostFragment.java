@@ -35,7 +35,9 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -97,12 +99,13 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         postOwner = getArguments().getString(ARG_POST_USER);
         username = getArguments().getString(ARG_USER);
 
+        Log.d(TAG, "User: "+username+ ", post owner: "+postOwner);
+
         // need to get postId from user and QRHash here, call
 
         PostInfoFragment postInfoFragment = PostInfoFragment.newInstance();
         CommentsFragment commentsFragment = CommentsFragment.newInstance(username, qrHash);
         ScannedByFragment scannedByFragment = ScannedByFragment.newInstance();
-
 
         // launch post info by default
         requireActivity().getSupportFragmentManager().beginTransaction()
@@ -230,130 +233,118 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
 
         PostFragment postFragment = this;
 
-        scoringQRCodeDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot snapshot) {
-                if (snapshot != null && snapshot.exists()) {
+        scoringQRCodeDocRef.addSnapshotListener((snapshot, e) -> {
+            if (e != null) {
+                Log.w(TAG, "Listen failed.", e);
+            }
+            else if (snapshot != null && snapshot.exists()) {
+                // set score
+                postInfoViewModel.setScore(snapshot.getLong("score").intValue());
 
-                    //region getting the time
-                    Timestamp timestamp = snapshot.getTimestamp("last_scanned");
-                    // check if exists
-                    if (timestamp != null) {
+                // endregion
+                String geolocationString = "[";
 
+                //region getting the latitude
+                Double latitude = snapshot.getDouble("latitude");
+                // check if exists
+                if (latitude == null) {
+                    // fill view model
+                    geolocationString+="null";
+                }
+                else{
+                    geolocationString+=latitude+", ";
+                }
+                // endregion
+
+                //region getting the longitude
+                Double longitude = snapshot.getDouble("longitude");
+                // check if exists
+                if (longitude == null) {
+                    // fill view model
+                    geolocationString += "null]";
+                }
+                else {
+                    geolocationString += longitude + "]";
+                }
+                // endregion
+                postInfoViewModel.setGeoLocation(geolocationString);
+
+                //region get scanned_by
+                ArrayList<String> scannedByList = new ArrayList<>();
+
+                Object obj = snapshot.get("scanned_by");
+                if (obj != null) {
+                    Iterable<?> ar = (Iterable<?>) obj;
+
+                    for (Object x : ar) {
+                        scannedByList.add((String) x);
                     }
-                    else {
-                        // set null
+                    scannedByViewModel.setScannedByLiveDataList(scannedByList);
+                }
+                else {
+                    Log.d(TAG, "scanned_by array is null...");
+                }
+                //endregion
+
+                //region get num_scanned_by
+                Long nScannedBy = snapshot.getLong("num_scanned_by");
+                // check if exists
+                if (nScannedBy == null || nScannedBy != scannedByList.size()) {
+                    // update value in scannedQRCodes
+                    scoringQRCodeDocRef.update("num_scanned_by", scannedByList.size());
+                }
+                postInfoViewModel.setScannedByText(scannedByList.size());
+                //endregion
+
+                // TODO: update the view models with the above information
+
+                //region get comment ids
+                ArrayList<String> commentIds = new ArrayList<>();
+
+                Object object = snapshot.get("comment_ids");
+                if (object != null) {
+                    Iterable<?> ar = (Iterable<?>) object;
+
+                    for (Object x : ar) {
+                        commentIds.add((String) x);
                     }
+                }
+                else {
+                    Log.d(TAG, "scanned_by array is null...");
+                }
+                //endregion
 
-                    // set score
-                    postInfoViewModel.setScore(snapshot.getLong("score").intValue());
+                CollectionReference commentColReference = db.collection("Comments");
 
-                    // endregion
-                    String geolocationString = "[";
+                AsyncList<Comment> asyncList = new AsyncList<>(commentIds.size(), postFragment);
 
-                    //region getting the latitude
-                    Double latitude = snapshot.getDouble("latitude");
-                    // check if exists
-                    if (latitude == null) {
-                        // fill view model
-                        geolocationString+="null";
-                    }
-                    else{
-                        geolocationString+=latitude+", ";
-                    }
-                    // endregion
+                for (String commentId : commentIds) {
+                    commentColReference.document(commentId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document != null && document.exists()) {
+                                    String commentText = document.getString("comment");
+                                    String username = document.getString("username");
 
-                    //region getting the longitude
-                    Double longitude = snapshot.getDouble("longitude");
-                    // check if exists
-                    if (longitude == null) {
-                        // fill view model
-                        geolocationString += "null]";
-                    }
-                    else {
-                        geolocationString += longitude + "]";
-                    }
-                    // endregion
-                    postInfoViewModel.setGeoLocation(geolocationString);
-
-                    //region get scanned_by
-                    ArrayList<String> scannedByList = new ArrayList<>();
-
-                    Object obj = snapshot.get("scanned_by");
-                    if (obj != null) {
-                        Iterable<?> ar = (Iterable<?>) obj;
-
-                        for (Object x : ar) {
-                            scannedByList.add((String) x);
-                        }
-                        scannedByViewModel.setScannedByLiveDataList(scannedByList);
-                    }
-                    else {
-                        Log.d(TAG, "scanned_by array is null...");
-                    }
-                    //endregion
-
-                    //region get num_scanned_by
-                    Long nScannedBy = snapshot.getLong("num_scanned_by");
-                    // check if exists
-                    if (nScannedBy == null || nScannedBy != scannedByList.size()) {
-                        // update value in scannedQRCodes
-                        scoringQRCodeDocRef.update("num_scanned_by", scannedByList.size());
-                    }
-                    postInfoViewModel.setScannedByText(scannedByList.size());
-                    //endregion
-
-                    // TODO: update the view models with the above information
-
-                    //region get comment ids
-                    ArrayList<String> commentIds = new ArrayList<>();
-
-                    Object object = snapshot.get("comment_ids");
-                    if (object != null) {
-                        Iterable<?> ar = (Iterable<?>) object;
-
-                        for (Object x : ar) {
-                            commentIds.add((String) x);
-                        }
-                    }
-                    else {
-                        Log.d(TAG, "scanned_by array is null...");
-                    }
-                    //endregion
-
-                    CollectionReference commentColReference = db.collection("Comments");
-
-                    AsyncList<Comment> asyncList = new AsyncList<>(commentIds.size(), postFragment);
-
-                    for (String commentId : commentIds) {
-                        commentColReference.document(commentId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot document = task.getResult();
-                                    if (document != null && document.exists()) {
-                                        String commentText = document.getString("comment");
-                                        String username = document.getString("username");
-
-                                        // TODO: fill comment out and pass it to the asyncList
-                                        if (commentText == null) {
-                                            commentText = "";
-                                        }
-                                        if (username == null) {
-                                            username = "";
-                                        }
-                                        Comment comment = new Comment(commentText, username);
-
-                                        asyncList.addToArray(comment);
+                                    // TODO: fill comment out and pass it to the asyncList
+                                    if (commentText == null) {
+                                        commentText = "";
                                     }
+                                    if (username == null) {
+                                        username = "";
+                                    }
+                                    Comment comment = new Comment(commentText, username);
+
+                                    asyncList.addToArray(comment);
                                 }
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             }
         });
-
 
     }
 

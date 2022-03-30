@@ -33,7 +33,7 @@ public class AsyncList<T> {
      * @param element The element to add to the list.
      */
     public void addToArray(T element) {
-        synchronized (this) {
+        synchronized (arrayToFill) {
             index++;
             arrayToFill.add(element);
             if (index >= maxNumElements) {
