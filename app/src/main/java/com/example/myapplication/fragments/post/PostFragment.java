@@ -154,6 +154,9 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
                         List<String> QRCodes = (List<String>) document.get("scanned_qrcodes");
                         // check if user has qrCode
                         userHasCode = QRCodes.contains(qrHash);
+                        if (userHasCode) {
+                            getPostFromDatabase();
+                        }
                     } else {
                         Log.d(TAG, "No such document");
                     }
@@ -164,9 +167,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         });
 
         if (qrHash != null) {
-            if (userHasCode) {
-                getPostFromDatabase();
-            }
+
             getQRCodeAndCommentsFromDatabase();
         }
     }
@@ -175,7 +176,10 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         // get view models to use
         PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
 
+        postInfoViewModel.setImageNotAvailableText("");
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Log.d(TAG, "post owna: "+postOwner + ", hash: "+qrHash);
 
         db.collection(POST_COLLECTION)
                 .whereEqualTo("username", postOwner)
@@ -202,6 +206,8 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
                                                 // source: https://stackoverflow.com/questions/13854742/byte-array-of-image-into-imageview
                                                 Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                                                 postInfoViewModel.setImage(bmp);
+                                                Log.d(TAG, "bmp: "+bmp);
+
                                             }
                                         });
                                     }

@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +65,14 @@ public class PostInfoFragment extends Fragment {
         // set the image every time it changes
         final ImageView imageView = binding.cameraImageHolder;
         postInfoViewModel.getImage().observe(getViewLifecycleOwner(), bitmap -> {
-            imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, imageView.getWidth(), imageView.getHeight(), false));
+            Log.d("PostInfoFragment", String.valueOf(bitmap));
+            if (imageView.getHeight() > 0 && imageView.getWidth() > 0) {
+                final ImageView newImageView = binding.cameraImageHolder;
+                newImageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, imageView.getWidth(), imageView.getHeight(), false));
+            }
+            else {
+                imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, imageView.getWidth(), imageView.getHeight(), false));
+            }
         });
     }
 }
