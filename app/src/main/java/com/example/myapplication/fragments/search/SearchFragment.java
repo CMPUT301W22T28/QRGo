@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,6 +23,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentSearchBinding;
 import com.example.myapplication.fragments.profile.ProfileFragment;
+import com.example.myapplication.fragments.profile.ProfileFragmentDirections;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -93,7 +96,11 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
         users = new ArrayList<>();
         getUsersFromDatabase();
         RecyclerView recyclerView = binding.searchList;
-        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
+        recyclerView.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                layoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
         userRecyclerAdapter = new UserRecyclerAdapter(activity, users);
         userRecyclerAdapter.setClickListener(this);
         recyclerView.setAdapter(userRecyclerAdapter);
@@ -217,15 +224,27 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
     @Override
     public void onItemClick(View view, int position) {
         Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
+        String clickedUser = userRecyclerAdapter.getItem(position).getUsername();
+
+/*
         ProfileFragment profileFragment = new ProfileFragment();
         Bundle username = new Bundle();
-        username.putString("Username", userRecyclerAdapter.getItem(position).getUsername());
+        username.putString("Username", clickedUser);
         username.putBoolean("isAdmin", isAdmin);
         profileFragment.setArguments(username);
         getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.nav_host_fragment_activity_main, profileFragment, "findThisFragment")
+                .replace(R.id.nav_host_fragment_activity_main, profileFragment, "searchUserFragment")
                 .addToBackStack(null)
                 .commit();
+
+ */
+
+        SearchFragmentDirections.ActionNavigationSearchToNavigationProfile action = SearchFragmentDirections.actionNavigationSearchToNavigationProfile(
+                isAdmin,
+                clickedUser
+        );
+
+        NavHostFragment.findNavController(this).navigate(action);
     }
 
     /**
