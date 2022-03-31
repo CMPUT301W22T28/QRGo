@@ -15,7 +15,18 @@
         android:id="@+id/navigation_search"
         android:name="com.example.myapplication.fragments.search.SearchFragment"
         android:label="@string/title_search"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_navigation_search_to_navigation_profile"
+            app:destination="@id/navigation_profile" >
+            <argument
+                android:name="isAdmin"
+                app:argType="boolean" />
+            <argument
+                android:name="Username"
+                app:argType="string" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_camera"

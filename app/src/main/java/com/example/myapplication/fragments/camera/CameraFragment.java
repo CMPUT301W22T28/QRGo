@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,8 +59,10 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import org.osmdroid.util.GeoPoint;
+import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -214,6 +217,10 @@ public class CameraFragment extends Fragment {
                         currentLocation.setLongitude(location.getLongitude());
 
                         if (container !=null) {
+
+                            Log.d("CameraFragment", "Updating location to " + currentLocation.getLatitude() +" " + currentLocation.getLongitude());
+
+
                             container.replace("latitude" , null, currentLocation.getLatitude());
                             container.replace("longitude" , null, currentLocation.getLongitude());
 
@@ -515,6 +522,8 @@ public class CameraFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void savePost() {
 
+        showLoader();
+
         HashMap<String, Object> scoringQRCodeData = new HashMap<>();
 
         HashMap<String, Object> post = new HashMap<>();
@@ -554,7 +563,11 @@ public class CameraFragment extends Fragment {
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
+            Log.d("CameraFragment", "Bitmap is " + imageBitMap);
+
             if (imageBitMap!=null) {
+
+                Log.d("CameraFragment", "Bitmap not null");
 
                 imageBitMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 byte[] data = baos.toByteArray();
@@ -581,11 +594,20 @@ public class CameraFragment extends Fragment {
                                                     + task.getResult().toString());
 
                                             post.replace("url", null, task.getResult().toString());
+
+                                            Log.d("CameraFragment", "The image url is " + post.get("url"));
+
                                             checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
 
                                         }
                                         else{
                                             Log.d("CameraFragment", "FAIL");
+
+                                            //show the stuff again
+                                            removeLoader();
+
+                                            Toast.makeText(getContext(), "Failed to save QR Code", Toast.LENGTH_LONG).show();
+
                                         }
 
                                     }
@@ -702,18 +724,38 @@ public class CameraFragment extends Fragment {
 
                             Map<String,Object > userInstance = document.getData();
 
-                            List<String> list = Stream.of(userInstance.get("scanned_qrcodes")).map(Object::toString).collect(Collectors.toList());
+                            ArrayList<String> qrCodeHashes = getUserQRCodes(userInstance);
 
-                            if( list.contains(encodedQRCodeString)==false) {
+                            for (String s: qrCodeHashes) {
+                                Log.d("CameraFragment", s + " is the scanned qr code son");
+                            }
+
+                            if( qrCodeHashes.contains(encodedQRCodeString)==false) {
 
                                 db.collection("ScoringQRCodes").document(encodedQRCodeString).update("num_scanned_by", FieldValue.increment(1));
 
                                 db.collection("ScoringQRCodes").document(encodedQRCodeString).update("scanned_by", FieldValue.arrayUnion(
                                         getActivity().getIntent().getStringExtra("Username")
-                                ));
+                                )).addOnCompleteListener(
+                                        new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    removeLoader();
+                                                }
+                                            }
+                                        }
+                                );
 
 
                             }
+                            else {
+
+                                Log.d("CameraFragment", "Yessir");
+                                removeLoader();
+                            }
+
+                            Log.d("CameraFragment","Im here sir");
 
                         }
                     }
@@ -721,11 +763,115 @@ public class CameraFragment extends Fragment {
 
     }
 
+    public ArrayList<String> getUserQRCodes(Map<String, Object> userInstance) {
+        Iterable<?> ar = (Iterable<?>) userInstance.get("scanned_qrcodes");
+        ArrayList<String> qrCodeHashes = new ArrayList<>();
+        assert ar != null;
+        for (Object x : ar) {
+            qrCodeHashes.add((String) x);
+        }
+
+        return qrCodeHashes;
+    }
+
+    public void showLoader() {
+
+        ProgressBar saveInstanceProgressBar = binding.progressBar;
+        saveInstanceProgressBar.setVisibility(View.VISIBLE);
+
+        cameraImage.setVisibility(View.INVISIBLE);
+        sizeImageText.setVisibility(View.INVISIBLE);
+        savePictureSwitch.setVisibility(View.INVISIBLE);
+        saveGeolocationSwitch.setVisibility(View.INVISIBLE);
+        savePostButton.setVisibility(View.INVISIBLE);
+
+        TextView saveGeolocationText = binding.geolocationText;
+        saveGeolocationText.setVisibility(View.INVISIBLE);
+
+        TextView savePictureText = binding.savePictureText;
+
+        savePictureText.setVisibility(View.INVISIBLE);
+
+        TextView qrCodeScoreText = binding.qrcodeScoreText;
+
+        qrCodeScoreText.setVisibility(View.INVISIBLE);
+
+        TextView qrCodeScoreValue = binding.qrcodeScoreValue;
+
+        qrCodeScoreValue.setVisibility(View.INVISIBLE);
+
+    }
+
+    public void removeLoader() {
+
+        ProgressBar saveInstanceProgressBar = binding.progressBar;
+        saveInstanceProgressBar.setVisibility(View.INVISIBLE);
+
+        cameraImage.setVisibility(View.VISIBLE);
+        sizeImageText.setVisibility(View.VISIBLE);
+        savePictureSwitch.setVisibility(View.VISIBLE);
+        saveGeolocationSwitch.setVisibility(View.VISIBLE);
+        savePostButton.setVisibility(View.VISIBLE);
+
+        TextView saveGeolocationText = binding.geolocationText;
+        saveGeolocationText.setVisibility(View.VISIBLE);
+
+        TextView savePictureText = binding.savePictureText;
+
+        savePictureText.setVisibility(View.VISIBLE);
+
+        TextView qrCodeScoreText = binding.qrcodeScoreText;
+
+        qrCodeScoreText.setVisibility(View.VISIBLE);
+
+        TextView qrCodeScoreValue = binding.qrcodeScoreValue;
+
+        qrCodeScoreValue.setVisibility(View.VISIBLE);
+
+        clearAllFields();
+
+    }
+
+    public void clearAllFields() {
+
+        cameraImage.setImageDrawable(null);
+        cameraImage.setBackgroundResource(R.drawable.ic_outline_photo_camera_24);
+        sizeImageText.setText("Image Size 0/64KB");
+        imageBitMap = null;
+        saveGeolocationSwitch.setChecked(false);
+        savePictureSwitch.setChecked(false);
+        currentLocation.setLongitude(0);
+        currentLocation.setLatitude(0);
+        encodedQRCodeString  = null;
+
+        TextView qrCodeScoreValue = binding.qrcodeScoreValue;
+
+        qrCodeScoreValue.setText("N/A");
+
+        disablingButtons();
+
+    }
+
     public void saveUserPost(HashMap<String, Object> post) {
 
         String uuid= UUID.randomUUID().toString();
 
-        db.collection("Posts").document(uuid).set(post);
+        db.collection("Posts")
+        .whereEqualTo("qrcode_hash", post.get("qrcode_username"))
+                .whereEqualTo("username", post.get("username"))
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                QuerySnapshot doc = task.getResult();
+
+                if (doc.isEmpty()) {
+                    db.collection("Posts").document(uuid).set(post);
+
+                }
+
+                removeLoader();
+            }
+        });
 
         //need to add posts to the posts array.
     }

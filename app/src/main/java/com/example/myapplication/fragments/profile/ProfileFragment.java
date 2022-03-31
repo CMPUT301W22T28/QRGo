@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,11 +58,22 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private ProfileViewModel profileViewModel;
     private ArrayList<ScoringQRCode> myQrCodes;
     private Button deleteProfileButton;
+    private Button profileContactButton;
     private String viewedUser = null;
     private Player myPlayerProfile;
     private QRCodeRecyclerAdapter scoringQRCodeAdapter;
     private boolean isAdmin;
     private boolean doNotUpdate = false;
+
+    public static ProfileFragment newInstance(Boolean isAdmin, String username) {
+        Bundle args = new Bundle();
+        args.putBoolean("isAdmin", isAdmin);
+        args.putString("Username", username);
+
+        ProfileFragment fragment = new ProfileFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     /**
      * Initially called when the profile fragment is created.
@@ -92,6 +104,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         assert activity != null;
 
         deleteProfileButton = (Button) binding.deleteProfileButton;
+        profileContactButton = (Button) binding.profileContactButton;
 
         // getting the recycler view ready
         setupRecyclerView();
@@ -104,6 +117,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         // check to see if the delete button can be visible
         deleteAllowed();
+
+        profileContactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ContactDialog contactDialog = new ContactDialog();
+                contactDialog.show(getParentFragmentManager(),"ContactDialog");
+            }
+        });
     }
 
     /**
@@ -281,12 +302,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         final TextView topQRCodeTextView = binding.profileTopQrCode;
         profileViewModel.getTopQRCodeScore().observe(getViewLifecycleOwner(), topQRCodeTextView::setText);
-
-        final TextView emailTextView = binding.profileTopEmail;
-        profileViewModel.getEmail().observe(getViewLifecycleOwner(), emailTextView::setText);
-
-        final TextView phoneTextView = binding.profileTopPhone;
-        profileViewModel.getPhone().observe(getViewLifecycleOwner(), phoneTextView::setText);
 
         profileViewModel.getQrCodes().observe(getViewLifecycleOwner(), new Observer<ArrayList<ScoringQRCode>>() {
             @SuppressLint("NotifyDataSetChanged")
