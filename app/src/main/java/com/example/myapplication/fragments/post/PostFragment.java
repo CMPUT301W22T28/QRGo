@@ -366,9 +366,10 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
 
     @Override
     public void onListDoneFillingEvent(ArrayList<Comment> comments) {
-        Log.d(TAG, "we are here, here are the comments lol: "+comments);
-        CommentsViewModel commentsViewModel = new ViewModelProvider(requireActivity()).get(CommentsViewModel.class);
-        commentsViewModel.setComments(comments);
+        if (isAdded()) {
+            CommentsViewModel commentsViewModel = new ViewModelProvider(requireActivity()).get(CommentsViewModel.class);
+            commentsViewModel.setComments(comments);
+        }
     }
 
 }

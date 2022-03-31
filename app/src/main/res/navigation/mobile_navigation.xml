@@ -49,14 +49,17 @@
             android:id="@+id/action_navigation_profile_to_navigation_post"
             app:destination="@id/navigation_post" >
             <argument
-                android:name="argUser"
+                android:name="argQR"
                 app:argType="string" />
             <argument
                 android:name="argPostUser"
                 app:argType="string" />
             <argument
-                android:name="argQR"
+                android:name="argUser"
                 app:argType="string" />
+            <argument
+                android:name="argAdmin"
+                app:argType="boolean" />
         </action>
     </fragment>
 

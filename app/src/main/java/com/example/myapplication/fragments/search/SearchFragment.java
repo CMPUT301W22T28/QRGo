@@ -241,8 +241,6 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
  */
         if (clickedUser.equals(myUsername)) { isAdmin = false; }
 
-        System.out.println("FROM SEARCH: " + isAdmin);
-
         SearchFragmentDirections.ActionNavigationSearchToNavigationProfile action = SearchFragmentDirections.actionNavigationSearchToNavigationProfile(
                 isAdmin,
                 clickedUser

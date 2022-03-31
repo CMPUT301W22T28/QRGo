@@ -456,10 +456,17 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 //                .commit();
 
         // all of this is define in "mobile_navigation.xml", the class ProfileFragmentDirections is created automatically.
+//        ProfileFragmentDirections.ActionNavigationProfileToNavigationPost action = ProfileFragmentDirections.actionNavigationProfileToNavigationPost(
+//                currentUser, // the username of the person viewing the post
+//                viewedUser, // the username of the person who's profile you are on
+//                qrCode.getHash()); // the hash of the qr code of the post.
+
+        // all of this is define in "mobile_navigation.xml", the class ProfileFragmentDirections is created automatically.
         ProfileFragmentDirections.ActionNavigationProfileToNavigationPost action = ProfileFragmentDirections.actionNavigationProfileToNavigationPost(
-                currentUser, // the username of the person viewing the post
+                qrCode.getHash(), // the hash of the qr code of the post.
                 viewedUser, // the username of the person who's profile you are on
-                qrCode.getHash()); // the hash of the qr code of the post.
+                currentUser, // the username of the person viewing the post
+                isAdmin); // boolean lets the fragment know if the currentUser is an admin
 
         NavHostFragment.findNavController(this).navigate(action);
         //endregion
