@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavOptions;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
@@ -60,10 +64,22 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private ProfileViewModel profileViewModel;
     private ArrayList<ScoringQRCode> myQrCodes;
     private Button deleteProfileButton;
+    private Button profileContactButton;
     private String viewedUser = null;
     private Player myPlayerProfile;
     private QRCodeRecyclerAdapter scoringQRCodeAdapter;
     private Boolean isAdmin = null;
+    private boolean doNotUpdate = false;
+
+    public static ProfileFragment newInstance(Boolean isAdmin, String username) {
+        Bundle args = new Bundle();
+        args.putBoolean("isAdmin", isAdmin);
+        args.putString("Username", username);
+
+        ProfileFragment fragment = new ProfileFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     /**
      * Initially called when the profile fragment is created.
@@ -95,10 +111,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         // initialises the delete profile button
         deleteProfileButton = (Button) binding.deleteProfileButton;
-
-        // checks to see if the profile (that was searched) is an admin
-        try { this.isAdmin = getArguments().getBoolean("isAdmin");}
-        catch(Exception e) { this.isAdmin = false; }
+        profileContactButton = (Button) binding.profileContactButton;
 
         // getting the recycler view ready
         setupRecyclerView();
@@ -117,11 +130,17 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
             deleteProfileButton.setVisibility(View.VISIBLE);
         }
 
-        // Deletes profile when pressed
+        profileContactButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ContactDialog contactDialog = new ContactDialog();
+                contactDialog.show(getParentFragmentManager(),"ContactDialog");
+            }
+        });
+
         deleteProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
 
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -195,6 +214,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
             }
         });
+
     }
 
     /**
@@ -231,7 +251,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     return;
                 }
 
-                if (snapshot != null && snapshot.exists()) {
+                if (snapshot != null && snapshot.exists() && !doNotUpdate) {
                     Boolean isAdmin = snapshot.getBoolean("admin");
 
                     if (myPlayerProfile == null) {
@@ -264,6 +284,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
                     AsyncList<ScoringQRCode> asyncList = new AsyncList<>(qrCodeHashes.size(), profileFragment);
                     CollectionReference scoringQrCodeColRef = db.collection("ScoringQRCodes");
+
+                    Log.d("walter", "hash size: "+qrCodeHashes.size() +", qrCodeCount: "+ myPlayerProfile.getQRCodeCount());
 
                     if (qrCodeHashes.size() != myPlayerProfile.getQRCodeCount()) {
                         for (String hash : qrCodeHashes) {
@@ -318,6 +340,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         );
                     }
                 } else {
+                    doNotUpdate = false;
                     Log.d(TAG, "Current data: null");
                 }
             }
@@ -432,12 +455,21 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         String currentUser = requireActivity().getIntent().getStringExtra("Username");
 
-        PostFragment postFragment = PostFragment.newInstance(qrCode.getHash(), viewedUser, currentUser, isAdmin);
+//        PostFragment postFragment = PostFragment.newInstance(qrCode.getHash(), viewedUser, currentUser, isAdmin);
+//
+//        requireActivity().getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.nav_host_fragment_activity_main, postFragment, "postFragment")
+//                .addToBackStack(null)
+//                .commit();
 
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.nav_host_fragment_activity_main, postFragment, "postFragment")
-                .addToBackStack(null)
-                .commit();
+        // all of this is define in "mobile_navigation.xml", the class ProfileFragmentDirections is created automatically.
+        ProfileFragmentDirections.ActionNavigationProfileToNavigationPost action = ProfileFragmentDirections.actionNavigationProfileToNavigationPost(
+                currentUser, // the username of the person viewing the post
+                viewedUser, // the username of the person who's profile you are on
+                qrCode.getHash()); // the hash of the qr code of the post.
+
+        NavHostFragment.findNavController(this).navigate(action);
+        //endregion
     }
 
     /**
@@ -467,11 +499,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
             myPlayerProfile.addScoringQRCode(qrCode);
         }
         profileViewModel.setMutableProfileQRCodes(qrCodes);
-        if (qrCodes.size() > 0) {
-            updateHighestAndSumQrCode();
-        }
+        updateHighestAndSumQrCode();
     }
-
 
     /**
      * This method is called after the onQrCodeListDoneFillingEvent is called. It
@@ -489,53 +518,60 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         DocumentReference MyUserDocRef = db.collection("Users").document(this.viewedUser);
 
-
-        int tempHighestQrCode = 0;
-        int tempSumQrCodes = 0;
+        int newHighestQrCode = 0;
+        int newSumQrCodes = 0;
         for (ScoringQRCode qrCode: myPlayerProfile.getQRCodes())
         {
-            tempSumQrCodes += qrCode.getScore();
-            tempHighestQrCode = Math.max(tempHighestQrCode, qrCode.getScore());
+            newSumQrCodes += qrCode.getScore();
+            newHighestQrCode = Math.max(newHighestQrCode, qrCode.getScore());
         }
-        Log.d(TAG,"total: "+tempSumQrCodes+", highest: "+tempSumQrCodes+", numQrCodes: "+myPlayerProfile.getQRCodes().size());
-        final int sumQrCodes = tempSumQrCodes;
-        final int highestQrCode = tempHighestQrCode;
+        Log.d(TAG,"total: "+newSumQrCodes+", highest: "+newSumQrCodes+", numQrCodes: "+myPlayerProfile.getQRCodes().size());
 
-        MyUserDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    // Document found in the offline cache
-                    DocumentSnapshot document = task.getResult();
 
-                    if (document != null && document.exists()) {
-                        Long docSumQrCodes;
-                        Long docHighestQrCode;
 
-                        docSumQrCodes = document.getLong("scanned_sum");
-                        if (docSumQrCodes != null) {
-                            if (docSumQrCodes.intValue() != sumQrCodes) {
-                                MyUserDocRef.update(
-                                        "scanned_sum", sumQrCodes
-                                );
-                            }
-                        }
+        if ((profileViewModel.getTopQRCodeScore().getValue() != null && Integer.parseInt(profileViewModel.getTopQRCodeScore().getValue()) != newHighestQrCode)
+        || (profileViewModel.getTotalScore().getValue() != null && Integer.parseInt(profileViewModel.getTotalScore().getValue()) != newSumQrCodes)) {
+            doNotUpdate = true;
+            MyUserDocRef.update(
+                    "scanned_highest", newHighestQrCode,
+                    "scanned_sum", newSumQrCodes
+            );
+        }
+//        MyUserDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    // Document found in the offline cache
+//                    DocumentSnapshot document = task.getResult();
+//
+//                    if (document != null && document.exists()) {
+//                        Long docSumQrCodes;
+//                        Long docHighestQrCode;
+//
+//                        docSumQrCodes = document.getLong("scanned_sum");
+//                        if (docSumQrCodes != null) {
+//                            if (docSumQrCodes.intValue() != sumQrCodes) {
+//                                MyUserDocRef.update(
+//                                        "scanned_sum", sumQrCodes
+//                                );
+//                            }
+//                        }
+//
+//                        docHighestQrCode = document.getLong("scanned_highest");
+//                        if (docHighestQrCode != null) {
+//                            if (docHighestQrCode.intValue() != highestQrCode) {
+//                                MyUserDocRef.update(
+//                                        "scanned_highest", highestQrCode
+//                                );
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        });
 
-                        docHighestQrCode = document.getLong("scanned_highest");
-                        if (docHighestQrCode != null) {
-                            if (docHighestQrCode.intValue() != highestQrCode) {
-                                MyUserDocRef.update(
-                                        "scanned_highest", highestQrCode
-                                );
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        myPlayerProfile.setTotalScore(sumQrCodes);
-        myPlayerProfile.setHighestScore(highestQrCode);
+        myPlayerProfile.setTotalScore(newSumQrCodes);
+        myPlayerProfile.setHighestScore(newHighestQrCode);
 
         profileViewModel.setTopQRCodeScore( myPlayerProfile.getHighestScore());
         profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());

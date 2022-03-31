@@ -40,10 +40,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class PostInfoFragment extends Fragment {
     private MainActivity activity;
 
     FragmentPostInfoBinding binding;
+    private final String TAG = "PostInfoFragment";
+    private int widthHeight = 0;
 
     Button deletePostButton;
 
@@ -150,6 +155,9 @@ public class PostInfoFragment extends Fragment {
     private void setViewListeners() {
         PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
 
+        final TextView imageNotAvailableTextView = binding.imageNotAvailableText;
+        postInfoViewModel.getImageNotAvailableText().observe(getViewLifecycleOwner(), imageNotAvailableTextView::setText);
+
         final TextView locationTextView = binding.lastLocation;
         postInfoViewModel.getGeoLocation().observe(getViewLifecycleOwner(), locationTextView::setText);
 
@@ -162,8 +170,21 @@ public class PostInfoFragment extends Fragment {
         // set the image every time it changes
         final ImageView imageView = binding.cameraImageHolder;
         postInfoViewModel.getImage().observe(getViewLifecycleOwner(), bitmap -> {
-            imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, imageView.getWidth(), imageView.getHeight(), false));
+            Log.d(TAG, String.valueOf(bitmap));
+            if (imageView.getWidth() > 0) {
+                widthHeight = imageView.getWidth();
+            }
+            imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, widthHeight, widthHeight, false));
         });
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                //your method
+                Log.d(TAG,"width:"+imageView.getWidth() + ", height: "+imageView.getHeight());
+            }
+        }, 0, 1000);//put here time 1000 milliseconds=1 second
+
     }
 
 }

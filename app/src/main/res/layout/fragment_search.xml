@@ -15,8 +15,14 @@ tools:context=".fragments.search.SearchFragment">
 
     <SearchView
         android:id="@+id/search_bar"
+        android:background="#6200EE"
+        android:queryHint="Search Users"
+        app:queryHint="Search Users"
+        app:defaultQueryHint="Search Users"
+        android:iconifiedByDefault="false"
+        app:iconifiedByDefault="false"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="60dp" />
 
 </LinearLayout>
 

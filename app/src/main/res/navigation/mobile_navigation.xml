@@ -15,7 +15,18 @@
         android:id="@+id/navigation_search"
         android:name="com.example.myapplication.fragments.search.SearchFragment"
         android:label="@string/title_search"
-        tools:layout="@layout/fragment_search" />
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_navigation_search_to_navigation_profile"
+            app:destination="@id/navigation_profile" >
+            <argument
+                android:name="isAdmin"
+                app:argType="boolean" />
+            <argument
+                android:name="Username"
+                app:argType="string" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_camera"
@@ -33,6 +44,26 @@
         android:id="@+id/navigation_profile"
         android:name="com.example.myapplication.fragments.profile.ProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_post"
+            app:destination="@id/navigation_post" >
+            <argument
+                android:name="argUser"
+                app:argType="string" />
+            <argument
+                android:name="argPostUser"
+                app:argType="string" />
+            <argument
+                android:name="argQR"
+                app:argType="string" />
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_post"
+        android:name="com.example.myapplication.fragments.post.PostFragment"
+        tools:layout="@layout/fragment_post"
+        />
 
 </navigation>

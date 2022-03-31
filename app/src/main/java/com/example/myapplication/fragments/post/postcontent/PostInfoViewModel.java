@@ -11,12 +11,14 @@ public class PostInfoViewModel extends ViewModel {
     private final MutableLiveData<Bitmap> image;
     private final MutableLiveData<String> score;
     private final MutableLiveData<String> scannedByText;
+    private final MutableLiveData<String> imageNotAvailableText;
 
     public PostInfoViewModel() {
         geoLocation = new MutableLiveData<>();
         image = new MutableLiveData<>();
         score = new MutableLiveData<>();
         scannedByText = new MutableLiveData<>();
+        imageNotAvailableText = new MutableLiveData<>();
     }
 
     public void setGeoLocation(String newLocation) {
@@ -35,6 +37,10 @@ public class PostInfoViewModel extends ViewModel {
         this.scannedByText.setValue("Scanned by "+numScannedBy+" users");
     }
 
+    public void setImageNotAvailableText(String message){
+        this.imageNotAvailableText.setValue(message);
+    }
+
     public LiveData<String> getGeoLocation() {
         return geoLocation;
     }
@@ -49,5 +55,9 @@ public class PostInfoViewModel extends ViewModel {
 
     public LiveData<String> getScannedByText() {
         return scannedByText;
+    }
+
+    public LiveData<String> getImageNotAvailableText() {
+        return imageNotAvailableText;
     }
 }

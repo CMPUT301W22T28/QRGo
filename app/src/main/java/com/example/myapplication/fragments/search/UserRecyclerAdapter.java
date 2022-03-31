@@ -78,17 +78,14 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
      * A class that stores and recycles views as they are scrolled off screen.
      *
      */
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        ImageView profilePic;
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView username;
-
         /**
          * The constructor for the view holder.
          * @param itemView The view inside each recycler view element.
          */
         ViewHolder(@NonNull View itemView) {
             super(itemView);
-            profilePic = itemView.findViewById(R.id.profilepic);
             username = itemView.findViewById(R.id.username);
             itemView.setOnClickListener(this);
         }
