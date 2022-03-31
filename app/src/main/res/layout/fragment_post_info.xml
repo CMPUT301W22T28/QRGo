@@ -89,5 +89,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scanned_by_text" />
+        app:layout_constraintTop_toBottomOf="@+id/last_location" />
 </androidx.constraintlayout.widget.ConstraintLayout>
