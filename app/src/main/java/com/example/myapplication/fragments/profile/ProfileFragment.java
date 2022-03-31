@@ -109,6 +109,11 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         activity = (MainActivity) getActivity();
         assert activity != null;
 
+        // receives the isAdmin from search
+
+        try { this.isAdmin = getArguments().getBoolean("isAdmin");}
+        catch(Exception e) { this.isAdmin = false; }
+
         // initialises the delete profile button
         deleteProfileButton = (Button) binding.deleteProfileButton;
         profileContactButton = (Button) binding.profileContactButton;
@@ -242,15 +247,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         ProfileFragment profileFragment = this;
 
-        MyUserDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        MyUserDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@javax.annotation.Nullable DocumentSnapshot snapshot,
-                                @javax.annotation.Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-
+            public void onSuccess(DocumentSnapshot snapshot) {
                 if (snapshot != null && snapshot.exists() && !doNotUpdate) {
                     Boolean isAdmin = snapshot.getBoolean("admin");
 
@@ -392,12 +391,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         final TextView topQRCodeTextView = binding.profileTopQrCode;
         profileViewModel.getTopQRCodeScore().observe(getViewLifecycleOwner(), topQRCodeTextView::setText);
-
-        final TextView emailTextView = binding.profileTopEmail;
-        profileViewModel.getEmail().observe(getViewLifecycleOwner(), emailTextView::setText);
-
-        final TextView phoneTextView = binding.profileTopPhone;
-        profileViewModel.getPhone().observe(getViewLifecycleOwner(), phoneTextView::setText);
 
         profileViewModel.getQrCodes().observe(getViewLifecycleOwner(), new Observer<ArrayList<ScoringQRCode>>() {
             @SuppressLint("NotifyDataSetChanged")
