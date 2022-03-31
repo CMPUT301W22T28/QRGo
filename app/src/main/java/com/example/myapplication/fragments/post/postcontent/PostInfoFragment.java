@@ -18,9 +18,14 @@ import android.widget.TextView;
 
 import com.example.myapplication.databinding.FragmentPostInfoBinding;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class PostInfoFragment extends Fragment {
 
     FragmentPostInfoBinding binding;
+    private final String TAG = "PostInfoFragment";
+    private int widthHeight = 0;
 
     public static PostInfoFragment newInstance() {
 
@@ -65,14 +70,20 @@ public class PostInfoFragment extends Fragment {
         // set the image every time it changes
         final ImageView imageView = binding.cameraImageHolder;
         postInfoViewModel.getImage().observe(getViewLifecycleOwner(), bitmap -> {
-            Log.d("PostInfoFragment", String.valueOf(bitmap));
-            if (imageView.getHeight() > 0 && imageView.getWidth() > 0) {
-                final ImageView newImageView = binding.cameraImageHolder;
-                newImageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, imageView.getWidth(), imageView.getHeight(), false));
+            Log.d(TAG, String.valueOf(bitmap));
+            if (imageView.getWidth() > 0) {
+                widthHeight = imageView.getWidth();
             }
-            else {
-                imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, imageView.getWidth(), imageView.getHeight(), false));
-            }
+            imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, widthHeight, widthHeight, false));
         });
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                //your method
+                Log.d(TAG,"width:"+imageView.getWidth() + ", height: "+imageView.getHeight());
+            }
+        }, 0, 1000);//put here time 1000 milliseconds=1 second
+
     }
 }
