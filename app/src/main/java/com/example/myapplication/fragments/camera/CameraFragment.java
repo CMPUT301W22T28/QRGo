@@ -105,6 +105,7 @@ public class CameraFragment extends Fragment {
     private boolean flag;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private StorageReference imageStore = FirebaseStorage.getInstance("gs://qrgo-e62ee.appspot.com/").getReference();
+    private String postUUID;
 
 
     private FragmentCameraBinding binding;
@@ -444,7 +445,7 @@ public class CameraFragment extends Fragment {
 
                 // Use the data - in this case, display it in a Toast.
                 QRCodeString = result;
-                loginActivity.checkLoginQRCode(result, getContext(), this, "CameraFragment");
+                loginActivity.checkLoginQRCode(sha256String(result), getContext(), this, "CameraFragment");
 
                 enablingButtons();
             } else {
@@ -458,7 +459,6 @@ public class CameraFragment extends Fragment {
      * Disable the buttons on the screen. this is done initially as the fragment loads.
      */
     public void disablingButtons() {
-
         savePostButton.setEnabled(false);
         savePostButton.setAlpha(.7f);
         savePostButton.setBackgroundColor(Color.GRAY);
@@ -469,7 +469,6 @@ public class CameraFragment extends Fragment {
 
         savePictureSwitch.setEnabled(false);
         savePictureSwitch.setTextColor(Color.BLACK);
-
     }
 
     /**
@@ -521,6 +520,7 @@ public class CameraFragment extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void savePost() {
+        postUUID = UUID.randomUUID().toString();
 
         showLoader();
 
@@ -559,7 +559,8 @@ public class CameraFragment extends Fragment {
 
         if (savePictureSwitch.isChecked()) {
             //Update or upload an Image
-            StorageReference imageToStore = imageStore.child(String.format("images/%s", encodedQRCodeString));
+
+            StorageReference imageToStore = imageStore.child(String.format("images/%s", postUUID));
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -616,8 +617,6 @@ public class CameraFragment extends Fragment {
 
                             }
                         });
-
-                        Toast.makeText(getContext(), "Post Saved Successfully!", Toast.LENGTH_LONG).show();
             }
         }
         else {
@@ -662,6 +661,7 @@ public class CameraFragment extends Fragment {
         scoringQRCodeData.put("scanned_by", scannedBy);
 
         // TODO: Proper calc score usage!, currently a placeholder of score 0.
+
         scoringQRCodeData.put("score", 0);
         // TODO: Call function to update user scanned_qrcodes field -> Done
         db.collection("Users").document(getActivity().getIntent().getStringExtra("Username")).update("scanned_qrcodes",
@@ -853,11 +853,8 @@ public class CameraFragment extends Fragment {
     }
 
     public void saveUserPost(HashMap<String, Object> post) {
-
-        String uuid= UUID.randomUUID().toString();
-
         db.collection("Posts")
-        .whereEqualTo("qrcode_hash", post.get("qrcode_username"))
+        .whereEqualTo("qrcode_hash", post.get("qrcode_hash"))
                 .whereEqualTo("username", post.get("username"))
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -865,8 +862,11 @@ public class CameraFragment extends Fragment {
                 QuerySnapshot doc = task.getResult();
 
                 if (doc.isEmpty()) {
-                    db.collection("Posts").document(uuid).set(post);
-
+                    db.collection("Posts").document(postUUID).set(post);
+                    Toast.makeText(getContext(), "Post Saved Successfully!", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Toast.makeText(getContext(), "You already have this QRcode!", Toast.LENGTH_LONG).show();
                 }
 
                 removeLoader();
