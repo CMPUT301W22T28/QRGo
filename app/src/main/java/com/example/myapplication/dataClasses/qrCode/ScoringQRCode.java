@@ -31,6 +31,16 @@ public class ScoringQRCode extends QRCode {
     }
 
     /**
+     * alternate constructor, for when the hash has already been set.
+     * @param hash the hash of the qr code
+     * @param alreadyHashed not important, only used to overload.
+     */
+    public ScoringQRCode(String hash, boolean alreadyHashed) {
+        this.hash = hash;
+        this.score = calculateScore();
+    }
+
+    /**
      * Getter for QRcode hash
      * @return hash
      * QRCode hash (also used as ID)

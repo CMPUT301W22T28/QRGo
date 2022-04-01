@@ -2,14 +2,11 @@ package com.example.myapplication.fragments.profile;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,29 +16,22 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 import com.example.myapplication.dataClasses.asyncdata.AsyncList;
-import com.example.myapplication.activity.QRScanActivity;
 import com.example.myapplication.activity.QRShowActivity;
 import com.example.myapplication.dataClasses.qrCode.GameStatusQRCode;
 import com.example.myapplication.dataClasses.qrCode.LoginQRCode;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
-import com.example.myapplication.fragments.post.PostFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -51,7 +41,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
@@ -236,7 +225,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                                         if (document != null && document.exists()) {
 
                                             // data we need to get
-                                            ScoringQRCode tempQrCode = new ScoringQRCode(hash);
+                                            ScoringQRCode tempQrCode = new ScoringQRCode(hash, true);
                                             Long score;
                                             Double longitude;
                                             Double latitude;
@@ -341,6 +330,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         });
 
         Button showLoginQRCode = binding.showLoginQrcodeButton;
+
+        String myUsername = requireActivity().getIntent().getStringExtra("Username");
 
         showLoginQRCode.setOnClickListener(new View.OnClickListener() {
             @Override
