@@ -442,7 +442,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      */
     @Override
     public void onItemClick(View view, int position) {
-        Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
 
         ScoringQRCode qrCode = myPlayerProfile.getQRCodes().get(position);
 

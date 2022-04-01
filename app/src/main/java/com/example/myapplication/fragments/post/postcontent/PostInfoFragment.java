@@ -112,39 +112,79 @@ public class PostInfoFragment extends Fragment {
             public void onClick(View view) {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                db.collection("Posts").whereEqualTo("qrcode_hash", qrHash).whereEqualTo("username", username).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
-                        for (DocumentSnapshot document : documents) {
-                            DocumentReference documentReference = document.getReference();
-                            documentReference.delete();
-                        }
-                    }
-                });
+                if (username.equals(postOwner)) {
+                    System.out.println("POST : this is a user");
+                    //db.collection("Comments").
 
-                db.collection("Users").document(postOwner).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        Map<String, Object> map = new HashMap<>();
-                        map.put("scanned_qrcodes", FieldValue.arrayRemove(qrHash));
-                        db.collection("Users").document(postOwner).update(map);
-                    }
-                });
-
-                db.collection("ScoringQRCodes").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
+                    db.collection("Posts").whereEqualTo("qrcode_hash", qrHash).whereEqualTo("username", username).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             List<DocumentSnapshot> documents = task.getResult().getDocuments();
                             for (DocumentSnapshot document : documents) {
-                                Map<String, Object> map = new HashMap<>();
-                                map.put("scanned_by", FieldValue.arrayRemove(postOwner));
-                                db.collection("ScoringQRCodes").document(document.getId()).update(map);
+                                DocumentReference documentReference = document.getReference();
+                                documentReference.delete();
                             }
                         }
-                    }
-                });
+                    });
+
+                    db.collection("Users").document(postOwner).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("scanned_qrcodes", FieldValue.arrayRemove(qrHash));
+                            db.collection("Users").document(postOwner).update(map);
+                        }
+                    });
+
+                    db.collection("ScoringQRCodes").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                                for (DocumentSnapshot document : documents) {
+                                    Map<String, Object> map = new HashMap<>();
+                                    map.put("scanned_by", FieldValue.arrayRemove(postOwner));
+                                    db.collection("ScoringQRCodes").document(document.getId()).update(map);
+                                }
+                            }
+                        }
+                    });
+                }
+
+                else if (isAdmin){
+
+                    db.collection("ScoringQRCodes").document(qrHash).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            System.out.println("ScoringQRCode Deleted Successfully!");
+                        }
+                    });
+
+                    db.collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                                for (DocumentSnapshot document : documents) {
+                                    Map<String, Object> map = new HashMap<>();
+                                    map.put("scanned_qrcodes", FieldValue.arrayRemove(qrHash));
+                                    db.collection("Users").document(document.getId()).update(map);
+                                }
+                            }
+                        }
+                    });
+
+                    db.collection("Posts").whereEqualTo("qrcode_hash", qrHash).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                            for (DocumentSnapshot document : documents) {
+                                DocumentReference documentReference = document.getReference();
+                                documentReference.delete();
+                            }
+                        }
+                    });
+                }
 
                 getParentFragmentManager().popBackStackImmediate();
                 Toast.makeText(activity.getApplicationContext(), "Profile Deleted Successfully", Toast.LENGTH_SHORT).show();
