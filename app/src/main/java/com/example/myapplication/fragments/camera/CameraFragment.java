@@ -382,14 +382,15 @@ public class CameraFragment extends Fragment {
                         if (task.isSuccessful()) {
                             // If we find any matching GameStatusQRCode's we redirect...
                             for (QueryDocumentSnapshot document : task.getResult()) {
+                                disablingButtons();
                                 CameraFragmentDirections.ActionNavigationCameraToNavigationProfile action = CameraFragmentDirections.actionNavigationCameraToNavigationProfile(
+                                        // TODO: find out why changing this doesn't matter...because regardless the info is getting retrieved from the db
                                         true,
-                                        // Redirect to username which is scannedString
-                                        scannedString
+                                        // Redirect to username which is scannedString but remove the "gs-"
+                                        scannedString.substring(3)
                                 );
 
                                 NavHostFragment.findNavController(cameraFragment).navigate(action);
-                                disablingButtons();
                             }
                             // If there are no matches, then it is a scoring qrcode
                             if (task.getResult().size() == 0){

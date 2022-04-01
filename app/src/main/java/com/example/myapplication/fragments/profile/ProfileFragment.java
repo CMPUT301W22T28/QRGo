@@ -167,6 +167,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         try { this.viewedUser = getArguments().getString("Username");}
         catch(Exception e) { this.viewedUser = requireActivity().getIntent().getStringExtra("Username"); }
 
+        enableDisableQRCodeButtons(requireActivity().getIntent().getStringExtra("Username") ,this.viewedUser);
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // setting persistence
@@ -536,4 +538,15 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         return profileViewModel;
     }
 
+    public void enableDisableQRCodeButtons(String loggedInUsername, String viewedUsername){
+        if (!loggedInUsername.equals(viewedUsername)){
+            Button showLoginQRCode = binding.showLoginQrcodeButton;
+            Button showGameStatusQRCode =  binding.showGamestatusQrcodeButton;
+
+            showLoginQRCode.setVisibility(View.GONE);
+            showGameStatusQRCode.setVisibility(View.GONE);
+
+
+        }
+    }
 }
