@@ -31,6 +31,7 @@ import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
 import com.example.myapplication.fragments.post.PostFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -127,6 +128,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         });
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        requireActivity().getViewModelStore().clear();
+    }
+
     /**
      * Method that implements everything necessary to get all the data to fill out the profile.
      * The data is stored on Firestore, so it makes fetches from there and passes them to the
@@ -152,15 +159,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         ProfileFragment profileFragment = this;
 
-        MyUserDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        MyUserDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@javax.annotation.Nullable DocumentSnapshot snapshot,
-                                @javax.annotation.Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-
+            public void onSuccess(DocumentSnapshot snapshot) {
                 if (snapshot != null && snapshot.exists() && !doNotUpdate) {
                     Boolean isAdmin = snapshot.getBoolean("admin");
 
@@ -255,7 +256,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 }
             }
         });
-
     }
 
     /**
@@ -334,6 +334,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         deleteProfileButton.setVisibility(View.VISIBLE);
                     }
                     else {
+                        deleteProfileButton.setVisibility(View.GONE);
                         Log.d(TAG, "this profile is not an admin");
                     }
                 }
