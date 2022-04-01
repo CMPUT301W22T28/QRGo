@@ -1,13 +1,13 @@
 package com.example.myapplication.fragments.profile;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,21 +16,21 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 import com.example.myapplication.dataClasses.asyncdata.AsyncList;
+import com.example.myapplication.activity.QRShowActivity;
+import com.example.myapplication.dataClasses.qrCode.GameStatusQRCode;
+import com.example.myapplication.dataClasses.qrCode.LoginQRCode;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
-import com.example.myapplication.fragments.post.PostFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -41,7 +41,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
@@ -74,6 +73,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         fragment.setArguments(args);
         return fragment;
     }
+
 
     /**
      * Initially called when the profile fragment is created.
@@ -127,6 +127,29 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         });
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        requireActivity().getViewModelStore().clear();
+
+    }
+
+    /**
+     * Method to start the QRShowActivity activity after the user clicks one of the generated qrcode
+     * buttons
+     * @param username the string to be represented by the qrcode
+     * @param qrCodeType the type of qrcode the user requested to generate
+     * @see QRShowActivity
+     */
+    public void qrShowActivity (String username, String qrCodeType){
+        Bundle extras = new Bundle();
+        extras.putString("Username", username);
+        extras.putString("qrCodeType",qrCodeType);
+        Intent intent = new Intent(getContext(), QRShowActivity.class);
+        intent.putExtras(extras);
+        startActivityForResult(intent, 8);
+    }
+
     /**
      * Method that implements everything necessary to get all the data to fill out the profile.
      * The data is stored on Firestore, so it makes fetches from there and passes them to the
@@ -152,15 +175,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         ProfileFragment profileFragment = this;
 
-        MyUserDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        MyUserDocRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@javax.annotation.Nullable DocumentSnapshot snapshot,
-                                @javax.annotation.Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
-
+            public void onSuccess(DocumentSnapshot snapshot) {
                 if (snapshot != null && snapshot.exists() && !doNotUpdate) {
                     Boolean isAdmin = snapshot.getBoolean("admin");
 
@@ -208,7 +225,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                                         if (document != null && document.exists()) {
 
                                             // data we need to get
-                                            ScoringQRCode tempQrCode = new ScoringQRCode(hash);
+                                            ScoringQRCode tempQrCode = new ScoringQRCode(hash, true);
                                             Long score;
                                             Double longitude;
                                             Double latitude;
@@ -255,7 +272,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 }
             }
         });
-
     }
 
     /**
@@ -312,6 +328,28 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 scoringQRCodeAdapter.notifyDataSetChanged();
             }
         });
+
+        Button showLoginQRCode = binding.showLoginQrcodeButton;
+
+        String myUsername = requireActivity().getIntent().getStringExtra("Username");
+
+        showLoginQRCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LoginQRCode loginQRCode = new LoginQRCode(myUsername);
+                qrShowActivity(loginQRCode.getScannedString(), loginQRCode.getQRCodeType());
+            }
+        });
+
+        Button showGameStatusQRCode =  binding.showGamestatusQrcodeButton;
+
+        showGameStatusQRCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GameStatusQRCode gameStatusQRCode = new GameStatusQRCode(myUsername);
+                qrShowActivity(gameStatusQRCode.getScannedString(), gameStatusQRCode.getQRCodeType());
+            }
+        });
     }
 
     private void deleteAllowed() {
@@ -334,6 +372,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         deleteProfileButton.setVisibility(View.VISIBLE);
                     }
                     else {
+                        deleteProfileButton.setVisibility(View.GONE);
                         Log.d(TAG, "this profile is not an admin");
                     }
                 }
