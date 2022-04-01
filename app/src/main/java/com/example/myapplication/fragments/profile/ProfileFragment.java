@@ -1,6 +1,7 @@
 package com.example.myapplication.fragments.profile;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +27,9 @@ import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 import com.example.myapplication.dataClasses.asyncdata.AsyncList;
+import com.example.myapplication.activity.QRShowActivity;
+import com.example.myapplication.dataClasses.qrCode.GameStatusQRCode;
+import com.example.myapplication.dataClasses.qrCode.LoginQRCode;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
@@ -80,6 +84,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         fragment.setArguments(args);
         return fragment;
     }
+
 
     /**
      * Initially called when the profile fragment is created.
@@ -222,6 +227,29 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        requireActivity().getViewModelStore().clear();
+
+    }
+
+    /**
+     * Method to start the QRShowActivity activity after the user clicks one of the generated qrcode
+     * buttons
+     * @param username the string to be represented by the qrcode
+     * @param qrCodeType the type of qrcode the user requested to generate
+     * @see QRShowActivity
+     */
+    public void qrShowActivity (String username, String qrCodeType){
+        Bundle extras = new Bundle();
+        extras.putString("Username", username);
+        extras.putString("qrCodeType",qrCodeType);
+        Intent intent = new Intent(getContext(), QRShowActivity.class);
+        intent.putExtras(extras);
+        startActivityForResult(intent, 8);
+    }
+
     /**
      * Method that implements everything necessary to get all the data to fill out the profile.
      * The data is stored on Firestore, so it makes fetches from there and passes them to the
@@ -344,7 +372,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 }
             }
         });
-
     }
 
     /**
@@ -401,6 +428,28 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 scoringQRCodeAdapter.notifyDataSetChanged();
             }
         });
+
+        Button showLoginQRCode = binding.showLoginQrcodeButton;
+
+        String myUsername = requireActivity().getIntent().getStringExtra("Username");
+
+        showLoginQRCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LoginQRCode loginQRCode = new LoginQRCode(myUsername);
+                qrShowActivity(loginQRCode.getScannedString(), loginQRCode.getQRCodeType());
+            }
+        });
+
+        Button showGameStatusQRCode =  binding.showGamestatusQrcodeButton;
+
+        showGameStatusQRCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GameStatusQRCode gameStatusQRCode = new GameStatusQRCode(myUsername);
+                qrShowActivity(gameStatusQRCode.getScannedString(), gameStatusQRCode.getQRCodeType());
+            }
+        });
     }
 
     /**
@@ -442,24 +491,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      */
     @Override
     public void onItemClick(View view, int position) {
-        //Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
+        Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
 
         ScoringQRCode qrCode = myPlayerProfile.getQRCodes().get(position);
 
         String currentUser = requireActivity().getIntent().getStringExtra("Username");
+//        PostFragment postFragment = PostFragment.newInstance(qrCode.getHash(), viewedUser, currentUser);
 
-//        PostFragment postFragment = PostFragment.newInstance(qrCode.getHash(), viewedUser, currentUser, isAdmin);
-//
-//        requireActivity().getSupportFragmentManager().beginTransaction()
-//                .replace(R.id.nav_host_fragment_activity_main, postFragment, "postFragment")
-//                .addToBackStack(null)
-//                .commit();
-
-        // all of this is define in "mobile_navigation.xml", the class ProfileFragmentDirections is created automatically.
-//        ProfileFragmentDirections.ActionNavigationProfileToNavigationPost action = ProfileFragmentDirections.actionNavigationProfileToNavigationPost(
-//                currentUser, // the username of the person viewing the post
-//                viewedUser, // the username of the person who's profile you are on
-//                qrCode.getHash()); // the hash of the qr code of the post.
+        //region passing arguments while navigating fragments
 
         // all of this is define in "mobile_navigation.xml", the class ProfileFragmentDirections is created automatically.
         ProfileFragmentDirections.ActionNavigationProfileToNavigationPost action = ProfileFragmentDirections.actionNavigationProfileToNavigationPost(
