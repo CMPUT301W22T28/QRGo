@@ -106,6 +106,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         deleteProfileButton = (Button) binding.deleteProfileButton;
         profileContactButton = (Button) binding.profileContactButton;
 
+
+
         // getting the recycler view ready
         setupRecyclerView();
 
