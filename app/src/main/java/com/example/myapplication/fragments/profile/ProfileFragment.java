@@ -1,6 +1,8 @@
 package com.example.myapplication.fragments.profile;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +29,10 @@ import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 import com.example.myapplication.dataClasses.asyncdata.AsyncList;
+import com.example.myapplication.activity.QRScanActivity;
+import com.example.myapplication.activity.QRShowActivity;
+import com.example.myapplication.dataClasses.qrCode.GameStatusQRCode;
+import com.example.myapplication.dataClasses.qrCode.LoginQRCode;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
@@ -33,6 +40,8 @@ import com.example.myapplication.fragments.post.PostFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -75,6 +84,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         fragment.setArguments(args);
         return fragment;
     }
+
 
     /**
      * Initially called when the profile fragment is created.
@@ -132,6 +142,23 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         requireActivity().getViewModelStore().clear();
+
+    }
+
+    /**
+     * Method to start the QRShowActivity activity after the user clicks one of the generated qrcode
+     * buttons
+     * @param username the string to be represented by the qrcode
+     * @param qrCodeType the type of qrcode the user requested to generate
+     * @see QRShowActivity
+     */
+    public void qrShowActivity (String username, String qrCodeType){
+        Bundle extras = new Bundle();
+        extras.putString("Username", username);
+        extras.putString("qrCodeType",qrCodeType);
+        Intent intent = new Intent(getContext(), QRShowActivity.class);
+        intent.putExtras(extras);
+        startActivityForResult(intent, 8);
     }
 
     /**
@@ -310,6 +337,26 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 myQrCodes.clear();
                 myQrCodes.addAll(qrCodes);
                 scoringQRCodeAdapter.notifyDataSetChanged();
+            }
+        });
+
+        Button showLoginQRCode = binding.showLoginQrcodeButton;
+
+        showLoginQRCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LoginQRCode loginQRCode = new LoginQRCode(myUsername);
+                qrShowActivity(loginQRCode.getScannedString(), loginQRCode.getQRCodeType());
+            }
+        });
+
+        Button showGameStatusQRCode =  binding.showGamestatusQrcodeButton;
+
+        showGameStatusQRCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                GameStatusQRCode gameStatusQRCode = new GameStatusQRCode(myUsername);
+                qrShowActivity(gameStatusQRCode.getScannedString(), gameStatusQRCode.getQRCodeType());
             }
         });
     }
