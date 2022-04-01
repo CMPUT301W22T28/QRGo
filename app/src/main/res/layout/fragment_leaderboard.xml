@@ -26,19 +26,17 @@
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Highest"
-                />
+                android:text="Highest" />
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Count"
-                />
+                android:text="Count" />
+
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sum"
-                />
+                android:text="Sum" />
 
         </com.google.android.material.tabs.TabLayout>
 
@@ -47,6 +45,7 @@
             android:layout_height="90dp"
             android:layout_margin="10dp"
             app:cardBackgroundColor="@color/design_default_color_primary_dark">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -56,10 +55,10 @@
                     android:id="@+id/personal_player_card_username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingTop="10dp"
-                    android:paddingHorizontal="10dp"
-                    android:paddingBottom="5dp"
                     android:layout_gravity="center"
+                    android:paddingHorizontal="10dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="5dp"
                     android:text="Personal Profile"
                     android:textAllCaps="true"
                     android:textAppearance="?attr/textAppearanceHeadline6"
@@ -70,9 +69,9 @@
                     android:id="@+id/personal_player_card_score"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:paddingHorizontal="10dp"
                     android:paddingBottom="10dp"
-                    android:layout_gravity="center"
                     android:text="Ranking"
                     android:textAllCaps="true"
                     android:textAppearance="?attr/textAppearanceHeadline6"
@@ -93,7 +92,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            tools:listitem="@layout/leaderboard_list_item"/>
+            tools:listitem="@layout/leaderboard_list_item" />
     </LinearLayout>
 
 
