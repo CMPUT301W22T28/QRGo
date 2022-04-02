@@ -74,6 +74,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private QRCodeRecyclerAdapter scoringQRCodeAdapter;
     private Boolean isAdmin = null;
     private boolean doNotUpdate = false;
+    private String myEmail;
+    private String myPhone;
 
     public static ProfileFragment newInstance(Boolean isAdmin, String username) {
         Bundle args = new Bundle();
@@ -143,8 +145,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         profileContactButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ContactDialog contactDialog = new ContactDialog();
-                contactDialog.show(getParentFragmentManager(),"ContactDialog");
+                ContactDialog contactDialog = ContactDialog.newInstance(viewedUser,myEmail,myPhone);
+                contactDialog.show(getChildFragmentManager(),"contactDialog");
             }
         });
 
@@ -290,8 +292,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                         }
                     }
 
-                    String myEmail = snapshot.getString("email");
-                    String myPhone = snapshot.getString("phone");
+                    myEmail = snapshot.getString("email");
+                    myPhone = snapshot.getString("phone");
                     // region setting text views in profile top bar
                     profileViewModel.setUsername(viewedUser);
                     profileViewModel.setEmail(myEmail);
