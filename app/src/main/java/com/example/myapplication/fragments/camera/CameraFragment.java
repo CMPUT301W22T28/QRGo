@@ -95,6 +95,8 @@ public class CameraFragment extends Fragment {
     private static final int QRCODE_SCAN_CAPTURE = 6;
     private static final int MY_CAMERA_REQUEST_CODE = 100;
     private final String GAME_STATUS_QRCODE_COLLECTION = "GameStatusQRCode";
+    private final String USERS_COLLECTION = "Users";
+
     private ImageView cameraImage;
     private TextView sizeImageText;
     private Switch savePictureSwitch;
@@ -375,7 +377,6 @@ public class CameraFragment extends Fragment {
     }
 
     public void checkGameStatusQRCode(String scannedString, Context context ){
-        CameraFragment cameraFragment = this;
         db.collection(GAME_STATUS_QRCODE_COLLECTION)
                 .whereEqualTo("username",scannedString)
                 .get()
@@ -386,17 +387,13 @@ public class CameraFragment extends Fragment {
                             // If we find any matching GameStatusQRCode's we redirect...
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 disablingButtons();
-                                CameraFragmentDirections.ActionNavigationCameraToNavigationProfile action = CameraFragmentDirections.actionNavigationCameraToNavigationProfile(
-                                        // TODO: find out why changing this doesn't matter...because regardless the info is getting retrieved from the db
-                                        true,
-                                        // Redirect to username which is scannedString but remove the "gs-"
-                                        scannedString.substring(3)
-                                );
-
-                                NavHostFragment.findNavController(cameraFragment).navigate(action);
+                                getAdminStatus(getActivity().getIntent().getStringExtra("Username"), scannedString.substring(3));
                             }
                             // If there are no matches, then it is a scoring qrcode
                             if (task.getResult().size() == 0){
+                                scoringQRCode = new ScoringQRCode(QRCodeString);
+                                TextView qrCodeScoreValue = binding.qrcodeScoreValue;
+                                qrCodeScoreValue.setText(scoringQRCode.getScore() + "");
                                 enablingButtons();
                             }
                         } else {
@@ -458,13 +455,7 @@ public class CameraFragment extends Fragment {
                 // Use the data - in this case, display it in a Toast.
                 QRCodeString = result;
 
-                loginActivity.checkLoginQRCode(sha256String(result), getContext(), this, "CameraFragment");
-
-                scoringQRCode = new ScoringQRCode(QRCodeString);
-
-                TextView qrCodeScoreValue = binding.qrcodeScoreValue;
-
-                qrCodeScoreValue.setText(scoringQRCode.getScore() + "");
+                loginActivity.checkLoginQRCode(result, getContext(), this, "CameraFragment");
 
                 enablingButtons();
             } else {
@@ -927,7 +918,31 @@ public class CameraFragment extends Fragment {
                 removeLoader();
             }
         });
+    }
 
-        //need to add posts to the posts array.
+    public void getAdminStatus(String Username, String scannedUsername){
+        CameraFragment cameraFragment = this;
+        db.collection(USERS_COLLECTION)
+                .document(Username)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    Boolean isAdmin = task.getResult().getBoolean("admin");
+                        CameraFragmentDirections.ActionNavigationCameraToNavigationProfile action = CameraFragmentDirections.actionNavigationCameraToNavigationProfile(
+                                isAdmin,
+                                // Redirect to username which is scannedString but remove the "gs-"
+                                scannedUsername
+                        );
+                        NavHostFragment.findNavController(cameraFragment).navigate(action);
+
+
+                } else {
+                    Log.d("CameraFragment", "Error getting documents: ", task.getException());
+                }
+            }
+        });
     }
 }

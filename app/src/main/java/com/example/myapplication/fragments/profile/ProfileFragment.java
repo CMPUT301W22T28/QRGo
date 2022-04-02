@@ -315,7 +315,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     AsyncList<ScoringQRCode> asyncList = new AsyncList<>(qrCodeHashes.size(), profileFragment);
                     CollectionReference scoringQrCodeColRef = db.collection("ScoringQRCodes");
 
-                    Log.d("walter", "hash size: "+qrCodeHashes.size() +", qrCodeCount: "+ myPlayerProfile.getQRCodeCount());
 
                     if (qrCodeHashes.size() != myPlayerProfile.getQRCodeCount()) {
                         for (String hash : qrCodeHashes) {
@@ -449,7 +448,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         showGameStatusQRCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GameStatusQRCode gameStatusQRCode = new GameStatusQRCode("gs-"myUsername);
+                GameStatusQRCode gameStatusQRCode = new GameStatusQRCode("gs-"+myUsername);
                 qrShowActivity(gameStatusQRCode.getScannedString(), gameStatusQRCode.getQRCodeType());
             }
         });
