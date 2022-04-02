@@ -198,40 +198,6 @@ public class PostInfoFragment extends Fragment {
                             Map<String, Object> map = new HashMap<>();
                             map.put("scanned_by", FieldValue.arrayRemove(username));
                             db.collection("ScoringQRCodes").document(documentSnapshot.getId()).update(map);
-
-                            Object obj = documentSnapshot.get("comment_ids");
-                            Iterable<?> ar = (Iterable<?>) obj;
-                            ArrayList<String> comments = new ArrayList<>();
-                            ArrayList<String> commentsToDelete = new ArrayList<>();
-                            assert ar != null;
-                            for (Object comment : ar) {
-                                comments.add((String) comment);
-                            }
-                            for (String comment : comments) {
-                                db.collection("Comments").document(comment).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                        commentUsername = documentSnapshot.getString("username");
-                                        if (commentUsername.equals(username)) {
-                                            //commentsToDelete.add((String) comment);
-                                            DocumentReference documentReference = documentSnapshot.getReference();
-                                            documentReference.delete();
-
-                                            //FIXME delete comment_ids from ScoringQRCodes
-                                            Map<String, Object> commentMap = new HashMap<>();
-                                            commentMap.put("comment_ids", FieldValue.arrayRemove(comment));
-                                            db.collection("ScoringQRCodes").document(documentSnapshot.getId()).update(commentMap);
-                                        }
-                                    }
-                                });
-                            }
-//                            System.out.println(commentsToDelete);
-//                            for (String x : commentsToDelete) {
-//                                System.out.println(x);
-//                                Map<String, Object> commentMap = new HashMap<>();
-//                                commentMap.put("comment_ids", FieldValue.arrayRemove(x));
-//                                db.collection("ScoringQRCodes").document(documentSnapshot.getId()).update(commentMap);
-//                            }
                         }
                     });
                 }
