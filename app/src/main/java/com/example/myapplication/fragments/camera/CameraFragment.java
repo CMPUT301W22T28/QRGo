@@ -39,6 +39,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.myapplication.activity.LoginActivity;
 import com.example.myapplication.activity.QRScanActivity;
 import com.example.myapplication.R;
+import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.databinding.FragmentCameraBinding;
 import com.example.myapplication.fragments.search.SearchFragmentDirections;
 import com.firebase.geofire.GeoFireUtils;
@@ -107,6 +108,8 @@ public class CameraFragment extends Fragment {
     private boolean flag;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private StorageReference imageStore = FirebaseStorage.getInstance("gs://qrgo-e62ee.appspot.com/").getReference();
+    private String postUUID;
+    ScoringQRCode scoringQRCode;
 
 
     private FragmentCameraBinding binding;
@@ -454,7 +457,14 @@ public class CameraFragment extends Fragment {
 
                 // Use the data - in this case, display it in a Toast.
                 QRCodeString = result;
-                loginActivity.checkLoginQRCode(result, getContext(), this, "CameraFragment");
+
+                loginActivity.checkLoginQRCode(sha256String(result), getContext(), this, "CameraFragment");
+
+                scoringQRCode = new ScoringQRCode(QRCodeString);
+
+                TextView qrCodeScoreValue = binding.qrcodeScoreValue;
+
+                qrCodeScoreValue.setText(scoringQRCode.getScore() + "");
 
                 enablingButtons();
             } else {
@@ -468,7 +478,6 @@ public class CameraFragment extends Fragment {
      * Disable the buttons on the screen. this is done initially as the fragment loads.
      */
     public void disablingButtons() {
-
         savePostButton.setEnabled(false);
         savePostButton.setAlpha(.7f);
         savePostButton.setBackgroundColor(Color.GRAY);
@@ -479,7 +488,6 @@ public class CameraFragment extends Fragment {
 
         savePictureSwitch.setEnabled(false);
         savePictureSwitch.setTextColor(Color.BLACK);
-
     }
 
     /**
@@ -531,6 +539,7 @@ public class CameraFragment extends Fragment {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void savePost() {
+        postUUID = UUID.randomUUID().toString();
 
         showLoader();
 
@@ -540,7 +549,10 @@ public class CameraFragment extends Fragment {
 
         scoringQRCodeData.put("comment_ids", new ArrayList<String>());
 
-        encodedQRCodeString = sha256String(QRCodeString);
+        encodedQRCodeString = scoringQRCode.getHash();
+        scoringQRCodeData.put("score",scoringQRCode.getScore());
+
+        Log.d("CameraFragment", scoringQRCode.getScore() + "");
 
         post.put("qrcode_hash", encodedQRCodeString);
 
@@ -569,66 +581,8 @@ public class CameraFragment extends Fragment {
 
         if (savePictureSwitch.isChecked()) {
             //Update or upload an Image
-            StorageReference imageToStore = imageStore.child(String.format("images/%s", encodedQRCodeString));
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-            Log.d("CameraFragment", "Bitmap is " + imageBitMap);
-
-            if (imageBitMap!=null) {
-
-                Log.d("CameraFragment", "Bitmap not null");
-
-                imageBitMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                byte[] data = baos.toByteArray();
-
-                UploadTask uploadTask = imageToStore.putBytes(data);
-                uploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle unsuccessful uploads
-
-                        Toast.makeText(getActivity(), "Post Couldn't be Saved", Toast.LENGTH_SHORT);
-                    }
-                })
-                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @RequiresApi(api = Build.VERSION_CODES.N)
-                            @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                                imageToStore.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Uri> task) {
-                                        if (task.isSuccessful()) {
-                                            Log.d("CameraFragment", "HERE!!!"
-                                                    + task.getResult().toString());
-
-                                            post.replace("url", null, task.getResult().toString());
-
-                                            Log.d("CameraFragment", "The image url is " + post.get("url"));
-
-                                            checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
-
-                                        }
-                                        else{
-                                            Log.d("CameraFragment", "FAIL");
-
-                                            //show the stuff again
-                                            removeLoader();
-
-                                            Toast.makeText(getContext(), "Failed to save QR Code", Toast.LENGTH_LONG).show();
-
-                                        }
-
-                                    }
-
-                                });
-
-                            }
-                        });
-
-                        Toast.makeText(getContext(), "Post Saved Successfully!", Toast.LENGTH_LONG).show();
-            }
+            saveTheImage(post, scoringQRCodeData, true);
         }
         else {
             checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
@@ -672,6 +626,7 @@ public class CameraFragment extends Fragment {
         scoringQRCodeData.put("scanned_by", scannedBy);
 
         // TODO: Proper calc score usage!, currently a placeholder of score 0.
+
         scoringQRCodeData.put("score", 0);
         // TODO: Call function to update user scanned_qrcodes field -> Done
         db.collection("Users").document(getActivity().getIntent().getStringExtra("Username")).update("scanned_qrcodes",
@@ -862,12 +817,99 @@ public class CameraFragment extends Fragment {
 
     }
 
+    public HashMap<String, Object> saveTheImage(HashMap<String, Object> post,HashMap<String, Object> scoringQRCodeData ,Boolean checkOrSave) {
+
+        StorageReference imageToStore = imageStore.child(String.format("images/%s", postUUID));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        Log.d("CameraFragment", "Bitmap is " + imageBitMap);
+
+        if (imageBitMap!=null) {
+
+            Log.d("CameraFragment", "Bitmap not null");
+
+            imageBitMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] data = baos.toByteArray();
+
+            db.collection("Users").document(getActivity().getIntent().getStringExtra("Username"))
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            DocumentSnapshot document = task.getResult();
+
+                            Map<String,Object > userInstance = document.getData();
+
+                            ArrayList<String> qrCodeHashes = getUserQRCodes(userInstance);
+
+                            Boolean save = false;
+                            for (String s: qrCodeHashes) {
+                                if (s.equals(scoringQRCode.getHash())) {
+                                    checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
+                                    return;
+                                }
+                            }
+
+                            //if the man doesn't have the qr code, then save the image for sure.
+
+                            UploadTask uploadTask = imageToStore.putBytes(data);
+                            uploadTask.addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    // Handle unsuccessful uploads
+
+                                    Toast.makeText(getActivity(), "Post Couldn't be Saved", Toast.LENGTH_SHORT);
+                                }
+                            })
+                                    .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                        @RequiresApi(api = Build.VERSION_CODES.N)
+                                        @Override
+                                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                            imageToStore.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Uri> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Log.d("CameraFragment", "HERE!!!"
+                                                                + task.getResult().toString());
+
+                                                        post.replace("url", null, task.getResult().toString());
+
+                                                        Log.d("CameraFragment", "The image url is " + post.get("url"));
+
+
+                                                        checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
+
+
+                                                    }
+                                                    else{
+                                                        Log.d("CameraFragment", "FAIL");
+
+                                                        //show the stuff again
+                                                        removeLoader();
+
+                                                        Toast.makeText(getContext(), "Failed to save QR Code", Toast.LENGTH_LONG).show();
+
+                                                    }
+
+                                                }
+
+                                            });
+
+                                        }
+                                    });
+
+                        }
+                    });
+        }
+
+        return null;
+    }
+
     public void saveUserPost(HashMap<String, Object> post) {
-
-        String uuid= UUID.randomUUID().toString();
-
         db.collection("Posts")
-        .whereEqualTo("qrcode_hash", post.get("qrcode_username"))
+        .whereEqualTo("qrcode_hash", post.get("qrcode_hash"))
                 .whereEqualTo("username", post.get("username"))
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -875,8 +917,11 @@ public class CameraFragment extends Fragment {
                 QuerySnapshot doc = task.getResult();
 
                 if (doc.isEmpty()) {
-                    db.collection("Posts").document(uuid).set(post);
-
+                    db.collection("Posts").document(postUUID).set(post);
+                    Toast.makeText(getContext(), "Post Saved Successfully!", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Toast.makeText(getContext(), "You already have this QRcode!", Toast.LENGTH_LONG).show();
                 }
 
                 removeLoader();

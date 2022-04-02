@@ -17,6 +17,7 @@
     <string name="profile_static_top_qr_code">Top QR Code:</string>
     <string name="map_search">Search Nearby</string>
     <string name="delete_profile">Delete Profile</string>
+    <string name="delete_post">Delete Post</string>
     <string name="show_login_qrcode">Show Login QR Code</string>
     <string name="show_game_status_qrcode">Show Stats QR Code</string>
     <string name="go_back_button">Go Back</string>
