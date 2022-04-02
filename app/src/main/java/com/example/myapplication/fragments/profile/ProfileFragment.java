@@ -27,6 +27,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 import com.example.myapplication.dataClasses.asyncdata.AsyncList;
+import com.example.myapplication.activity.QRScanActivity;
 import com.example.myapplication.activity.QRShowActivity;
 import com.example.myapplication.dataClasses.qrCode.GameStatusQRCode;
 import com.example.myapplication.dataClasses.qrCode.LoginQRCode;
@@ -265,6 +266,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         try { this.viewedUser = getArguments().getString("Username");}
         catch(Exception e) { this.viewedUser = requireActivity().getIntent().getStringExtra("Username"); }
 
+        enableDisableQRCodeButtons(requireActivity().getIntent().getStringExtra("Username") ,this.viewedUser);
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // setting persistence
@@ -314,7 +317,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     AsyncList<ScoringQRCode> asyncList = new AsyncList<>(qrCodeHashes.size(), profileFragment);
                     CollectionReference scoringQrCodeColRef = db.collection("ScoringQRCodes");
 
-                    Log.d("walter", "hash size: "+qrCodeHashes.size() +", qrCodeCount: "+ myPlayerProfile.getQRCodeCount());
 
                     if (qrCodeHashes.size() != myPlayerProfile.getQRCodeCount()) {
                         for (String hash : qrCodeHashes) {
@@ -448,7 +450,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         showGameStatusQRCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                GameStatusQRCode gameStatusQRCode = new GameStatusQRCode(myUsername);
+                GameStatusQRCode gameStatusQRCode = new GameStatusQRCode("gs-"+myUsername);
                 qrShowActivity(gameStatusQRCode.getScannedString(), gameStatusQRCode.getQRCodeType());
             }
         });
@@ -622,4 +624,15 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         return profileViewModel;
     }
 
+    public void enableDisableQRCodeButtons(String loggedInUsername, String viewedUsername){
+        if (!loggedInUsername.equals(viewedUsername)){
+            Button showLoginQRCode = binding.showLoginQrcodeButton;
+            Button showGameStatusQRCode =  binding.showGamestatusQrcodeButton;
+
+            showLoginQRCode.setVisibility(View.GONE);
+            showGameStatusQRCode.setVisibility(View.GONE);
+
+
+        }
+    }
 }
