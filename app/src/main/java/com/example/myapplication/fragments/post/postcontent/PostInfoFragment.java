@@ -36,6 +36,7 @@ import com.google.firebase.storage.StorageReference;
 
 import org.w3c.dom.Document;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ public class PostInfoFragment extends Fragment {
     private String postOwner; // username of post owner
     private String username; // main user
     private Boolean isAdmin;
+    private String commentUsername;
 
     private static final String ARG_QR = "argQR";
     private static final String ARG_POST_USER = "argPostUser";
@@ -107,7 +109,7 @@ public class PostInfoFragment extends Fragment {
             deletePostButton.setVisibility(View.VISIBLE);
         }
 
-        System.out.println(qrHash);
+        System.out.println("in PostInfoFragment"+isAdmin);
 
         deletePostButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,11 +117,28 @@ public class PostInfoFragment extends Fragment {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                 if (isAdmin){
-                    //System.out.println("THIS IS AN ADMIN POST DELETE");
-                    db.collection("ScoringQRCodes").document(qrHash).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    System.out.println("THIS IS AN ADMIN POST DELETE");
+
+                    db.collection("ScoringQRCodes").document(qrHash).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
-                        public void onSuccess(Void unused) {
-                            System.out.println("ScoringQRCode Deleted Successfully!");
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            Object obj = documentSnapshot.get("comment_ids");
+                            Iterable<?> ar = (Iterable<?>) obj;
+                            ArrayList<String> comments = new ArrayList<>();
+                            assert ar != null;
+                            for (Object comment : ar) {
+                                comments.add((String) comment);
+                            }
+                            for (String comment : comments) {
+                                db.collection("Comments").document(comment).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        System.out.println("COMMENT: "+comment+" deleted successfully");
+                                    }
+                                });
+                            }
+                            DocumentReference documentReference = documentSnapshot.getReference();
+                            documentReference.delete();
                         }
                     });
 
@@ -150,7 +169,7 @@ public class PostInfoFragment extends Fragment {
                 }
 
                 else if (username.equals(postOwner)) {
-                    //System.out.println("THIS IS AN USER POST DELETE");
+                    System.out.println("THIS IS AN USER POST DELETE");
                     //db.collection("Comments").
 
                     db.collection("Posts").whereEqualTo("qrcode_hash", qrHash).whereEqualTo("username", username).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -173,17 +192,46 @@ public class PostInfoFragment extends Fragment {
                         }
                     });
 
-                    db.collection("ScoringQRCodes").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    db.collection("ScoringQRCodes").document(qrHash).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                List<DocumentSnapshot> documents = task.getResult().getDocuments();
-                                for (DocumentSnapshot document : documents) {
-                                    Map<String, Object> map = new HashMap<>();
-                                    map.put("scanned_by", FieldValue.arrayRemove(postOwner));
-                                    db.collection("ScoringQRCodes").document(document.getId()).update(map);
-                                }
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("scanned_by", FieldValue.arrayRemove(username));
+                            db.collection("ScoringQRCodes").document(documentSnapshot.getId()).update(map);
+
+                            Object obj = documentSnapshot.get("comment_ids");
+                            Iterable<?> ar = (Iterable<?>) obj;
+                            ArrayList<String> comments = new ArrayList<>();
+                            ArrayList<String> commentsToDelete = new ArrayList<>();
+                            assert ar != null;
+                            for (Object comment : ar) {
+                                comments.add((String) comment);
                             }
+                            for (String comment : comments) {
+                                db.collection("Comments").document(comment).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        commentUsername = documentSnapshot.getString("username");
+                                        if (commentUsername.equals(username)) {
+                                            //commentsToDelete.add((String) comment);
+                                            DocumentReference documentReference = documentSnapshot.getReference();
+                                            documentReference.delete();
+
+                                            //FIXME delete comment_ids from ScoringQRCodes
+                                            Map<String, Object> commentMap = new HashMap<>();
+                                            commentMap.put("comment_ids", FieldValue.arrayRemove(comment));
+                                            db.collection("ScoringQRCodes").document(documentSnapshot.getId()).update(commentMap);
+                                        }
+                                    }
+                                });
+                            }
+//                            System.out.println(commentsToDelete);
+//                            for (String x : commentsToDelete) {
+//                                System.out.println(x);
+//                                Map<String, Object> commentMap = new HashMap<>();
+//                                commentMap.put("comment_ids", FieldValue.arrayRemove(x));
+//                                db.collection("ScoringQRCodes").document(documentSnapshot.getId()).update(commentMap);
+//                            }
                         }
                     });
                 }

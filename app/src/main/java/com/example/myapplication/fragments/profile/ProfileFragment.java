@@ -117,7 +117,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         // receives the isAdmin from search
 
         try { this.isAdmin = getArguments().getBoolean("isAdmin");}
-        catch(Exception e) { this.isAdmin = false; }
+        catch(Exception e) { this.isAdmin = null; }
 
         // initialises the delete profile button
         deleteProfileButton = (Button) binding.deleteProfileButton;
@@ -496,6 +496,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         ScoringQRCode qrCode = myPlayerProfile.getQRCodes().get(position);
 
         String currentUser = requireActivity().getIntent().getStringExtra("Username");
+
+        System.out.println("in ProfileFragment: "+isAdmin);
 //        PostFragment postFragment = PostFragment.newInstance(qrCode.getHash(), viewedUser, currentUser);
 
         //region passing arguments while navigating fragments
