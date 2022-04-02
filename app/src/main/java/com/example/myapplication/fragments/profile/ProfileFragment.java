@@ -175,7 +175,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     }
                 });
 
-                db.collection("GameStatusQRCode").whereEqualTo("username", viewedUser).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                db.collection("GameStatusQRCode").whereEqualTo("username", "gs-"+viewedUser).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         List<DocumentSnapshot> documents = task.getResult().getDocuments();
