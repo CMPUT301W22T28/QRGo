@@ -325,7 +325,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                                         if (document != null && document.exists()) {
 
                                             // data we need to get
-                                            ScoringQRCode tempQrCode = new ScoringQRCode(hash);
+                                            ScoringQRCode tempQrCode = new ScoringQRCode(hash, true);
                                             Long score;
                                             Double longitude;
                                             Double latitude;
