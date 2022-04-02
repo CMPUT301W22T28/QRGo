@@ -88,7 +88,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         return fragment;
     }
 
-
     /**
      * Initially called when the profile fragment is created.
      * @param inflater The inflater for this view.
@@ -495,14 +494,9 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
      */
     @Override
     public void onItemClick(View view, int position) {
-        Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
-
         ScoringQRCode qrCode = myPlayerProfile.getQRCodes().get(position);
 
         String currentUser = requireActivity().getIntent().getStringExtra("Username");
-//        PostFragment postFragment = PostFragment.newInstance(qrCode.getHash(), viewedUser, currentUser);
-
-        //region passing arguments while navigating fragments
 
         // all of this is define in "mobile_navigation.xml", the class ProfileFragmentDirections is created automatically.
         ProfileFragmentDirections.ActionNavigationProfileToNavigationPost action = ProfileFragmentDirections.actionNavigationProfileToNavigationPost(
@@ -580,48 +574,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     "scanned_sum", newSumQrCodes
             );
         }
-//        MyUserDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    // Document found in the offline cache
-//                    DocumentSnapshot document = task.getResult();
-//
-//                    if (document != null && document.exists()) {
-//                        Long docSumQrCodes;
-//                        Long docHighestQrCode;
-//
-//                        docSumQrCodes = document.getLong("scanned_sum");
-//                        if (docSumQrCodes != null) {
-//                            if (docSumQrCodes.intValue() != sumQrCodes) {
-//                                MyUserDocRef.update(
-//                                        "scanned_sum", sumQrCodes
-//                                );
-//                            }
-//                        }
-//
-//                        docHighestQrCode = document.getLong("scanned_highest");
-//                        if (docHighestQrCode != null) {
-//                            if (docHighestQrCode.intValue() != highestQrCode) {
-//                                MyUserDocRef.update(
-//                                        "scanned_highest", highestQrCode
-//                                );
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        });
 
         myPlayerProfile.setTotalScore(newSumQrCodes);
         myPlayerProfile.setHighestScore(newHighestQrCode);
 
         profileViewModel.setTopQRCodeScore( myPlayerProfile.getHighestScore());
         profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
-    }
-
-    public ProfileViewModel getViewModel() {
-        return profileViewModel;
     }
 
     public void enableDisableQRCodeButtons(String loggedInUsername, String viewedUsername){
@@ -631,8 +589,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
             showLoginQRCode.setVisibility(View.GONE);
             showGameStatusQRCode.setVisibility(View.GONE);
-
-
         }
     }
 }
