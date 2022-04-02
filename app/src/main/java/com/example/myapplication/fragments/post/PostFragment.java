@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.Comment;
@@ -31,13 +30,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -46,6 +42,20 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ * Fragment that provides tab navigation between info, comments and scanned by fragments.
+ * Updates all these fragments data in real time using their view models.
+ *
+ * @author CMPUT 301 team 28, Marc-Andre Haley & Walter Ostrander
+ *
+ * @see CommentsViewModel
+ * @see PostInfoViewModel
+ * @see ScannedByViewModel
+ *
+ * March 22, 2022
+ */
+
 public class PostFragment extends Fragment implements QRGoEventListener<Comment> {
 
     private FragmentPostBinding binding;
@@ -53,10 +63,8 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     private String qrHash;
     private String postOwner; // username of post owner
     private String username; // main user
-    private PostInfoViewModel postInfoViewModel;
-    private CommentsViewModel commentsViewModel;
-    private ScannedByViewModel scannedByViewModel;
     private boolean userHasCode;
+    private FirebaseFirestore db;
 
     TabLayout tabLayout;
 
@@ -143,7 +151,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
             }
         });
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection(USER_COLLECTION).document(username);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -155,7 +163,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
                         // check if user has qrCode
                         userHasCode = QRCodes.contains(qrHash);
                         if (userHasCode) {
-                            getPostFromDatabase();
+                            getAndSetPostImage();
                         }
                     } else {
                         Log.d(TAG, "No such document");
@@ -167,18 +175,23 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         });
 
         if (qrHash != null) {
-
-            getQRCodeAndCommentsFromDatabase();
+            getAndSetPost();
         }
     }
 
-    private void getPostFromDatabase() {
-        // get view models to use
+    /**
+     *
+     * Gets post image from database and sets it in the postInfoViewModel
+     *
+     * @see PostInfoViewModel
+     *
+     */
+    private void getAndSetPostImage() {
+        // get view model to use
         PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
 
         postInfoViewModel.setImageNotAvailableText("");
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         Log.d(TAG, "post owna: "+postOwner + ", hash: "+qrHash);
 
         db.collection(POST_COLLECTION)
@@ -228,131 +241,177 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
                 });
     }
 
-    private void getQRCodeAndCommentsFromDatabase() {
-
-        ScannedByViewModel scannedByViewModel = new ViewModelProvider(requireActivity()).get(ScannedByViewModel.class);
-        PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+    /**
+     *
+     * Gets a document snapshot of the QR code in post and sets all the info associated with it.
+     *
+     */
+    private void getAndSetPost(){
 
         DocumentReference scoringQRCodeDocRef = db.collection("ScoringQRCodes").document(qrHash);
-
-        PostFragment postFragment = this;
 
         scoringQRCodeDocRef.addSnapshotListener((snapshot, e) -> {
             if (e != null) {
                 Log.w(TAG, "Listen failed.", e);
-            }
-            else if (snapshot != null && snapshot.exists()) {
-                // set score
-                postInfoViewModel.setScore(snapshot.getLong("score").intValue());
-
-                // endregion
-                String geolocationString = "[";
-
-                //region getting the latitude
-                Double latitude = snapshot.getDouble("latitude");
-                // check if exists
-                if (latitude == null) {
-                    // fill view model
-                    geolocationString+="null";
-                }
-                else{
-                    geolocationString+=latitude+", ";
-                }
-                // endregion
-
-                //region getting the longitude
-                Double longitude = snapshot.getDouble("longitude");
-                // check if exists
-                if (longitude == null) {
-                    // fill view model
-                    geolocationString += "null]";
-                }
-                else {
-                    geolocationString += longitude + "]";
-                }
-                // endregion
-                postInfoViewModel.setGeoLocation(geolocationString);
-
-                //region get scanned_by
-                ArrayList<String> scannedByList = new ArrayList<>();
-
-                Object obj = snapshot.get("scanned_by");
-                if (obj != null) {
-                    Iterable<?> ar = (Iterable<?>) obj;
-
-                    for (Object x : ar) {
-                        scannedByList.add((String) x);
-                    }
-                    scannedByViewModel.setScannedByLiveDataList(scannedByList);
-                }
-                else {
-                    Log.d(TAG, "scanned_by array is null...");
-                }
-                //endregion
-
-                //region get num_scanned_by
-                Long nScannedBy = snapshot.getLong("num_scanned_by");
-                // check if exists
-                if (nScannedBy == null || nScannedBy != scannedByList.size()) {
-                    // update value in scannedQRCodes
-                    scoringQRCodeDocRef.update("num_scanned_by", scannedByList.size());
-                }
-                postInfoViewModel.setScannedByText(scannedByList.size());
-                //endregion
-
-                // TODO: update the view models with the above information
-
-                //region get comment ids
-                ArrayList<String> commentIds = new ArrayList<>();
-
-                Object object = snapshot.get("comment_ids");
-                if (object != null) {
-                    Iterable<?> ar = (Iterable<?>) object;
-
-                    for (Object x : ar) {
-                        commentIds.add((String) x);
-                    }
-                }
-                else {
-                    Log.d(TAG, "scanned_by array is null...");
-                }
-                //endregion
-
-                CollectionReference commentColReference = db.collection("Comments");
-
-                AsyncList<Comment> asyncList = new AsyncList<>(commentIds.size(), postFragment);
-
-                for (String commentId : commentIds) {
-                    commentColReference.document(commentId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document = task.getResult();
-                                if (document != null && document.exists()) {
-                                    String commentText = document.getString("comment");
-                                    String username = document.getString("username");
-
-                                    // TODO: fill comment out and pass it to the asyncList
-                                    if (commentText == null) {
-                                        commentText = "";
-                                    }
-                                    if (username == null) {
-                                        username = "";
-                                    }
-                                    Comment comment = new Comment(commentText, username);
-
-                                    asyncList.addToArray(comment);
-                                }
-                            }
-                        }
-                    });
-                }
+            } else if (snapshot != null && snapshot.exists()) {
+                getAndSetPostScannedBy(snapshot, scoringQRCodeDocRef);
+                getAndSetPostInfo(snapshot);
+                getAndSetPostComments(snapshot);
             }
         });
-
     }
+
+    /**
+     *
+     * Gets Scanned by list from database and sets it in ScannedByViewModel.
+     * Updates the number of scanned by field in database.
+     *
+     * @param QRCodeSnapshot document QRCodeSnapshot of the current QR code
+     * @param QRCodeDocRef document reference of QR code
+     *
+     * @see ScannedByViewModel
+     *
+     */
+    private void getAndSetPostScannedBy(DocumentSnapshot QRCodeSnapshot, DocumentReference QRCodeDocRef){
+
+        ScannedByViewModel scannedByViewModel = new ViewModelProvider(requireActivity()).get(ScannedByViewModel.class);
+
+        //region get scanned_by
+        ArrayList<String> scannedByList = new ArrayList<>();
+
+        Object obj = QRCodeSnapshot.get("scanned_by");
+        if (obj != null) {
+            Iterable<?> ar = (Iterable<?>) obj;
+
+            for (Object x : ar) {
+                scannedByList.add((String) x);
+            }
+            scannedByViewModel.setScannedByLiveDataList(scannedByList);
+        }
+        else {
+            Log.d(TAG, "scanned_by array is null...");
+        }
+        //endregion
+
+        //region get num_scanned_by
+        Long nScannedBy = QRCodeSnapshot.getLong("num_scanned_by");
+        // check if exists
+        if (nScannedBy == null || nScannedBy != scannedByList.size()) {
+            // update value in scannedQRCodes
+            QRCodeDocRef.update("num_scanned_by", scannedByList.size());
+        }
+    }
+
+    /**
+     *
+     * Gets post info from database and sets it in the postInfoViewModel
+     *
+     * @param snapshot document snapshot of the current QR code
+     *
+     * @see PostInfoViewModel
+     *
+     */
+    private void getAndSetPostInfo(DocumentSnapshot snapshot){
+        PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
+
+        // set score
+        postInfoViewModel.setScore(snapshot.getLong("score").intValue());
+
+        // endregion
+        String geolocationString = "[";
+
+        //region getting the latitude
+        Double latitude = snapshot.getDouble("latitude");
+        // check if exists
+        if (latitude == null) {
+            // fill view model
+            geolocationString+="null";
+        }
+        else{
+            geolocationString+=latitude+", ";
+        }
+        // endregion
+
+        //region getting the longitude
+        Double longitude = snapshot.getDouble("longitude");
+        // check if exists
+        if (longitude == null) {
+            // fill view model
+            geolocationString += "null]";
+        }
+        else {
+            geolocationString += longitude + "]";
+        }
+        // endregion
+        postInfoViewModel.setGeoLocation(geolocationString);
+
+        //region get num_scanned_by
+        Long nScannedBy = snapshot.getLong("num_scanned_by");
+        // check if exists
+        if (nScannedBy != null) {
+            // set value
+            postInfoViewModel.setScannedByText(nScannedBy.intValue());
+        }
+        //endregion
+    }
+
+    /**
+     *
+     * Gets comments associated with QR code from database and sets it in the CommentsViewModel
+     *
+     * @param snapshot document snapshot of the current QR code
+     *
+     * @see CommentsViewModel
+     *
+     */
+    private void getAndSetPostComments(DocumentSnapshot snapshot){
+        //region get comment ids
+        ArrayList<String> commentIds = new ArrayList<>();
+
+        Object object = snapshot.get("comment_ids");
+        if (object != null) {
+            Iterable<?> ar = (Iterable<?>) object;
+
+            for (Object x : ar) {
+                commentIds.add((String) x);
+            }
+        }
+        else {
+            Log.d(TAG, "scanned_by array is null...");
+        }
+        //endregion
+
+        CollectionReference commentColReference = db.collection("Comments");
+
+        AsyncList<Comment> asyncList = new AsyncList<>(commentIds.size(), this);
+
+        for (String commentId : commentIds) {
+            commentColReference.document(commentId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document != null && document.exists()) {
+                            String commentText = document.getString("comment");
+                            String username = document.getString("username");
+
+                            // TODO: fill comment out and pass it to the asyncList
+                            if (commentText == null) {
+                                commentText = "";
+                            }
+                            if (username == null) {
+                                username = "";
+                            }
+                            Comment comment = new Comment(commentText, username);
+
+                            asyncList.addToArray(comment);
+                        }
+                    }
+                }
+            });
+        }
+    }
+
 
     @Override
     public void onListDoneFillingEvent(ArrayList<Comment> comments) {

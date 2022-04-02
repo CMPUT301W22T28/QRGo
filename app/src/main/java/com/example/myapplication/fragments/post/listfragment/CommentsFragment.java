@@ -31,6 +31,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ * Fragment that displays the comments of respective post.
+ *
+ * @author Marc-Andre Haley, Walter Ostrander
+ *
+ * @see CommentsViewModel
+ * @see Comment
+ *
+ * March 22, 2022
+ */
+
 public class CommentsFragment extends Fragment{
     private ArrayList<Comment> comments = new ArrayList<>();
     FragmentCommentsBinding binding;
@@ -61,8 +73,8 @@ public class CommentsFragment extends Fragment{
         username = getArguments().getString(USER);
         qrHash = getArguments().getString(QR);
         // listen to fab to show fragment. Code from labs
-        final FloatingActionButton addCityButton = binding.floatingActionButton;
-        addCityButton.setOnClickListener((view) -> {
+        final FloatingActionButton addCommentButton = binding.floatingActionButton;
+        addCommentButton.setOnClickListener((view) -> {
             AddCommentFragment.newInstance(username,qrHash).show(getChildFragmentManager(),"ADD_COMMENT");
         });
 

@@ -17,9 +17,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.myapplication.databinding.FragmentPostInfoBinding;
+import com.example.myapplication.fragments.post.listfragment.ScannedByViewModel;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+/**
+ *
+ * Fragment that shows information about the post and the image
+ *
+ * @author Marc-Andre Haley, Walter Ostrander
+ *
+ * @see PostInfoViewModel
+ *
+ * March 22, 2022
+ *
+ */
 
 public class PostInfoFragment extends Fragment {
 

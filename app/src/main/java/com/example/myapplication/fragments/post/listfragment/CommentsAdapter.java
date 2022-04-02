@@ -16,6 +16,19 @@ import com.example.myapplication.dataClasses.Comment;
 import java.util.ArrayList;
 import java.util.Locale;
 
+
+/**
+ *
+ * Custom ArrayAdapter for the comments.
+ *
+ * @author CMPUT 301 team 28, Marc-Andre Haley
+ *
+ * @see CommentsFragment
+ * @see Comment
+ *
+ * March 22, 2022
+ */
+
 public class CommentsAdapter extends ArrayAdapter<Comment> {
 
     private ArrayList<Comment> comments;
