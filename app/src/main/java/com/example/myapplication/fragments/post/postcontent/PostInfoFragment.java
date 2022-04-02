@@ -89,14 +89,5 @@ public class PostInfoFragment extends Fragment {
             }
             imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, widthHeight, widthHeight, false));
         });
-
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                //your method
-                Log.d(TAG,"width:"+imageView.getWidth() + ", height: "+imageView.getHeight());
-            }
-        }, 0, 1000);//put here time 1000 milliseconds=1 second
-
     }
 }
