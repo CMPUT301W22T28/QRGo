@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,10 +17,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 import com.example.myapplication.dataClasses.asyncdata.AsyncList;
@@ -29,6 +33,7 @@ import com.example.myapplication.dataClasses.qrCode.LoginQRCode;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentProfileBinding;
+import com.example.myapplication.fragments.post.PostFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -36,11 +41,17 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
@@ -61,7 +72,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private String viewedUser = null;
     private Player myPlayerProfile;
     private QRCodeRecyclerAdapter scoringQRCodeAdapter;
-    private boolean isAdmin;
+    private Boolean isAdmin = null;
     private boolean doNotUpdate = false;
 
     public static ProfileFragment newInstance(Boolean isAdmin, String username) {
@@ -103,10 +114,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         activity = (MainActivity) getActivity();
         assert activity != null;
 
+        // receives the isAdmin from search
+
+        try { this.isAdmin = getArguments().getBoolean("isAdmin");}
+        catch(Exception e) { this.isAdmin = false; }
+
+        // initialises the delete profile button
         deleteProfileButton = (Button) binding.deleteProfileButton;
         profileContactButton = (Button) binding.profileContactButton;
-
-
 
         // getting the recycler view ready
         setupRecyclerView();
@@ -118,7 +133,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         getProfileFromDatabase();
 
         // check to see if the delete button can be visible
-        deleteAllowed();
+        if (isAdmin == null) {
+            deleteAllowed();
+        }
+        else if (isAdmin == true) {
+            deleteProfileButton.setVisibility(View.VISIBLE);
+        }
 
         profileContactButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,6 +147,84 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                 contactDialog.show(getParentFragmentManager(),"ContactDialog");
             }
         });
+
+        deleteProfileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                db.collection("Users").document(viewedUser).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        System.out.println("User Deleted Successfully!");
+                    }
+                });
+
+                db.collection("LoginQRCode").whereEqualTo("username", viewedUser).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+
+                db.collection("GameStatusQRCode").whereEqualTo("username", viewedUser).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+
+                db.collection("Comments").whereEqualTo("username", viewedUser).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+
+                db.collection("Posts").whereEqualTo("username", viewedUser).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (DocumentSnapshot document : documents) {
+                            DocumentReference documentReference = document.getReference();
+                            documentReference.delete();
+                        }
+                    }
+                });
+
+                db.collection("ScoringQRCodes").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                            for (DocumentSnapshot document : documents) {
+                                Map<String, Object> map = new HashMap<>();
+                                map.put("scanned_by", FieldValue.arrayRemove(viewedUser));
+                                db.collection("ScoringQRCodes").document(document.getId()).update(map);
+                            }
+                        }
+                    }
+                });
+
+                getParentFragmentManager().popBackStackImmediate();
+                Toast.makeText(activity.getApplicationContext(), "Profile Deleted Successfully", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
     }
 
     @Override
@@ -354,6 +452,10 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         });
     }
 
+    /**
+     * Method that checks to see if the delete button should be visible or not. This is based on whether or
+     * not the user is registered as an Administrator
+     */
     private void deleteAllowed() {
         Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
 
@@ -369,13 +471,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error == null) {
                     isAdmin = value.getBoolean("admin");
-                    if (isAdmin) {
-                        Log.d(TAG, "this profile is an admin");
-                        deleteProfileButton.setVisibility(View.VISIBLE);
-                    }
-                    else {
-                        deleteProfileButton.setVisibility(View.GONE);
-                        Log.d(TAG, "this profile is not an admin");
+                    if (isAdmin == null) {
+                        isAdmin = false;
                     }
                 }
                 else {
@@ -405,17 +502,13 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
         // all of this is define in "mobile_navigation.xml", the class ProfileFragmentDirections is created automatically.
         ProfileFragmentDirections.ActionNavigationProfileToNavigationPost action = ProfileFragmentDirections.actionNavigationProfileToNavigationPost(
-                currentUser, // the username of the person viewing the post
+                qrCode.getHash(), // the hash of the qr code of the post.
                 viewedUser, // the username of the person who's profile you are on
-                qrCode.getHash()); // the hash of the qr code of the post.
+                currentUser, // the username of the person viewing the post
+                isAdmin); // boolean lets the fragment know if the currentUser is an admin
 
         NavHostFragment.findNavController(this).navigate(action);
         //endregion
-
-//        requireActivity().getSupportFragmentManager().beginTransaction().setReorderingAllowed(true)
-//                .replace(R.id.nav_host_fragment_activity_main, postFragment, "postFragment")
-//                .addToBackStack(null)
-//                .commit();
     }
 
     /**
