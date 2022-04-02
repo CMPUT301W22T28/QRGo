@@ -32,7 +32,18 @@
         android:id="@+id/navigation_camera"
         android:name="com.example.myapplication.fragments.camera.CameraFragment"
         android:label="@string/title_camera"
-        tools:layout="@layout/fragment_camera" />
+        tools:layout="@layout/fragment_camera">
+        <action
+            android:id="@+id/action_navigation_camera_to_navigation_profile"
+            app:destination="@id/navigation_profile" >
+            <argument
+                android:name="isAdmin"
+                app:argType="boolean" />
+            <argument
+                android:name="Username"
+                app:argType="string" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_leaderboard"

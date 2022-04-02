@@ -260,7 +260,7 @@ public class LoginActivity extends AppCompatActivity {
      * @param userName the user's username that will be the string represented by the QRCode
      */
     public void insertGameStatusQRCode(String userName){
-        GameStatusQRCode gameStatusQRCode = new GameStatusQRCode(userName);
+        GameStatusQRCode gameStatusQRCode = new GameStatusQRCode("gs-"+userName);
         db.collection(GAME_STATUS_QRCODE_COLLECTION)
                 .document(gameStatusQRCode.getHash())
                 .set(setUpLoginQRCodeSubCollection(userName));
