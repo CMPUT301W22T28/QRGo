@@ -168,6 +168,8 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
                     // clears the list of players (ranks) and the list of usernames
                     myRankingList.clear();
                     listForUsernames.clear();
+                    // initializes the count for the ranking number
+                    int count = 1;
                     // for every value in the document (inside of "Users")
                     for (QueryDocumentSnapshot document : value) {
                         // get Id and add list to listForUsernames
@@ -176,18 +178,23 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
                         // determine if the user is an Admin
                         Boolean isAdmin = document.getBoolean("admin");
                         Double rankingScore = document.getDouble(tabSort);
+
                         // create new player and add it to myRankingList
                         if (isAdmin == null) {
                             isAdmin = false;
                         }
                         Player player = new Player(username, isAdmin);
                         if (rankingScore != null) {
-                            player.setRankingScore(rankingScore.intValue(), tabLabel);
+                            player.setRankingScore(rankingScore.intValue(), tabLabel, Integer.toString(count));
                         }
                         else {
-                            player.setRankingScore(0, tabLabel);
+                            player.setRankingScore(0, tabLabel, Integer.toString(count));
                         }
+
+                        // adds the newly created player to the ranking list
                         myRankingList.add(player);
+                        // ranking number to be incremented
+                        count += 1;
                     }
                     // myScore is updated using listForUsernames (this is for the top player card)
                     myScore = listForUsernames.indexOf(myUsername) + 1;
@@ -236,7 +243,7 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
     @Override
     public void onItemClick(View view, int position) {
         // displays what row was clicked on
-        Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
     }
 
     /**
