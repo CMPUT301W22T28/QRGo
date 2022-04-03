@@ -15,14 +15,17 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentLeaderboardBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -66,6 +69,7 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
 
     RankingRecyclerAdapter rankingRecyclerAdapter;
     TabLayout tabLayout;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -248,10 +252,13 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
 
         LeaderboardFragmentDirections.ActionNavigationLeaderboardToNavigationProfile action = LeaderboardFragmentDirections.actionNavigationLeaderboardToNavigationProfile(
                 isAdmin,
-                clickedUser
+                clickedUser,
+                getString(R.string.title_leaderboard)
         );
 
         NavHostFragment.findNavController(this).navigate(action);
+//        ((MainActivity) requireActivity()).bottomNavigationView.setSelectedItemId(R.id.navigation_leaderboard);
+
     }
 
     /**

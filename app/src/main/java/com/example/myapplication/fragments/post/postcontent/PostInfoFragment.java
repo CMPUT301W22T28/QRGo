@@ -152,6 +152,10 @@ public class PostInfoFragment extends Fragment {
                                     map.put("scanned_qrcodes", FieldValue.arrayRemove(qrHash));
                                     db.collection("Users").document(document.getId()).update(map);
                                 }
+
+                                getParentFragmentManager().popBackStackImmediate();
+                                requireActivity().getViewModelStore().clear();
+                                Toast.makeText(activity.getApplicationContext(), "Post Deleted Successfully", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -192,7 +196,8 @@ public class PostInfoFragment extends Fragment {
 
                             getParentFragmentManager().popBackStackImmediate();
                             requireActivity().getViewModelStore().clear();
-                            Toast.makeText(activity.getApplicationContext(), "Profile Deleted Successfully", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(activity.getApplicationContext(), "Post Deleted Successfully", Toast.LENGTH_SHORT).show();
+
                         }
                     });
 
@@ -237,15 +242,6 @@ public class PostInfoFragment extends Fragment {
                 imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, widthHeight, widthHeight, false));
             }
         });
-
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                //your method
-                Log.d(TAG,"width:"+imageView.getWidth() + ", height: "+imageView.getHeight());
-            }
-        }, 0, 1000);//put here time 1000 milliseconds=1 second
-
     }
 
 }

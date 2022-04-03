@@ -232,7 +232,8 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
 
         SearchFragmentDirections.ActionNavigationSearchToNavigationProfile action = SearchFragmentDirections.actionNavigationSearchToNavigationProfile(
                 isAdmin,
-                clickedUser
+                clickedUser,
+                getString(R.string.title_search)
         );
 
         NavHostFragment.findNavController(this).navigate(action);
