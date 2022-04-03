@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -233,7 +234,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         requireActivity().getViewModelStore().clear();
-
     }
 
     /**
@@ -316,6 +316,16 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
                     AsyncList<ScoringQRCode> asyncList = new AsyncList<>(qrCodeHashes.size(), profileFragment);
                     CollectionReference scoringQrCodeColRef = db.collection("ScoringQRCodes");
 
+                    final RecyclerView recyclerView = binding.scoringQrCodeList;
+                    final ImageView imageView = binding.noQrCodesFoundView;
+                    if (qrCodeHashes.size() == 0) {
+                        imageView.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
+                    }
+                    else {
+                        imageView.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                    }
 
                     if (qrCodeHashes.size() != myPlayerProfile.getQRCodeCount()) {
                         for (String hash : qrCodeHashes) {
@@ -564,16 +574,10 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         }
         Log.d(TAG,"total: "+newSumQrCodes+", highest: "+newSumQrCodes+", numQrCodes: "+myPlayerProfile.getQRCodes().size());
 
-
-
-        if ((profileViewModel.getTopQRCodeScore().getValue() != null && Integer.parseInt(profileViewModel.getTopQRCodeScore().getValue()) != newHighestQrCode)
-        || (profileViewModel.getTotalScore().getValue() != null && Integer.parseInt(profileViewModel.getTotalScore().getValue()) != newSumQrCodes)) {
-            doNotUpdate = true;
-            MyUserDocRef.update(
-                    "scanned_highest", newHighestQrCode,
-                    "scanned_sum", newSumQrCodes
-            );
-        }
+        MyUserDocRef.update(
+                "scanned_highest", newHighestQrCode,
+                "scanned_sum", newSumQrCodes
+        );
 
         myPlayerProfile.setTotalScore(newSumQrCodes);
         myPlayerProfile.setHighestScore(newHighestQrCode);
