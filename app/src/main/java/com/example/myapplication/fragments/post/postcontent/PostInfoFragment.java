@@ -233,7 +233,9 @@ public class PostInfoFragment extends Fragment {
             if (imageView.getWidth() > 0) {
                 widthHeight = imageView.getWidth();
             }
-            imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, widthHeight, widthHeight, false));
+            if (widthHeight > 0) {
+                imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, widthHeight, widthHeight, false));
+            }
         });
 
         new Timer().scheduleAtFixedRate(new TimerTask() {

@@ -164,18 +164,20 @@
 
     <ImageView
         android:id="@+id/no_qr_codes_found_view"
-        android:layout_width="250dp"
+        android:layout_width="0dp"
         android:layout_height="0dp"
+        app:layout_constraintWidth_percent="0.75"
         app:layout_constraintTop_toBottomOf="@id/profile_top_bar"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/scoring_qr_code_list"
-        android:visibility="gone"
+        android:visibility="visible"
         android:alpha="0.85"
         android:src="@drawable/no_qr_codes_found"
         android:contentDescription="@string/no_qr_codes_photo_view" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:visibility="gone"
         android:id="@+id/scoring_qr_code_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
