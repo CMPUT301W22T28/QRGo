@@ -571,14 +571,14 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         Log.d(TAG,"total: "+newSumQrCodes+", highest: "+newSumQrCodes+", numQrCodes: "+myPlayerProfile.getQRCodes().size());
 
 
-
+        MyUserDocRef.update(
+                "scanned_highest", newHighestQrCode,
+                "scanned_sum", newSumQrCodes
+        );
         if ((profileViewModel.getTopQRCodeScore().getValue() != null && Integer.parseInt(profileViewModel.getTopQRCodeScore().getValue()) != newHighestQrCode)
         || (profileViewModel.getTotalScore().getValue() != null && Integer.parseInt(profileViewModel.getTotalScore().getValue()) != newSumQrCodes)) {
             doNotUpdate = true;
-            MyUserDocRef.update(
-                    "scanned_highest", newHighestQrCode,
-                    "scanned_sum", newSumQrCodes
-            );
+
         }
 //        MyUserDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 //            @Override
