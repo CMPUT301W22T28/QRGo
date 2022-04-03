@@ -139,10 +139,6 @@ public class CameraFragment extends Fragment {
         Context ctx = getActivity().getApplicationContext();
         flag = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ctx) == com.google.android.gms.common.ConnectionResult.SUCCESS;
 
-        Log.d("CameraFragment", flag + " is the fag");
-
-        Log.d("CameraFragment", getActivity().getIntent().getStringExtra("Username"));
-
         savePostButton.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
@@ -190,7 +186,6 @@ public class CameraFragment extends Fragment {
                 context, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED) {
 
-            Log.d("CameraFragment","Obtaining location ");
             FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
 
             requestResult[0] = 1;
@@ -199,8 +194,6 @@ public class CameraFragment extends Fragment {
                 @Override
                 public void onComplete(@NonNull Task<Location> task) {
 
-                    Log.d("CameraFragment", task.toString());
-
                     Location location = task.getResult();
                     if (location != null){
                         currentLocation.setLatitude(location.getLatitude());
@@ -208,17 +201,12 @@ public class CameraFragment extends Fragment {
 
                         if (container !=null) {
 
-                            Log.d("CameraFragment", "Updating location to " + currentLocation.getLatitude() +" " + currentLocation.getLongitude());
-
-
                             container.replace("latitude" , null, currentLocation.getLatitude());
                             container.replace("longitude" , null, currentLocation.getLongitude());
 
                             container.replace("geoHash", null, GeoFireUtils.getGeoHashForLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude())));
 
                         }
-
-                        Log.d("CameraFragment","Location is " + currentLocation.getLatitude() + " " + currentLocation.getLongitude());
 
                     }
                 }
@@ -253,10 +241,8 @@ public class CameraFragment extends Fragment {
         context, Manifest.permission.ACCESS_FINE_LOCATION) ==
         PackageManager.PERMISSION_GRANTED) {
             //Do nothing you good.
-            Log.d("CameraFragment", "Location is already granted");
         }
         else {
-            Log.d("CameraFragment", "Location not granted");
 
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST_CODE);
         }
@@ -346,13 +332,10 @@ public class CameraFragment extends Fragment {
 
                 Toast.makeText(getContext(), "Location Services Enabled.", Toast.LENGTH_SHORT).show();
 
-                Log.d("MainActivity", "Accepted");
 
             } else {
 
                 Toast.makeText(getContext(), "Location must be enabled to save geolocation.", Toast.LENGTH_LONG).show();
-
-                Log.d("MainActivity", "DENIED");
 
             }
 
@@ -377,7 +360,6 @@ public class CameraFragment extends Fragment {
                                 enablingButtons();
                             }
                         } else {
-                            Log.d("CameraFragment", "Error getting documents: ", task.getException());
                         }
 
                     }
@@ -494,7 +476,6 @@ public class CameraFragment extends Fragment {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             hash = digest.digest(source.getBytes());
         } catch (NoSuchAlgorithmException e) {
-            Log.d("CameraFragment", "Can't calculate SHA-256");
         }
 
         if (hash != null) {
@@ -528,8 +509,6 @@ public class CameraFragment extends Fragment {
 
         encodedQRCodeString = scoringQRCode.getHash();
         scoringQRCodeData.put("score",scoringQRCode.getScore());
-
-        Log.d("CameraFragment", scoringQRCode.getScore() + "");
 
         post.put("qrcode_hash", encodedQRCodeString);
 
@@ -586,7 +565,6 @@ public class CameraFragment extends Fragment {
                                 saveUserPost(post);
                             }
                         } else {
-                            Log.d("CameraFragment", "Error getting documents: ", task.getException());
                         }
                     }
                 });
@@ -619,12 +597,10 @@ public class CameraFragment extends Fragment {
                 .set(scoringQRCodeData).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                Log.d("CameraFragment", "Document written successfully");
             }
         }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d("CameraFragment", "Error writing document", e);
                     }
                 });
 
@@ -639,12 +615,10 @@ public class CameraFragment extends Fragment {
                 .update(scoringQRCodeData).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                Log.d("CameraFragment", "Document updated successfully");
             }
         }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d("CameraFragment", "Error updating document", e);
                     }
                 });
 
@@ -664,10 +638,6 @@ public class CameraFragment extends Fragment {
                             Map<String,Object > userInstance = document.getData();
 
                             ArrayList<String> qrCodeHashes = getUserQRCodes(userInstance);
-//
-//                            for (String s: qrCodeHashes) {
-//                                Log.d("CameraFragment", s + " is the scanned qr code son");
-//                            }
 
                             if( qrCodeHashes.contains(encodedQRCodeString)==false) {
 
@@ -695,11 +665,8 @@ public class CameraFragment extends Fragment {
                             }
                             else {
 
-                                Log.d("CameraFragment", "Yessir");
                                 removeLoader();
                             }
-
-                            Log.d("CameraFragment","Im here sir");
 
                         }
                     }
@@ -802,11 +769,8 @@ public class CameraFragment extends Fragment {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        Log.d("CameraFragment", "Bitmap is " + imageBitMap);
 
         if (imageBitMap!=null) {
-
-            Log.d("CameraFragment", "Bitmap not null");
 
             imageBitMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] data = baos.toByteArray();
@@ -850,12 +814,8 @@ public class CameraFragment extends Fragment {
                                                 @Override
                                                 public void onComplete(@NonNull Task<Uri> task) {
                                                     if (task.isSuccessful()) {
-                                                        Log.d("CameraFragment", "HERE!!!"
-                                                                + task.getResult().toString());
 
                                                         post.replace("url", null, task.getResult().toString());
-
-                                                        Log.d("CameraFragment", "The image url is " + post.get("url"));
 
 
                                                         checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
@@ -863,7 +823,6 @@ public class CameraFragment extends Fragment {
 
                                                     }
                                                     else{
-                                                        Log.d("CameraFragment", "FAIL");
 
                                                         //show the stuff again
                                                         removeLoader();
