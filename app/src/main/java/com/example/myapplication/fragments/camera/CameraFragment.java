@@ -582,7 +582,13 @@ public class CameraFragment extends Fragment {
         scoringQRCodeData.put("score", 0);
         // TODO: Call function to update user scanned_qrcodes field -> Done
         db.collection("Users").document(getActivity().getIntent().getStringExtra("Username")).update("scanned_qrcodes",
-                FieldValue.arrayUnion(encodedQRCodeString));
+                FieldValue.arrayUnion(encodedQRCodeString))
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                    }
+                });
 
 
         // TODO: Save posts!
@@ -840,6 +846,11 @@ public class CameraFragment extends Fragment {
 
                         }
                     });
+        }
+
+        else {
+            checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
+
         }
 
         return null;
