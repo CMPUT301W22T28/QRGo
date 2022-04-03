@@ -197,10 +197,8 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
      * not the user is registered as an Administrator
      */
     private void deleteAllowed() {
-        Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
-        try { this.myUsername = getArguments().getString("Username");}
-        catch(Exception e) { this.myUsername = requireActivity().getIntent().getStringExtra("Username"); }
 
+        this.myUsername = requireActivity().getIntent().getStringExtra("Username");
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
