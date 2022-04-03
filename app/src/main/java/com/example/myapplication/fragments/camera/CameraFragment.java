@@ -599,16 +599,10 @@ public class CameraFragment extends Fragment {
         scannedBy.add(getActivity().getIntent().getStringExtra("Username"));
 
         scoringQRCodeData.put("scanned_by", scannedBy);
-
-        // TODO: Proper calc score usage!, currently a placeholder of score 0.
-
-        scoringQRCodeData.put("score", 0);
-        // TODO: Call function to update user scanned_qrcodes field -> Done
+        scoringQRCodeData.put("score", scoringQRCode.getScore());
         db.collection("Users").document(getActivity().getIntent().getStringExtra("Username")).update("scanned_qrcodes",
                 FieldValue.arrayUnion(encodedQRCodeString));
 
-
-        // TODO: Save posts!
 
         scoringQRCodeData.put("num_scanned_by", 1);
 
@@ -649,7 +643,6 @@ public class CameraFragment extends Fragment {
                     }
                 });
 
-        // TODO: for updating scanned_by in ScoringQRCodes use loginactivity function (username is in intent) ->arrayUnion -> done
 
         db.collection("Users").document(getActivity().getIntent().getStringExtra("Username"))
                 .get()
