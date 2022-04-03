@@ -934,7 +934,8 @@ public class CameraFragment extends Fragment {
                         CameraFragmentDirections.ActionNavigationCameraToNavigationProfile action = CameraFragmentDirections.actionNavigationCameraToNavigationProfile(
                                 isAdmin,
                                 // Redirect to username which is scannedString but remove the "gs-"
-                                scannedUsername
+                                scannedUsername,
+                                Username
                         );
                         NavHostFragment.findNavController(cameraFragment).navigate(action);
 
