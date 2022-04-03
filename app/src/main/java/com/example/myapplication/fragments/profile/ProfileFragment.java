@@ -77,6 +77,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     private boolean doNotUpdate = false;
     private String myEmail;
     private String myPhone;
+    private String mainProfile;
 
     public static ProfileFragment newInstance(Boolean isAdmin, String username) {
         Bundle args = new Bundle();
@@ -120,7 +121,16 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         // receives the isAdmin from search
 
         try { this.isAdmin = getArguments().getBoolean("isAdmin");}
-        catch(Exception e) { this.isAdmin = false; }
+        catch(Exception e) { this.isAdmin = null; }
+
+        try { this.viewedUser = getArguments().getString("Username");}
+        catch(Exception e) { this.viewedUser = "viewedUser"; }
+
+        try { this.mainProfile = getArguments().getString("mainProfile");}
+        catch(Exception e) { this.mainProfile = "mainProfile"; }
+
+        System.out.println(viewedUser);
+        System.out.println(mainProfile);
 
         // initialises the delete profile button
         deleteProfileButton = (Button) binding.deleteProfileButton;
@@ -139,7 +149,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         if (isAdmin == null) {
             deleteAllowed();
         }
-        else if (isAdmin == true) {
+        else if ((isAdmin == true) && (!viewedUser.equals(mainProfile))) {
             deleteProfileButton.setVisibility(View.VISIBLE);
         }
 
@@ -500,6 +510,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         ScoringQRCode qrCode = myPlayerProfile.getQRCodes().get(position);
 
         String currentUser = requireActivity().getIntent().getStringExtra("Username");
+
+        System.out.println("in ProfileFragment: "+isAdmin);
 //        PostFragment postFragment = PostFragment.newInstance(qrCode.getHash(), viewedUser, currentUser);
 
         //region passing arguments while navigating fragments
