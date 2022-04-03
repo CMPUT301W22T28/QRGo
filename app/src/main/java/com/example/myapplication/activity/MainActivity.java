@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -21,8 +22,11 @@ import com.example.myapplication.databinding.ActivityMainBinding;
 import com.example.myapplication.fragments.post.listfragment.AddCommentFragment;
 import com.example.myapplication.fragments.profile.ProfileViewModel;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     Context activityContext;
     final int MY_CAMERA_REQUEST_CODE = 100;
     NavController navController;
+    public Player player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
         // changing anything in the layout. i.e. removing the top action bar
         layoutChanges();
+
     }
 
     private void setupNavBar() {
@@ -97,5 +103,4 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
 }

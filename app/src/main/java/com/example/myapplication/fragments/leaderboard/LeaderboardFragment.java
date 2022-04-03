@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -242,8 +243,15 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
      */
     @Override
     public void onItemClick(View view, int position) {
-        // displays what row was clicked on
-        //Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
+        String clickedUser = rankingRecyclerAdapter.getItem(position).getUsername();
+        boolean isAdmin = !clickedUser.equals(myUsername);
+
+        LeaderboardFragmentDirections.ActionNavigationLeaderboardToNavigationProfile action = LeaderboardFragmentDirections.actionNavigationLeaderboardToNavigationProfile(
+                isAdmin,
+                clickedUser
+        );
+
+        NavHostFragment.findNavController(this).navigate(action);
     }
 
     /**
