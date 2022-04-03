@@ -189,6 +189,10 @@ public class PostInfoFragment extends Fragment {
                             Map<String, Object> map = new HashMap<>();
                             map.put("scanned_qrcodes", FieldValue.arrayRemove(qrHash));
                             db.collection("Users").document(postOwner).update(map);
+
+                            getParentFragmentManager().popBackStackImmediate();
+                            requireActivity().getViewModelStore().clear();
+                            Toast.makeText(activity.getApplicationContext(), "Profile Deleted Successfully", Toast.LENGTH_SHORT).show();
                         }
                     });
 
@@ -202,8 +206,7 @@ public class PostInfoFragment extends Fragment {
                     });
                 }
 
-                getParentFragmentManager().popBackStackImmediate();
-                Toast.makeText(activity.getApplicationContext(), "Profile Deleted Successfully", Toast.LENGTH_SHORT).show();
+
             }
         });
     }
@@ -230,7 +233,9 @@ public class PostInfoFragment extends Fragment {
             if (imageView.getWidth() > 0) {
                 widthHeight = imageView.getWidth();
             }
-            imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, widthHeight, widthHeight, false));
+            if (widthHeight > 0) {
+                imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, widthHeight, widthHeight, false));
+            }
         });
 
         new Timer().scheduleAtFixedRate(new TimerTask() {

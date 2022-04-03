@@ -34,4 +34,5 @@
     <string name="scanned_by_n_users">Scanned by n users</string>
     <string name="lat_lon">[lat, lon]</string>
     <string name="add_comment_hint">add comment</string>
+    <string name="no_qr_codes_photo_view">No qr codes photo</string>
 </resources>
