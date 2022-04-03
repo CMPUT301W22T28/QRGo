@@ -563,9 +563,6 @@ public class CameraFragment extends Fragment {
 
             Log.d("CameraFragment", "The location is before saving " + currentLocation.getLongitude() + " " + currentLocation.getLatitude());
 
-//            scoringQRCodeData.replace("latitude", null , currentLocation.getLatitude());
-//            scoringQRCodeData.replace("longitude", null, currentLocation.getLongitude());
-//            scoringQRCodeData.replace("geoHash", null, GeoFireUtils.getGeoHashForLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude())));
         }
 
         post.put("url", null);
@@ -616,7 +613,6 @@ public class CameraFragment extends Fragment {
 
         scoringQRCodeData.put("scanned_by", scannedBy);
         scoringQRCodeData.put("score", scoringQRCode.getScore());
-        // TODO: Call function to update user scanned_qrcodes field -> Done
         db.collection("Users").document(getActivity().getIntent().getStringExtra("Username")).update("scanned_qrcodes",
                 FieldValue.arrayUnion(encodedQRCodeString));
 
@@ -660,7 +656,6 @@ public class CameraFragment extends Fragment {
                     }
                 });
 
-        // TODO: for updating scanned_by in ScoringQRCodes use loginactivity function (username is in intent) ->arrayUnion -> done
 
         db.collection("Users").document(getActivity().getIntent().getStringExtra("Username"))
                 .get()
