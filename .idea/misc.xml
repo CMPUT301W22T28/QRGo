@@ -4,6 +4,9 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/1Projects/Walter/School/2021-2022/Winter/cmput301/team_project/QRGo/app/src/main/res/layout/activity_main.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/drawable/ic_leaderboard_24.xml" value="0.1" />
+        <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/drawable/ic_outline_photo_camera_24.xml" value="0.247" />
+        <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/activity_login.xml" value="0.2064814814814815" />
         <entry key="..\:/Users/Amro Amanuddein/AndroidStudioProjects/QRGo/app/src/main/res/drawable/rounded_corners.xml" value="0.2365" />
         <entry key="..\:/Users/Amro Amanuddein/AndroidStudioProjects/QRGo/app/src/main/res/layout/activity_login.xml" value="0.4" />
         <entry key="..\:/Users/Amro Amanuddein/AndroidStudioProjects/QRGo/app/src/main/res/layout/activity_login_scan.xml" value="0.1" />
@@ -22,6 +25,8 @@
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_contact.xml" value="0.26875" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_leaderboard.xml" value="0.26875" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_map.xml" value="0.26875" />
+        <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_profile.xml" value="0.1482758620689655" />
+        <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_search.xml" value="0.1" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_post.xml" value="0.10648148148148148" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_profile.xml" value="0.2754782700075322" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_search.xml" value="0.26875" />
