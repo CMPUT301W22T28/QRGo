@@ -137,7 +137,10 @@ public class LoginActivity extends AppCompatActivity {
      * This method will validate using the db the string obtained from the qrcode that
      * was scanned to login, if the qrcode is a valid LoginQRCode, they get redirected
      * to the MainActivity/get logged in. Otherwise, a toast will be displayed.
-     * @param scannedString the string that is obtained when the qrcode is scanned
+     * @param scannedString the string that is obtained from the scanned from the qrcode
+     * @param context pass in the context to call toast functions on it
+     * @param cameraFragment instance of camera fragment to be able to call the UI functions on it
+     * @param activityCall string to see which activity called this function
      */
     public void checkLoginQRCode(String scannedString, Context context, CameraFragment cameraFragment, String activityCall){
         db.collection(LOGIN_QRCODE_COLLECTION)
@@ -255,7 +258,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Once a user signs up, this method will generate their respective LoginQRCode.
+     * Once a user signs up, this method will generate their respective GameStatusQRCode.
      * @param userName the user's username that will be the string represented by the QRCode
      */
     public void insertGameStatusQRCode(String userName){

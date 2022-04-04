@@ -597,6 +597,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
     }
 
+    /**
+     * This function will disable the Show Login QRCode and Show Game Status QRCode if you're on
+     * a profile that is not yours.
+     * @param loggedInUsername the username of the user that is logged in
+     * @param viewedUsername the username of the user being viewed
+     */
     public void enableDisableQRCodeButtons(String loggedInUsername, String viewedUsername){
         if (!loggedInUsername.equals(viewedUsername)){
             Button showLoginQRCode = binding.showLoginQrcodeButton;
