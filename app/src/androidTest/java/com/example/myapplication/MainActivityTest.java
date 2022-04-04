@@ -74,7 +74,6 @@ public class MainActivityTest {
     /**
      * adds the test qr code to the database before testing
      */
-
     private void addProfileToDatabase() {
         CountDownLatch done = new CountDownLatch(4);
 
@@ -166,6 +165,12 @@ public class MainActivityTest {
         //endregion
     }
 
+    /**
+     * takes a username, and will either update or remove androidId from it depending on addToFields
+     *
+     * @param username the username to update
+     * @param addToFields whether or not to remove android id from it
+     */
     private void updateUserDeviceList(String username, boolean addToFields){
         CountDownLatch done = new CountDownLatch(1);
         DocumentReference userRef = db.collection(USERS_COLLECTION).document(username);
