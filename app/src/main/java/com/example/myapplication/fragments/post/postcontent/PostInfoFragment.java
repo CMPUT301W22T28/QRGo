@@ -19,8 +19,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.activity.MainActivity;
+import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 import com.example.myapplication.databinding.FragmentPostInfoBinding;
 import com.example.myapplication.fragments.post.PostFragment;
+import com.example.myapplication.fragments.profile.ProfileViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -44,6 +46,14 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * The fragment for the post info view. It shows profile information such as score, number of scans, geolocation, and the image.
+ * @author Walter Ostrander, Marc-Andre Haley, Sankalp Saini
+ * @see ProfileViewModel
+ * @see QRGoEventListener
+ *
+ * March 12, 2022
+ */
 public class PostInfoFragment extends Fragment {
     private MainActivity activity;
 
@@ -216,6 +226,11 @@ public class PostInfoFragment extends Fragment {
         });
     }
 
+    /**
+     * Method that fetches the livedata and attaches listeners. Whenever there is a change in any of the data,
+     * it gets passed on to it's respective view. For example, when the username changes, it's textview will
+     * change with it.
+     */
     private void setViewListeners() {
         PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
 

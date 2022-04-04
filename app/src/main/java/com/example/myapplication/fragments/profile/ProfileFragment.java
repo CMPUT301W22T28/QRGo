@@ -57,7 +57,7 @@ import java.util.Objects;
 
 /**
  * The fragment for the profile. It shows profile information such as username, scanned qr codes and their scores.
- * @author Walter Ostrander
+ * @author Walter Ostrander, Sankalp Saini
  * @see ProfileViewModel
  * @see QRGoEventListener
  *
