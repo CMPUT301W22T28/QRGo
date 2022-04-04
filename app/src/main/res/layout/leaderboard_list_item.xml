@@ -7,7 +7,7 @@
         android:id="@+id/put_list_element_number_here"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:textSize="45dp"
+        android:textSize="25dp"
         android:padding="5dp"
         android:textAlignment="center"
         android:gravity="center"
