@@ -470,32 +470,6 @@ public class CameraFragment extends Fragment {
 
     }
 
-    public static String sha256String(@NonNull String source) {
-        byte[] hash = null;
-        String hashCode = null;// w  ww  .  j  a va 2 s.c  o m
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            hash = digest.digest(source.getBytes());
-        } catch (NoSuchAlgorithmException e) {
-        }
-
-        if (hash != null) {
-            StringBuilder hashBuilder = new StringBuilder();
-            for (int i = 0; i < hash.length; i++) {
-                String hex = Integer.toHexString(hash[i]);
-                if (hex.length() == 1) {
-                    hashBuilder.append("0");
-                    hashBuilder.append(hex.charAt(hex.length() - 1));
-                } else {
-                    hashBuilder.append(hex.substring(hex.length() - 2));
-                }
-            }
-            hashCode = hashBuilder.toString();
-        }
-
-        return hashCode;
-    }
-
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void savePost() {
         postUUID = UUID.randomUUID().toString();
