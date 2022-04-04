@@ -507,7 +507,7 @@ public class CameraFragment extends Fragment {
         if (savePictureSwitch.isChecked()) {
             //Update or upload an Image
 
-            saveTheImage(post, scoringQRCodeData, true);
+            saveTheImage(post, scoringQRCodeData);
         }
         else {
             checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
@@ -737,7 +737,7 @@ public class CameraFragment extends Fragment {
 
     }
 
-    public HashMap<String, Object> saveTheImage(HashMap<String, Object> post,HashMap<String, Object> scoringQRCodeData ,Boolean checkOrSave) {
+    public HashMap<String, Object> saveTheImage(HashMap<String, Object> post,HashMap<String, Object> scoringQRCodeData) {
 
         StorageReference imageToStore = imageStore.child(String.format("images/%s", postUUID));
 
