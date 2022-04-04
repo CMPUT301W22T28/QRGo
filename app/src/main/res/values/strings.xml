@@ -18,8 +18,8 @@
     <string name="map_search">Search Nearby</string>
     <string name="delete_profile">Delete Profile</string>
     <string name="delete_post">Delete Post</string>
-    <string name="show_login_qrcode">Show Login QR Code</string>
-    <string name="show_game_status_qrcode">Show Stats QR Code</string>
+    <string name="show_login_qrcode">Login QR Code</string>
+    <string name="show_game_status_qrcode">Stats QR Code</string>
     <string name="go_back_button">Go Back</string>
     <string name="post_scanned_by_tab_name">Scanned by</string>
     <string name="post_comments_tab_name">Comments</string>
@@ -35,4 +35,5 @@
     <string name="lat_lon">[lat, lon]</string>
     <string name="add_comment_hint">add comment</string>
     <string name="no_qr_codes_photo_view">No qr codes photo</string>
+    <string name="show_contact_info">Contact Info</string>
 </resources>
