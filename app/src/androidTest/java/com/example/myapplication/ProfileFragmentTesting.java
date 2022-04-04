@@ -13,13 +13,18 @@ import static com.example.myapplication.SearchFragmentUITest.atPosition;
 import android.content.Intent;
 import android.provider.Settings;
 
-import androidx.annotation.NonNull;
 import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.intent.matcher.IntentMatchers;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import com.example.myapplication.activity.MainActivity;
+import com.example.myapplication.activity.QRShowActivity;
+import com.example.myapplication.dataClasses.qrCode.GameStatusQRCode;
+import com.example.myapplication.dataClasses.qrCode.LoginQRCode;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -59,6 +64,10 @@ public class ProfileFragmentTesting {
     private final String USERS_COLLECTION = "Users";
     private final String POST_COLLECTION = "Posts";
     private final String QRCODE_COLLECTION = "ScoringQRCodes";
+    private final String GAME_STATUS_QRCODE_COLLECTION = "GameStatusQRCode";
+    private final String LOGIN_QRCODE_COLLECTION = "LoginQRCode";
+    private GameStatusQRCode gameStatusQRCode;
+    private LoginQRCode loginQRCode;
 
     private final String email = "test@email.com";
     private final String phone = "000000000";
@@ -86,9 +95,8 @@ public class ProfileFragmentTesting {
     /**
      * adds the test qr code to the database before testing
      */
-
     private void addProfileToDatabase() {
-        CountDownLatch done = new CountDownLatch(4);
+        CountDownLatch done = new CountDownLatch(6);
 
         //region remove and store usernames used
         CollectionReference usersRef = db.collection(USERS_COLLECTION);
@@ -103,6 +111,22 @@ public class ProfileFragmentTesting {
         });
         //endregion
 
+        //region create game status qr code
+        gameStatusQRCode = new GameStatusQRCode("gs-"+testUsername);
+        Map<String, Object> data = new HashMap<>();
+        data.put("username", testUsername);
+
+        db.collection(GAME_STATUS_QRCODE_COLLECTION)
+                .document(gameStatusQRCode.getHash())
+                .set(data).addOnCompleteListener(unused -> done.countDown());
+        //endregion
+
+        //region create login qr code
+        loginQRCode = new LoginQRCode(testUsername);
+        db.collection(LOGIN_QRCODE_COLLECTION)
+                .document(loginQRCode.getHash())
+                .set(data).addOnCompleteListener(unused -> done.countDown());
+        //endregion
 
         //region create qrcode
         DocumentReference qrCodeRef = db.collection(QRCODE_COLLECTION).document(scoringQRCode.getHash());
@@ -154,7 +178,19 @@ public class ProfileFragmentTesting {
      * removes the test qr code from the database after testing is completed
      */
     private void removeProfileFromDatabase() {
-        CountDownLatch done = new CountDownLatch(3+priorUsernames.size());
+        CountDownLatch done = new CountDownLatch(5+priorUsernames.size());
+
+        //region delete game status qr code;
+        db.collection(GAME_STATUS_QRCODE_COLLECTION)
+                .document(gameStatusQRCode.getHash())
+                .delete().addOnCompleteListener(unused -> done.countDown());
+        //endregion
+
+        //region create login qr code
+        db.collection(LOGIN_QRCODE_COLLECTION)
+                .document(loginQRCode.getHash())
+                .delete().addOnCompleteListener(unused -> done.countDown());
+        //endregion
 
         //region deletePost
         db.collection(POST_COLLECTION).document(postID).delete().addOnCompleteListener(task -> done.countDown());
@@ -176,6 +212,12 @@ public class ProfileFragmentTesting {
             userRef.update(map).addOnCompleteListener(task -> done.countDown());
         }
         //endregion
+
+        try {
+            done.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateUserDeviceList(String username, boolean addToFields){
@@ -265,5 +307,29 @@ public class ProfileFragmentTesting {
     @Test
     public void testQrCodeShowsUp() {
         onView(withId(R.id.scoring_qr_code_list)).check(matches(atPosition(0, hasDescendant(withText(String.valueOf(scoringQRCode.getScore()))))));
+    }
+
+    /**
+     * test that the login qr code shows up
+     */
+    @Test
+    public void testLoginQRCode() {
+        Intents.init();
+        onView(withId(R.id.show_login_qrcode_button)).perform(ViewActions.click());
+        Intents.intended(IntentMatchers.hasComponent(QRShowActivity.class.getName()));
+        onView(withId(R.id.go_back_button)).check(matches(isDisplayed()));
+        Intents.release();
+    }
+
+    /**
+     * test that the game status qr code shows up
+     */
+    @Test
+    public void testGameStatusQRCode() {
+        Intents.init();
+        onView(withId(R.id.show_gamestatus_qrcode_button)).perform(ViewActions.click());
+        Intents.intended(IntentMatchers.hasComponent(QRShowActivity.class.getName()));
+        onView(withId(R.id.go_back_button)).check(matches(isDisplayed()));
+        Intents.release();
     }
 }
