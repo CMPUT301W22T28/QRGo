@@ -8,6 +8,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import android.content.Intent;
+import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 import androidx.test.espresso.action.ViewActions;
@@ -18,10 +19,7 @@ import androidx.test.rule.ActivityTestRule;
 import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
@@ -29,14 +27,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,12 +49,13 @@ import java.util.concurrent.CountDownLatch;
  */
 @RunWith(AndroidJUnit4.class)
 public class ProfileFragmentTesting {
-    private final String username = "testingTestingUsername";
+    private final String testUsername = "testingTestingUsername";
     private final ScoringQRCode scoringQRCode = new ScoringQRCode("testqrcode");
     private final String postID = "testPostID";
     private final String USERS_COLLECTION = "Users";
     private final String POST_COLLECTION = "Posts";
     private final String QRCODE_COLLECTION = "ScoringQRCodes";
+    private String deviceID;
 
     private final ArrayList<String> priorUsernames = new ArrayList<>();
 
@@ -72,7 +70,7 @@ public class ProfileFragmentTesting {
         @Override
         protected Intent getActivityIntent() {
             Intent intent = new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(), MainActivity.class);
-            intent.putExtra("Username", username);
+            intent.putExtra("Username", testUsername);
             return intent;
         }
     };
@@ -81,22 +79,19 @@ public class ProfileFragmentTesting {
      * adds the test qr code to the database before testing
      */
 
-    private void addProfileToDatabase(String deviceID) {
+    private void addProfileToDatabase() {
         CountDownLatch done = new CountDownLatch(4);
 
         //region remove and store usernames used
         CollectionReference usersRef = db.collection(USERS_COLLECTION);
-        usersRef.whereArrayContains("devices",deviceID).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        String oldUsername = document.getId();
-                        priorUsernames.add(oldUsername);
-                    }
+        usersRef.whereArrayContains("devices",deviceID).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    String oldUsername = document.getId();
+                    priorUsernames.add(oldUsername);
                 }
-                done.countDown();
             }
+            done.countDown();
         });
         //endregion
 
@@ -111,7 +106,7 @@ public class ProfileFragmentTesting {
         qrCodeMap.put("latitude", scoringQRCode.getLatitude());
         qrCodeMap.put("longitude", scoringQRCode.getLongitude());
         qrCodeMap.put("num_scanned_by", 1);
-        qrCodeMap.put("scanned_by", Collections.singletonList(username));
+        qrCodeMap.put("scanned_by", Collections.singletonList(testUsername));
         qrCodeMap.put("score", scoringQRCode.getScore());
 
         qrCodeRef.set(qrCodeMap).addOnCompleteListener(unused -> done.countDown());
@@ -122,12 +117,12 @@ public class ProfileFragmentTesting {
         Map<String, Object> postMap = new HashMap<>();
         postMap.put("qrcode_hash", scoringQRCode.getHash());
         postMap.put("url", "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/funny-dog-captions-1563456605.jpg");
-        postMap.put("username", username);
+        postMap.put("username", testUsername);
         postRef.set(postMap).addOnCompleteListener(task -> done.countDown());
         //endregion
 
         //region create user
-        DocumentReference userRef = db.collection(USERS_COLLECTION).document(username);
+        DocumentReference userRef = db.collection(USERS_COLLECTION).document(testUsername);
         Map<String, Object> user = new HashMap<>();
         user.put("admin", false);
         user.put("devices", Collections.singletonList(deviceID));
@@ -150,7 +145,7 @@ public class ProfileFragmentTesting {
     /**
      * removes the test qr code from the database after testing is completed
      */
-    private void removeFromDatabase(String deviceID) {
+    private void removeProfileFromDatabase() {
         CountDownLatch done = new CountDownLatch(3+priorUsernames.size());
 
         //region deletePost
@@ -162,7 +157,7 @@ public class ProfileFragmentTesting {
         //endregion
 
         //region delete user
-        db.collection(USERS_COLLECTION).document(username).delete().addOnCompleteListener(task -> done.countDown());
+        db.collection(USERS_COLLECTION).document(testUsername).delete().addOnCompleteListener(task -> done.countDown());
         //endregion
 
         //region put back all the device ids
@@ -175,16 +170,53 @@ public class ProfileFragmentTesting {
         //endregion
     }
 
+    private void updateUserDeviceList(String username, boolean addToFields){
+        CountDownLatch done = new CountDownLatch(1);
+        DocumentReference userRef = db.collection(USERS_COLLECTION).document(username);
+        Map<String, Object> map = new HashMap<>();
+        if (addToFields) {
+            map.put("devices", FieldValue.arrayUnion(deviceID));
+        }else {
+            map.put("devices", FieldValue.arrayRemove(deviceID));
+        }
+        userRef.update(map).addOnCompleteListener(unused -> done.countDown());
+        try {
+            done.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Initializing the test by starting the application and going to the profile fragment
      */
     @Before
-    public void init() {
+    public void setUp() {
         mainActivityActivityTestRule.getActivity().getSupportFragmentManager().beginTransaction();
+
+        deviceID = Settings.Secure.getString(mainActivityActivityTestRule.getActivity().getApplicationContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+
+        addProfileToDatabase();
+
+        // remove the usernames from device lists
+        for (String username : priorUsernames) {
+            updateUserDeviceList(username, false);
+        }
 
         // assert it moves to profile fragment
         onView(withId(R.id.navigation_profile)).perform(ViewActions.click());
         onView(withId(R.id.profile_fragment)).check(matches(isDisplayed()));
+    }
+
+
+    @After
+    public void setDown() {
+        removeProfileFromDatabase();
+
+        for (String username : priorUsernames) {
+            updateUserDeviceList(username, true);
+        }
     }
 
     /**
@@ -193,7 +225,7 @@ public class ProfileFragmentTesting {
     @Test
     public void usernameShowsUpTest() {
         // check proper username
-        onView(withText(username)).check(matches(isDisplayed()));
+        onView(withText(testUsername)).check(matches(isDisplayed()));
     }
 
     /**
@@ -205,28 +237,8 @@ public class ProfileFragmentTesting {
     public void addQrCodeTest() throws InterruptedException {
 
         // check the view for proper updated text
-        onView(withId(R.id.profile_total_score)).check(matches(withText("100000")));
-        onView(withId(R.id.profile_top_qr_code)).check(matches(withText("100000")));
+        onView(withId(R.id.profile_total_score)).check(matches(withText(String.valueOf(scoringQRCode.getScore()))));
+        onView(withId(R.id.profile_top_qr_code)).check(matches(withText(String.valueOf(scoringQRCode.getScore()))));
         onView(withId(R.id.profile_qr_code_count)).check(matches(withText("1")));
-    }
-
-    /**
-     * method to add a test qr code to the database
-     */
-    private void addTestQRCodeToDatabase() {
-        DocumentReference userRef = db.collection(USERS_COLLECTION).document(username);
-        Map<String, Object> map = new HashMap<>();
-        map.put("scanned_qrcodes", FieldValue.arrayUnion(scoringQRCode.getHash()));
-        userRef.update(map);
-    }
-
-    /**
-     * removes the qr code from the test user so that the test can be repeated.
-     */
-    private void removeTestQRCodeFromDatabase() {
-        DocumentReference userRef = db.collection(USERS_COLLECTION).document(username);
-        Map<String, Object> map = new HashMap<>();
-        map.put("scanned_qrcodes", FieldValue.arrayRemove(scoringQRCode.getHash()));
-        userRef.update(map);
     }
 }
