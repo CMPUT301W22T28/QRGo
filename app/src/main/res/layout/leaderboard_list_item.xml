@@ -27,7 +27,7 @@
                 android:id="@+id/leaderboard_score_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Score - "
+                android:text="Score"
                 android:textStyle="bold"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:layout_marginStart="10dp"
@@ -56,12 +56,13 @@
                 android:id="@+id/leaderboard_username_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Username - "
+                android:text="Username"
                 android:textStyle="bold"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
-                android:padding="2dp"
+                android:paddingLeft="2dp"
+                android:paddingVertical="2dp"
                 android:textColor="#4d4d4d" />
 
             <TextView
