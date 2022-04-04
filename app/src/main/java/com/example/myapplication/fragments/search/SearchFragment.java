@@ -74,10 +74,9 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
                 new ViewModelProvider(this).get(UserViewModel.class);
 
         binding = FragmentSearchBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
 
 
-        return root;
+        return binding.getRoot();
     }
 
 

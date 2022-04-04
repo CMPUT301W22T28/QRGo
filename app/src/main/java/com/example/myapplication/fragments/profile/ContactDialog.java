@@ -16,9 +16,14 @@ import javax.annotation.Nullable;
 
 public class ContactDialog extends DialogFragment {
     private static final String TAG = "ContactDialog";
-    private ProfileViewModel profileViewModel;
     private DialogContactInfoBinding binding;
 
+    /**
+     * Called to instantiate the Dialog
+     * @param username username of the user profile being viewed.
+     * @param email email address of the user profile being viewed.
+     * @param phone phone number of the user profile being viewed.
+     */
     public static ContactDialog newInstance(String username, String email, String phone) {
         Bundle args = new Bundle();
         args.putString("ARG_USER", username);
@@ -30,16 +35,27 @@ public class ContactDialog extends DialogFragment {
         return fragment;
     }
 
+    /**
+     * Initially called when the contact dialog is created.
+     * @param inflater The inflater for this view.
+     * @param container The container for this view, defined in the xml.
+     * @param savedInstanceState A saved state if there is one.
+     * @return The root View.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = DialogContactInfoBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
 
-        return root;
+        return binding.getRoot();
     }
 
+    /**
+     * Called every after the view is initialized
+     * @param view The profile fragment view that was initialized.
+     * @param savedInstanceState A saved instance.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @androidx.annotation.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -63,20 +79,5 @@ public class ContactDialog extends DialogFragment {
             phoneTextView.setText(phone);
         }
 
-        //setViewListeners();
-    }
-
-    private void setViewListeners() {
-
-        profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
-
-        final TextView usernameTextView = binding.profileUsername;
-        profileViewModel.getUsername().observe(getViewLifecycleOwner(), usernameTextView::setText);
-
-        final TextView emailTextView = binding.profileEmail;
-        profileViewModel.getEmail().observe(getViewLifecycleOwner(), emailTextView::setText);
-
-        final TextView phoneTextView = binding.profilePhone;
-        profileViewModel.getPhone().observe(getViewLifecycleOwner(), phoneTextView::setText);
     }
 }
