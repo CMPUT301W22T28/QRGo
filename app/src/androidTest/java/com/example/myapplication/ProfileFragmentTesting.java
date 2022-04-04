@@ -3,9 +3,12 @@ package com.example.myapplication;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
+import static com.example.myapplication.SearchFragmentUITest.atPosition;
 
 import android.content.Intent;
 import android.provider.Settings;
@@ -39,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+
 /**
  * Testing everything appears correctly on the profile
  *
@@ -50,7 +54,7 @@ import java.util.concurrent.CountDownLatch;
 @RunWith(AndroidJUnit4.class)
 public class ProfileFragmentTesting {
     private final String testUsername = "testingTestingUsername";
-    private final ScoringQRCode scoringQRCode = new ScoringQRCode("testqrcode");
+    private final ScoringQRCode scoringQRCode = new ScoringQRCode("FFFFFFFFFFFFFFFFFFFFFFFFFF", true);
     private final String postID = "testPostID";
     private final String USERS_COLLECTION = "Users";
     private final String POST_COLLECTION = "Posts";
@@ -243,5 +247,23 @@ public class ProfileFragmentTesting {
         onView(withId(R.id.profile_total_score)).check(matches(withText(String.valueOf(scoringQRCode.getScore()))));
         onView(withId(R.id.profile_top_qr_code)).check(matches(withText(String.valueOf(scoringQRCode.getScore()))));
         onView(withId(R.id.profile_qr_code_count)).check(matches(withText("1")));
+    }
+
+    /**
+     * test that the contact info shows up when you click the contact info button
+     */
+    @Test
+    public void testContactInfo() {
+        onView(withId(R.id.profile_contact_button)).perform(ViewActions.click());
+        onView(withId(R.id.profile_email)).check(matches(withText(email)));
+        onView(withId(R.id.profile_phone)).check(matches(withText(phone)));
+    }
+
+    /**
+     * test that the qr code shows up on the profile
+     */
+    @Test
+    public void testQrCodeShowsUp() {
+        onView(withId(R.id.scoring_qr_code_list)).check(matches(atPosition(0, hasDescendant(withText(String.valueOf(scoringQRCode.getScore()))))));
     }
 }
