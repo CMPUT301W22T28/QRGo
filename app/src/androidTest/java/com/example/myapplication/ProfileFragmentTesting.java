@@ -220,6 +220,12 @@ public class ProfileFragmentTesting {
         }
     }
 
+    /**
+     * takes a username, and will either update or remove androidId from it depending on addToFields
+     *
+     * @param username the username to update
+     * @param addToFields whether or not to remove android id from it
+     */
     private void updateUserDeviceList(String username, boolean addToFields){
         CountDownLatch done = new CountDownLatch(1);
         DocumentReference userRef = db.collection(USERS_COLLECTION).document(username);
@@ -259,7 +265,9 @@ public class ProfileFragmentTesting {
         onView(withId(R.id.profile_fragment)).check(matches(isDisplayed()));
     }
 
-
+    /**
+     * puts the device id back where it was in previous user documents
+     */
     @After
     public void setDown() {
         removeProfileFromDatabase();

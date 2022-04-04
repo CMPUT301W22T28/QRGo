@@ -49,7 +49,6 @@ import java.util.concurrent.CountDownLatch;
 public class LoginActivityUITest {
     // Firestore collection names
     private final String USERS_COLLECTION = "Users";
-    private final String LOGIN_QRCODE_COLLECTION = "LoginQRCode";
 
     private final String LOGIN_TEST_TAG = "LoginUITest";
 
@@ -72,6 +71,9 @@ public class LoginActivityUITest {
     private boolean actualUsernameNotifyCalled;
 
 
+    /**
+     * gets the usernames who have your device id on them
+     */
     private void getUsernames() {
         CountDownLatch done = new CountDownLatch(1);
 
@@ -95,23 +97,16 @@ public class LoginActivityUITest {
         }
     }
 
+    /**
+     * adds the device id to the usernames who had your device id at the beginning.
+     */
     private void addUsernames() {
-        CountDownLatch done = new CountDownLatch(priorUsernames.size());
 
         //region put back all the device ids
         for (String priorUsername : priorUsernames) {
-            DocumentReference userRef = db.collection(USERS_COLLECTION).document(priorUsername);
-            Map<String, Object> map = new HashMap<>();
-            map.put("devices", FieldValue.arrayUnion(deviceID));
-            userRef.update(map).addOnCompleteListener(task -> done.countDown());
+            updateUserDeviceList(priorUsername, true);
         }
         //endregion
-
-        try {
-            done.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -143,11 +138,9 @@ public class LoginActivityUITest {
      * this functions sets up the device for a new sign up. Getting the android id which starts
      * the activity in the process. It then removes that device id if its present. It waits for these
      * database actions to complete. It then restarts the app and starts the tests.
-     *
-     * @throws Throwable will throw an error if synchronized doesn't work.
      */
     @Before
-    public void setUp() throws Throwable {
+    public void setUp() {
         Log.d(LOGIN_TEST_TAG, "starting the thing");
         // Start the app
         solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
@@ -222,7 +215,7 @@ public class LoginActivityUITest {
     }
 
     /**
-     * TO
+     * Tests whether or not the login activity works correctly in detecting a user already signed up
      */
     @Test
     public void TestAutomaticLogin() {
