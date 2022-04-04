@@ -54,8 +54,6 @@ import java.util.Map;
 @RunWith(AndroidJUnit4.class)
 public class SearchFragmentUITest {
 
-    private final String myUsername = "jusrandom123";
-
     /**
      * The activity rule, passing in a username since we are not running the login activity
      */
@@ -64,10 +62,39 @@ public class SearchFragmentUITest {
         @Override
         protected Intent getActivityIntent() {
             Intent intent = new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(), MainActivity.class);
+            String myUsername = "testerUsername";
             intent.putExtra("Username", myUsername);
             return intent;
         }
     };
+
+    /**
+     * adds the test qr code to the database before testing
+     */
+    @BeforeClass
+    public static void addToDatabase() {
+        final String USERS_COLLECTION = "Users";
+        final String testUsername = "testingUsername";
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> map = new HashMap<>();
+        db.collection(USERS_COLLECTION).document(testUsername).set(map);
+    }
+
+    /**
+     * removes the test qr code from the database after testing is completed
+     */
+    @AfterClass
+    public static void removeFromDatabase() {
+        final String USERS_COLLECTION = "Users";
+        final String testUsername = "testingUsername";
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection(USERS_COLLECTION).document(testUsername).delete();
+    }
+
 
     /**
      * Initializing the test by starting the application
@@ -87,12 +114,16 @@ public class SearchFragmentUITest {
     @Test
     public void searchTest() {
         onView(withId(R.id.search_bar)).perform(click());
-        onView(withId(R.id.search_bar)).perform(typeSearchViewText(myUsername));
+        String testUsername = "testingUsername";
+        onView(withId(R.id.search_bar)).perform(typeSearchViewText(testUsername));
         onView(withId(R.id.search_list))
-                .check(matches(atPosition(0, hasDescendant(withText(myUsername)))));
+                .check(matches(atPosition(0, hasDescendant(withText(testUsername)))));
     }
 
-    // function to type into search view
+    /**
+     *  Function to type queries into the search view
+     *  @param text contains string to be queried
+     */
     public static ViewAction typeSearchViewText(final String text){
         return new ViewAction(){
 
@@ -114,7 +145,11 @@ public class SearchFragmentUITest {
         };
     }
 
-    // function to check textview in recyclerview
+    /**
+     *  Function to look for text in recycler view at a given position
+     *  @param position position on the recycler view to look for text
+     *  @param itemMatcher
+     */
     public static Matcher<View> atPosition(final int position, @NonNull final Matcher<View> itemMatcher) {
         checkNotNull(itemMatcher);
         return new BoundedMatcher<View, RecyclerView>(RecyclerView.class) {

@@ -247,17 +247,16 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
      */
     @Override
     public void onItemClick(View view, int position) {
-        String clickedUser = rankingRecyclerAdapter.getItem(position).getUsername();
-        boolean isAdmin = !clickedUser.equals(myUsername);
-
-        LeaderboardFragmentDirections.ActionNavigationLeaderboardToNavigationProfile action = LeaderboardFragmentDirections.actionNavigationLeaderboardToNavigationProfile(
-                isAdmin,
-                clickedUser,
-                getString(R.string.title_leaderboard)
-        );
-
-        NavHostFragment.findNavController(this).navigate(action);
-//        ((MainActivity) requireActivity()).bottomNavigationView.setSelectedItemId(R.id.navigation_leaderboard);
+//        String clickedUser = rankingRecyclerAdapter.getItem(position).getUsername();
+//        boolean isAdmin = !clickedUser.equals(myUsername);
+//
+//        LeaderboardFragmentDirections.ActionNavigationLeaderboardToNavigationProfile action = LeaderboardFragmentDirections.actionNavigationLeaderboardToNavigationProfile(
+//                isAdmin,
+//                clickedUser,
+//                getString(R.string.title_leaderboard)
+//        );
+//
+//        NavHostFragment.findNavController(this).navigate(action);
 
     }
 

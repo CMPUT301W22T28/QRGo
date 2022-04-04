@@ -59,19 +59,19 @@
         android:name="com.example.myapplication.fragments.leaderboard.LeaderboardFragment"
         android:label="@string/title_leaderboard"
         tools:layout="@layout/fragment_leaderboard" >
-        <action
-            android:id="@+id/action_navigation_leaderboard_to_navigation_profile"
-            app:destination="@id/navigation_profile_other">
-            <argument
-                android:name="isAdmin"
-                app:argType="boolean" />
-            <argument
-                android:name="Username"
-                app:argType="string" />
-            <argument
-                android:name="from"
-                app:argType="string" />
-        </action>
+<!--        <action-->
+<!--            android:id="@+id/action_navigation_leaderboard_to_navigation_profile"-->
+<!--            app:destination="@id/navigation_profile_other">-->
+<!--            <argument-->
+<!--                android:name="isAdmin"-->
+<!--                app:argType="boolean" />-->
+<!--            <argument-->
+<!--                android:name="Username"-->
+<!--                app:argType="string" />-->
+<!--            <argument-->
+<!--                android:name="from"-->
+<!--                app:argType="string" />-->
+<!--        </action>-->
     </fragment>
 
     <fragment

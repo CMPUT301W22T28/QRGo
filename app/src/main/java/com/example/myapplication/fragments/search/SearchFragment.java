@@ -74,10 +74,9 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
                 new ViewModelProvider(this).get(UserViewModel.class);
 
         binding = FragmentSearchBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
 
 
-        return root;
+        return binding.getRoot();
     }
 
 
@@ -113,7 +112,6 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
      * This method sets up the SearchView and accepts search queries to filter through the list of users
      *
      */
-
     private void searchBar() {
         SearchView searchView = binding.searchBar;
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
