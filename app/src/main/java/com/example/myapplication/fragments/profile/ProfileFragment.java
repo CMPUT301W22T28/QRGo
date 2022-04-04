@@ -244,6 +244,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         requireActivity().getViewModelStore().clear();
+        final ImageView imageView = binding.noQrCodesFoundView;
+        imageView.setVisibility(View.GONE);
 
     }
 
