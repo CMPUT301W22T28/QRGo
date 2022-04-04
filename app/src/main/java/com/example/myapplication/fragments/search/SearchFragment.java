@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -141,6 +142,8 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
     private void filter(String text) {
         // creating a new array list to filter our data.
         ArrayList<Player> filteredlist = new ArrayList<>();
+        ImageView noResults = binding.noResultImage;
+        noResults.setVisibility(View.GONE);
 
         // running a for loop to compare elements.
         for (Player user : users) {
@@ -150,6 +153,9 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
                 // adding it to our filtered list.
                 filteredlist.add(user);
             }
+        }
+        if (filteredlist.isEmpty()) {
+            noResults.setVisibility(View.VISIBLE);
         }
         userRecyclerAdapter.filterList(filteredlist);
     }
@@ -191,10 +197,8 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
      * not the user is registered as an Administrator
      */
     private void deleteAllowed() {
-        Log.d("ProfileFragment", requireActivity().getIntent().getStringExtra("Username"));
-        try { this.myUsername = getArguments().getString("Username");}
-        catch(Exception e) { this.myUsername = requireActivity().getIntent().getStringExtra("Username"); }
 
+        this.myUsername = requireActivity().getIntent().getStringExtra("Username");
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         DocumentReference MyUserDocRef = db.collection("Users").document(this.myUsername);
@@ -223,25 +227,13 @@ public class SearchFragment extends Fragment implements UserRecyclerAdapter.Item
      */
     @Override
     public void onItemClick(View view, int position) {
-        Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
         String clickedUser = userRecyclerAdapter.getItem(position).getUsername();
-
-/*
-        ProfileFragment profileFragment = new ProfileFragment();
-        Bundle username = new Bundle();
-        username.putString("Username", clickedUser);
-        username.putBoolean("isAdmin", isAdmin);
-        profileFragment.setArguments(username);
-        getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.nav_host_fragment_activity_main, profileFragment, "searchUserFragment")
-                .addToBackStack(null)
-                .commit();
-
- */
+        if (clickedUser.equals(myUsername)) { isAdmin = false; }
 
         SearchFragmentDirections.ActionNavigationSearchToNavigationProfile action = SearchFragmentDirections.actionNavigationSearchToNavigationProfile(
                 isAdmin,
-                clickedUser
+                clickedUser,
+                getString(R.string.title_search)
         );
 
         NavHostFragment.findNavController(this).navigate(action);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
 android:id="@+id/search_fragment"
@@ -8,36 +8,52 @@ android:layout_height="match_parent"
 android:orientation="vertical"
 tools:context=".fragments.search.SearchFragment">
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <SearchView
-        android:id="@+id/search_bar"
-        android:background="#6200EE"
-        android:queryHint="Search Users"
-        app:queryHint="Search Users"
-        app:defaultQueryHint="Search Users"
-        android:iconifiedByDefault="false"
-        app:iconifiedByDefault="false"
+    <LinearLayout
+        android:id="@+id/search_container"
         android:layout_width="match_parent"
-        android:layout_height="60dp" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/profile_recycler_container">
 
-</LinearLayout>
+        <SearchView
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@color/primaryColor"
+            android:iconifiedByDefault="false"
+            android:queryHint="Search Users"
+            app:defaultQueryHint="Search Users"
+            app:iconifiedByDefault="false"
+            app:queryHint="Search Users" />
 
-<LinearLayout
-    android:id="@+id/profile_recycler_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/search_list"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/profile_recycler_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:listSelector="@android:color/darker_gray"/>
-</LinearLayout>
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/search_container"
+        app:layout_constraintBottom_toBottomOf="parent">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:listSelector="@android:color/darker_gray" />
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/no_result_image"
+            android:layout_width="320dp"
+            android:layout_height="240dp"
+            android:src="@drawable/no_results"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="TODO"
+            android:visibility="invisible"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

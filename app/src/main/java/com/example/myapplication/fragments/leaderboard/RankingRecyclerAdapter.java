@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,6 +42,10 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
         TextView scoreLabel;
         TextView score;
         TextView username;
+        TextView listElementNumber;
+        ImageView firstMedalImage;
+        ImageView secondMedalImage;
+        ImageView thirdMedalImage;
 
         // stores and recycles views as they are scrolled off screen
         ViewHolder(View itemView) {
@@ -48,6 +53,10 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
             scoreLabel = itemView.findViewById(R.id.leaderboard_score_text);
             score = itemView.findViewById(R.id.put_leaderboard_score_here);
             username = itemView.findViewById(R.id.put_leaderboard_username_here);
+            listElementNumber = itemView.findViewById(R.id.put_list_element_number_here);
+            firstMedalImage = itemView.findViewById(R.id.qr_code_first_place);
+            secondMedalImage = itemView.findViewById(R.id.qr_code_second_place);
+            thirdMedalImage = itemView.findViewById(R.id.qr_code_third_place);
             itemView.setOnClickListener(this);
         }
 
@@ -81,6 +90,16 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
         holder.score.setText((Integer.toString(player.getRankingScore())));
         holder.scoreLabel.setText(player.getRankingLabel());
         holder.username.setText(player.getUsername());
+        holder.listElementNumber.setText(player.getRankingNumber());
+        if (player.getRankingNumber().equals("1")) {
+            holder.firstMedalImage.setVisibility(View.VISIBLE);
+        }
+        else if (player.getRankingNumber().equals("2")) {
+            holder.secondMedalImage.setVisibility(View.VISIBLE);
+        }
+        else if (player.getRankingNumber().equals("3")) {
+            holder.thirdMedalImage.setVisibility(View.VISIBLE);
+        }
     }
 
     /**

@@ -14,16 +14,19 @@
     <fragment
         android:id="@+id/navigation_search"
         android:name="com.example.myapplication.fragments.search.SearchFragment"
-        android:label="@string/title_search"
+        android:label="Search"
         tools:layout="@layout/fragment_search">
         <action
             android:id="@+id/action_navigation_search_to_navigation_profile"
-            app:destination="@id/navigation_profile" >
+            app:destination="@id/navigation_profile_other" >
             <argument
                 android:name="isAdmin"
                 app:argType="boolean" />
             <argument
                 android:name="Username"
+                app:argType="string" />
+            <argument
+                android:name="from"
                 app:argType="string" />
         </action>
     </fragment>
@@ -32,13 +35,44 @@
         android:id="@+id/navigation_camera"
         android:name="com.example.myapplication.fragments.camera.CameraFragment"
         android:label="@string/title_camera"
-        tools:layout="@layout/fragment_camera" />
+        tools:layout="@layout/fragment_camera">
+        <action
+            android:id="@+id/action_navigation_camera_to_navigation_profile"
+            app:destination="@id/navigation_profile_other" >
+            <argument
+                android:name="isAdmin"
+                app:argType="boolean" />
+            <argument
+                android:name="Username"
+                app:argType="string" />
+            <argument
+                android:name="mainProfile"
+                app:argType="string" />
+            <argument
+                android:name="from"
+                app:argType="string" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_leaderboard"
         android:name="com.example.myapplication.fragments.leaderboard.LeaderboardFragment"
         android:label="@string/title_leaderboard"
-        tools:layout="@layout/fragment_leaderboard" />
+        tools:layout="@layout/fragment_leaderboard" >
+        <action
+            android:id="@+id/action_navigation_leaderboard_to_navigation_profile"
+            app:destination="@id/navigation_profile_other">
+            <argument
+                android:name="isAdmin"
+                app:argType="boolean" />
+            <argument
+                android:name="Username"
+                app:argType="string" />
+            <argument
+                android:name="from"
+                app:argType="string" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_profile"
@@ -49,21 +83,47 @@
             android:id="@+id/action_navigation_profile_to_navigation_post"
             app:destination="@id/navigation_post" >
             <argument
-                android:name="argUser"
+                android:name="argQR"
                 app:argType="string" />
             <argument
                 android:name="argPostUser"
                 app:argType="string" />
             <argument
-                android:name="argQR"
+                android:name="argUser"
                 app:argType="string" />
+            <argument
+                android:name="argAdmin"
+                app:argType="boolean" />
         </action>
     </fragment>
 
     <fragment
         android:id="@+id/navigation_post"
         android:name="com.example.myapplication.fragments.post.PostFragment"
-        tools:layout="@layout/fragment_post"
-        />
+        tools:layout="@layout/fragment_post" >
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_profile_other"
+        android:name="com.example.myapplication.fragments.profile.ProfileFragment"
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_navigation_profile_to_navigation_post"
+            app:destination="@id/navigation_post" >
+            <argument
+                android:name="argQR"
+                app:argType="string" />
+            <argument
+                android:name="argPostUser"
+                app:argType="string" />
+            <argument
+                android:name="argUser"
+                app:argType="string" />
+            <argument
+                android:name="argAdmin"
+                app:argType="boolean" />
+        </action>
+    </fragment>
 
 </navigation>

@@ -8,9 +8,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -20,9 +22,13 @@ import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.ActivityMainBinding;
 import com.example.myapplication.fragments.post.listfragment.AddCommentFragment;
 import com.example.myapplication.fragments.profile.ProfileViewModel;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     Context activityContext;
     final int MY_CAMERA_REQUEST_CODE = 100;
     NavController navController;
+    public BottomNavigationView bottomNavigationView;
+    public Player player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,19 +62,42 @@ public class MainActivity extends AppCompatActivity {
 
         // changing anything in the layout. i.e. removing the top action bar
         layoutChanges();
+
     }
 
     private void setupNavBar() {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
+        bottomNavigationView = findViewById(R.id.nav_view);
+
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_map, R.id.navigation_search, R.id.navigation_camera, R.id.navigation_leaderboard, R.id.navigation_profile)
                 .build();
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_activity_main);
         assert navHostFragment != null;
         navController = navHostFragment.getNavController();
+
+
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+
+        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                Log.d("walter", "destination b4: "+destination.getLabel());
+
+                if (arguments != null) {
+                    String from = arguments.getString("from");
+                    if (from != null) {
+                        if (from.equals(getString(R.string.title_search))) {
+                            destination.setLabel(getString(R.string.title_search));
+
+                        }
+                    }
+                }
+                Log.d("walter", "destination: "+destination.getLabel());
+            }
+        });
     }
 
     private void layoutChanges() {
@@ -97,5 +128,4 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
 }

@@ -17,8 +17,10 @@
     <string name="profile_static_top_qr_code">Top QR Code:</string>
     <string name="map_search">Search Nearby</string>
     <string name="delete_profile">Delete Profile</string>
+    <string name="delete_post">Delete Post</string>
     <string name="show_login_qrcode">Show Login QR Code</string>
     <string name="show_game_status_qrcode">Show Stats QR Code</string>
+    <string name="go_back_button">Go Back</string>
     <string name="post_scanned_by_tab_name">Scanned by</string>
     <string name="post_comments_tab_name">Comments</string>
     <string name="post_post_tab_name">Post</string>
@@ -26,13 +28,11 @@
     <string name="profile_static_phone">Phone:</string>
     <string name="long_comment">This is a very long comment blah blah blah. This is a very long comment blah blah blah.</string>
     <string name="username">UserName:</string>
-    <string name="last_location">Last know coordinates</string>
+    <string name="last_location">Last known coordinates</string>
     <string name="post_score">SCORE</string>
     <string name="post_score_value">100</string>
     <string name="scanned_by_n_users">Scanned by n users</string>
     <string name="lat_lon">[lat, lon]</string>
     <string name="add_comment_hint">add comment</string>
-    <string name="go_back_button">Go Back</string>
-
-
+    <string name="no_qr_codes_photo_view">No qr codes photo</string>
 </resources>
