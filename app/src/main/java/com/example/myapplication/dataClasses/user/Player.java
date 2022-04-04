@@ -21,6 +21,7 @@ public class Player {
     private int totalScore;
     private int highestScore;
     private int rankingScore;
+    private String rankingNumber;
     private String rankingLabel;
     private boolean isAdmin = false;
 
@@ -88,14 +89,21 @@ public class Player {
     public String getRankingLabel() {
         return rankingLabel;
     }
+
+    /**
+     * Allows someone to get the number of the element on the list that is to be displayed on the leaderboard fragment.
+     * @return The current ranking number.
+     */
+    public String getRankingNumber() { return rankingNumber; }
   
     /**
      * Allows the user to set the ranking score to a new score that will be displayed.
      * @param rankingScore The new ranking score.
      */
-    public void setRankingScore(int rankingScore, String tabLabel) {
+    public void setRankingScore(int rankingScore, String tabLabel, String rankingNumber) {
         this.rankingScore = rankingScore;
         this.rankingLabel = tabLabel + " Score - ";
+        this.rankingNumber = rankingNumber;
     }
 
     /**

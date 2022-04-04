@@ -99,6 +99,7 @@ public class CommentsFragment extends Fragment{
     }
 
     private void setViewListeners() {
+
         CommentsViewModel commentsViewModel = new ViewModelProvider(requireActivity()).get(CommentsViewModel.class);
 
         commentsViewModel.getCommentsLiveData().observe(getViewLifecycleOwner(), newComments -> {

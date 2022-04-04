@@ -15,13 +15,17 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.myapplication.R;
 import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.user.Player;
 import com.example.myapplication.databinding.FragmentLeaderboardBinding;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -65,6 +69,7 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
 
     RankingRecyclerAdapter rankingRecyclerAdapter;
     TabLayout tabLayout;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -168,6 +173,8 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
                     // clears the list of players (ranks) and the list of usernames
                     myRankingList.clear();
                     listForUsernames.clear();
+                    // initializes the count for the ranking number
+                    int count = 1;
                     // for every value in the document (inside of "Users")
                     for (QueryDocumentSnapshot document : value) {
                         // get Id and add list to listForUsernames
@@ -176,18 +183,23 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
                         // determine if the user is an Admin
                         Boolean isAdmin = document.getBoolean("admin");
                         Double rankingScore = document.getDouble(tabSort);
+
                         // create new player and add it to myRankingList
                         if (isAdmin == null) {
                             isAdmin = false;
                         }
                         Player player = new Player(username, isAdmin);
                         if (rankingScore != null) {
-                            player.setRankingScore(rankingScore.intValue(), tabLabel);
+                            player.setRankingScore(rankingScore.intValue(), tabLabel, Integer.toString(count));
                         }
                         else {
-                            player.setRankingScore(0, tabLabel);
+                            player.setRankingScore(0, tabLabel, Integer.toString(count));
                         }
+
+                        // adds the newly created player to the ranking list
                         myRankingList.add(player);
+                        // ranking number to be incremented
+                        count += 1;
                     }
                     // myScore is updated using listForUsernames (this is for the top player card)
                     myScore = listForUsernames.indexOf(myUsername) + 1;
@@ -235,8 +247,18 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
      */
     @Override
     public void onItemClick(View view, int position) {
-        // displays what row was clicked on
-        Toast.makeText(activity.getApplicationContext(), "You clicked on row number " + position, Toast.LENGTH_SHORT).show();
+        String clickedUser = rankingRecyclerAdapter.getItem(position).getUsername();
+        boolean isAdmin = !clickedUser.equals(myUsername);
+
+        LeaderboardFragmentDirections.ActionNavigationLeaderboardToNavigationProfile action = LeaderboardFragmentDirections.actionNavigationLeaderboardToNavigationProfile(
+                isAdmin,
+                clickedUser,
+                getString(R.string.title_leaderboard)
+        );
+
+        NavHostFragment.findNavController(this).navigate(action);
+//        ((MainActivity) requireActivity()).bottomNavigationView.setSelectedItemId(R.id.navigation_leaderboard);
+
     }
 
     /**

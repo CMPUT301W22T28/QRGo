@@ -1,7 +1,9 @@
 package com.example.myapplication.fragments.post;
 
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.Comment;
 import com.example.myapplication.dataClasses.asyncdata.AsyncList;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
+import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.databinding.FragmentPostBinding;
 import com.example.myapplication.fragments.post.listfragment.CommentsFragment;
 import com.example.myapplication.fragments.post.listfragment.CommentsViewModel;
@@ -26,6 +29,7 @@ import com.example.myapplication.fragments.post.listfragment.ScannedByFragment;
 import com.example.myapplication.fragments.post.listfragment.ScannedByViewModel;
 import com.example.myapplication.fragments.post.postcontent.PostInfoFragment;
 import com.example.myapplication.fragments.post.postcontent.PostInfoViewModel;
+import com.example.myapplication.fragments.profile.ProfileViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -63,6 +67,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     private String qrHash;
     private String postOwner; // username of post owner
     private String username; // main user
+    private Boolean isAdmin;
     private boolean userHasCode;
     private FirebaseFirestore db;
 
@@ -71,17 +76,19 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     private static final String ARG_QR = "argQR";
     private static final String ARG_POST_USER = "argPostUser";
     private static final String ARG_USER = "argUser";
+    private static final String ARG_ADMIN = "argAdmin";
     private static final String POST_COLLECTION = "Posts";
     private static final String USER_COLLECTION = "Users";
     private static final String TAG = "PostFragment";
 
     private final StorageReference storageRef = FirebaseStorage.getInstance("gs://qrgo-e62ee.appspot.com/").getReference();
 
-    public static PostFragment newInstance(String qrHash, String postOwner, String username) {
+    public static PostFragment newInstance(String qrHash, String postOwner, String username, Boolean isAdmin) {
         Bundle args = new Bundle();
         args.putString(ARG_QR, qrHash);
         args.putString(ARG_POST_USER, postOwner);
         args.putString(ARG_USER, username);
+        args.putBoolean(ARG_ADMIN, isAdmin);
 
         PostFragment fragment = new PostFragment();
         fragment.setArguments(args);
@@ -106,12 +113,13 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
         qrHash = getArguments().getString(ARG_QR);
         postOwner = getArguments().getString(ARG_POST_USER);
         username = getArguments().getString(ARG_USER);
+        isAdmin = getArguments().getBoolean(ARG_ADMIN);
 
         Log.d(TAG, "User: "+username+ ", post owner: "+postOwner);
 
         // need to get postId from user and QRHash here, call
 
-        PostInfoFragment postInfoFragment = PostInfoFragment.newInstance();
+        PostInfoFragment postInfoFragment = PostInfoFragment.newInstance(qrHash, postOwner, username, isAdmin);
         CommentsFragment commentsFragment = CommentsFragment.newInstance(username, qrHash);
         ScannedByFragment scannedByFragment = ScannedByFragment.newInstance();
 
@@ -415,9 +423,10 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
 
     @Override
     public void onListDoneFillingEvent(ArrayList<Comment> comments) {
-        Log.d(TAG, "we are here, here are the comments lol: "+comments);
-        CommentsViewModel commentsViewModel = new ViewModelProvider(requireActivity()).get(CommentsViewModel.class);
-        commentsViewModel.setComments(comments);
+        if (isAdded()) {
+            CommentsViewModel commentsViewModel = new ViewModelProvider(requireActivity()).get(CommentsViewModel.class);
+            commentsViewModel.setComments(comments);
+        }
     }
 
 }

@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,30 +24,28 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.myapplication.activity.LoginActivity;
 import com.example.myapplication.activity.QRScanActivity;
 import com.example.myapplication.R;
+import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.databinding.FragmentCameraBinding;
+import com.example.myapplication.fragments.search.SearchFragmentDirections;
 import com.firebase.geofire.GeoFireUtils;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.firebase.geofire.GeoLocation;
-import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -59,22 +56,15 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import org.osmdroid.util.GeoPoint;
-import org.w3c.dom.Text;
-
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * This class represents the camera fragment that is responsible for scanning valid QRCodes,
@@ -92,6 +82,8 @@ public class CameraFragment extends Fragment {
     private static final int QRCODE_SCAN_CAPTURE = 6;
     private static final int MY_CAMERA_REQUEST_CODE = 100;
     private final String GAME_STATUS_QRCODE_COLLECTION = "GameStatusQRCode";
+    private final String USERS_COLLECTION = "Users";
+
     private ImageView cameraImage;
     private TextView sizeImageText;
     private Switch savePictureSwitch;
@@ -106,6 +98,7 @@ public class CameraFragment extends Fragment {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private StorageReference imageStore = FirebaseStorage.getInstance("gs://qrgo-e62ee.appspot.com/").getReference();
     private String postUUID;
+    ScoringQRCode scoringQRCode;
 
 
     private FragmentCameraBinding binding;
@@ -370,7 +363,6 @@ public class CameraFragment extends Fragment {
         }
     }
 
-    //pushin p
     public void checkGameStatusQRCode(String scannedString, Context context ){
         db.collection(GAME_STATUS_QRCODE_COLLECTION)
                 .whereEqualTo("username",scannedString)
@@ -379,12 +371,16 @@ public class CameraFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            // If we find any matching GameStatusQRCode's we redirect...
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                // TODO: redirect to the user profile that was scanned
                                 disablingButtons();
+                                getAdminStatus(getActivity().getIntent().getStringExtra("Username"), scannedString.substring(3));
                             }
                             // If there are no matches, then it is a scoring qrcode
                             if (task.getResult().size() == 0){
+                                scoringQRCode = new ScoringQRCode(QRCodeString);
+                                TextView qrCodeScoreValue = binding.qrcodeScoreValue;
+                                qrCodeScoreValue.setText(scoringQRCode.getScore() + "");
                                 enablingButtons();
                             }
                         } else {
@@ -445,7 +441,8 @@ public class CameraFragment extends Fragment {
 
                 // Use the data - in this case, display it in a Toast.
                 QRCodeString = result;
-                loginActivity.checkLoginQRCode(sha256String(result), getContext(), this, "CameraFragment");
+
+                loginActivity.checkLoginQRCode(result, getContext(), this, "CameraFragment");
 
                 enablingButtons();
             } else {
@@ -530,7 +527,10 @@ public class CameraFragment extends Fragment {
 
         scoringQRCodeData.put("comment_ids", new ArrayList<String>());
 
-        encodedQRCodeString = sha256String(QRCodeString);
+        encodedQRCodeString = scoringQRCode.getHash();
+        scoringQRCodeData.put("score",scoringQRCode.getScore());
+
+        Log.d("CameraFragment", scoringQRCode.getScore() + "");
 
         post.put("qrcode_hash", encodedQRCodeString);
 
@@ -547,12 +547,6 @@ public class CameraFragment extends Fragment {
             if (flag) {
                 updateLocation(scoringQRCodeData);
             }
-
-            Log.d("CameraFragment", "The location is before saving " + currentLocation.getLongitude() + " " + currentLocation.getLatitude());
-
-//            scoringQRCodeData.replace("latitude", null , currentLocation.getLatitude());
-//            scoringQRCodeData.replace("longitude", null, currentLocation.getLongitude());
-//            scoringQRCodeData.replace("geoHash", null, GeoFireUtils.getGeoHashForLocation(new GeoLocation(currentLocation.getLatitude(), currentLocation.getLongitude())));
         }
 
         post.put("url", null);
@@ -560,64 +554,7 @@ public class CameraFragment extends Fragment {
         if (savePictureSwitch.isChecked()) {
             //Update or upload an Image
 
-            StorageReference imageToStore = imageStore.child(String.format("images/%s", postUUID));
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-            Log.d("CameraFragment", "Bitmap is " + imageBitMap);
-
-            if (imageBitMap!=null) {
-
-                Log.d("CameraFragment", "Bitmap not null");
-
-                imageBitMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                byte[] data = baos.toByteArray();
-
-                UploadTask uploadTask = imageToStore.putBytes(data);
-                uploadTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle unsuccessful uploads
-
-                        Toast.makeText(getActivity(), "Post Couldn't be Saved", Toast.LENGTH_SHORT);
-                    }
-                })
-                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @RequiresApi(api = Build.VERSION_CODES.N)
-                            @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                                imageToStore.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Uri> task) {
-                                        if (task.isSuccessful()) {
-                                            Log.d("CameraFragment", "HERE!!!"
-                                                    + task.getResult().toString());
-
-                                            post.replace("url", null, task.getResult().toString());
-
-                                            Log.d("CameraFragment", "The image url is " + post.get("url"));
-
-                                            checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
-
-                                        }
-                                        else{
-                                            Log.d("CameraFragment", "FAIL");
-
-                                            //show the stuff again
-                                            removeLoader();
-
-                                            Toast.makeText(getContext(), "Failed to save QR Code", Toast.LENGTH_LONG).show();
-
-                                        }
-
-                                    }
-
-                                });
-
-                            }
-                        });
-            }
+            saveTheImage(post, scoringQRCodeData, true);
         }
         else {
             checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
@@ -636,6 +573,9 @@ public class CameraFragment extends Fragment {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
+
+                                //remove the comment ids from newly created hashmap.
+                                scoringQRCodeData.remove("comment_ids");
                                 updateScoringQRCode(scoringQRCodeData);
 
                                 //Check that this man isn't pulling some bs
@@ -659,16 +599,10 @@ public class CameraFragment extends Fragment {
         scannedBy.add(getActivity().getIntent().getStringExtra("Username"));
 
         scoringQRCodeData.put("scanned_by", scannedBy);
-
-        // TODO: Proper calc score usage!, currently a placeholder of score 0.
-
-        scoringQRCodeData.put("score", 0);
-        // TODO: Call function to update user scanned_qrcodes field -> Done
+        scoringQRCodeData.put("score", scoringQRCode.getScore());
         db.collection("Users").document(getActivity().getIntent().getStringExtra("Username")).update("scanned_qrcodes",
                 FieldValue.arrayUnion(encodedQRCodeString));
 
-
-        // TODO: Save posts!
 
         scoringQRCodeData.put("num_scanned_by", 1);
 
@@ -709,7 +643,6 @@ public class CameraFragment extends Fragment {
                     }
                 });
 
-        // TODO: for updating scanned_by in ScoringQRCodes use loginactivity function (username is in intent) ->arrayUnion -> done
 
         db.collection("Users").document(getActivity().getIntent().getStringExtra("Username"))
                 .get()
@@ -725,10 +658,10 @@ public class CameraFragment extends Fragment {
                             Map<String,Object > userInstance = document.getData();
 
                             ArrayList<String> qrCodeHashes = getUserQRCodes(userInstance);
-
-                            for (String s: qrCodeHashes) {
-                                Log.d("CameraFragment", s + " is the scanned qr code son");
-                            }
+//
+//                            for (String s: qrCodeHashes) {
+//                                Log.d("CameraFragment", s + " is the scanned qr code son");
+//                            }
 
                             if( qrCodeHashes.contains(encodedQRCodeString)==false) {
 
@@ -736,7 +669,12 @@ public class CameraFragment extends Fragment {
 
                                 db.collection("ScoringQRCodes").document(encodedQRCodeString).update("scanned_by", FieldValue.arrayUnion(
                                         getActivity().getIntent().getStringExtra("Username")
-                                )).addOnCompleteListener(
+                                ));
+
+                                //add to the users scanned qrcodes.
+                                db.collection("Users").document(getActivity().getIntent().getStringExtra("Username"))
+                                        .update("scanned_qrcodes",FieldValue.arrayUnion(encodedQRCodeString))
+                                        .addOnCompleteListener(
                                         new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
@@ -852,6 +790,96 @@ public class CameraFragment extends Fragment {
 
     }
 
+    public HashMap<String, Object> saveTheImage(HashMap<String, Object> post,HashMap<String, Object> scoringQRCodeData ,Boolean checkOrSave) {
+
+        StorageReference imageToStore = imageStore.child(String.format("images/%s", postUUID));
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        Log.d("CameraFragment", "Bitmap is " + imageBitMap);
+
+        if (imageBitMap!=null) {
+
+            Log.d("CameraFragment", "Bitmap not null");
+
+            imageBitMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] data = baos.toByteArray();
+
+            db.collection("Users").document(getActivity().getIntent().getStringExtra("Username"))
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            DocumentSnapshot document = task.getResult();
+
+                            Map<String,Object > userInstance = document.getData();
+
+                            ArrayList<String> qrCodeHashes = getUserQRCodes(userInstance);
+
+                            Boolean save = false;
+                            for (String s: qrCodeHashes) {
+                                if (s.equals(scoringQRCode.getHash())) {
+                                    checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
+                                    return;
+                                }
+                            }
+
+                            //if the man doesn't have the qr code, then save the image for sure.
+
+                            UploadTask uploadTask = imageToStore.putBytes(data);
+                            uploadTask.addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    // Handle unsuccessful uploads
+
+                                    Toast.makeText(getActivity(), "Post Couldn't be Saved", Toast.LENGTH_SHORT);
+                                }
+                            })
+                                    .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                        @RequiresApi(api = Build.VERSION_CODES.N)
+                                        @Override
+                                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                            imageToStore.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Uri> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Log.d("CameraFragment", "HERE!!!"
+                                                                + task.getResult().toString());
+
+                                                        post.replace("url", null, task.getResult().toString());
+
+                                                        Log.d("CameraFragment", "The image url is " + post.get("url"));
+
+
+                                                        checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
+
+
+                                                    }
+                                                    else{
+                                                        Log.d("CameraFragment", "FAIL");
+
+                                                        //show the stuff again
+                                                        removeLoader();
+
+                                                        Toast.makeText(getContext(), "Failed to save QR Code", Toast.LENGTH_LONG).show();
+
+                                                    }
+
+                                                }
+
+                                            });
+
+                                        }
+                                    });
+
+                        }
+                    });
+        }
+
+        return null;
+    }
+
     public void saveUserPost(HashMap<String, Object> post) {
         db.collection("Posts")
         .whereEqualTo("qrcode_hash", post.get("qrcode_hash"))
@@ -872,7 +900,33 @@ public class CameraFragment extends Fragment {
                 removeLoader();
             }
         });
+    }
 
-        //need to add posts to the posts array.
+    public void getAdminStatus(String Username, String scannedUsername){
+        CameraFragment cameraFragment = this;
+        db.collection(USERS_COLLECTION)
+                .document(Username)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    Boolean isAdmin = task.getResult().getBoolean("admin");
+                        CameraFragmentDirections.ActionNavigationCameraToNavigationProfile action = CameraFragmentDirections.actionNavigationCameraToNavigationProfile(
+                                isAdmin,
+                                // Redirect to username which is scannedString but remove the "gs-"
+                                scannedUsername,
+                                Username,
+                                getString(R.string.title_camera)
+                        );
+                        NavHostFragment.findNavController(cameraFragment).navigate(action);
+
+
+                } else {
+                    Log.d("CameraFragment", "Error getting documents: ", task.getException());
+                }
+            }
+        });
     }
 }
