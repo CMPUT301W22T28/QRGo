@@ -153,7 +153,7 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
      */
     private void getRankingsFromDatabase(String tabSort, String tabLabel) {
 
-        // database initalized
+        // database initialized
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // creates collection reference to "Users"
@@ -221,6 +221,7 @@ public class LeaderboardFragment extends Fragment implements RankingRecyclerAdap
      * Sets and initializes all of the view listeners that are to be used
      */
     private void setViewListeners() {
+
         leaderboardViewModel  = new ViewModelProvider(requireActivity()).get(LeaderboardViewModel.class);
 
         final TextView personalProfileUsername = binding.personalPlayerCardUsername;
