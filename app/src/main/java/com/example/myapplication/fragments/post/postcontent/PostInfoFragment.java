@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.databinding.FragmentPostInfoBinding;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -246,5 +247,4 @@ public class PostInfoFragment extends Fragment {
             }
         });
     }
-
 }
