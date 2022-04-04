@@ -13,7 +13,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/camera_image_holder"
-        android:layout_marginTop="4dp"
+        app:layout_constraintBottom_toTopOf="@id/score_title_text"
         android:text="You have not found this QR code!"/>
 
     <TextView
@@ -21,7 +21,7 @@
         android:textAlignment="center"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        app:layout_constraintBottom_toTopOf="@id/delete_post_button"
         android:text="@string/last_location"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -32,7 +32,7 @@
         android:id="@+id/score_title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        app:layout_constraintBottom_toTopOf="@id/scanned_by_text"
         android:text="@string/post_score"
         android:textSize="40sp"
         android:textStyle="bold"
@@ -44,7 +44,7 @@
         android:id="@+id/score_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+
         android:text="@string/post_score_value"
         android:textSize="32sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +55,7 @@
         android:id="@+id/scanned_by_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        app:layout_constraintBottom_toTopOf="@id/last_location_text"
         android:text="@string/scanned_by_n_users"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -66,7 +66,6 @@
         android:id="@+id/last_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:text="@string/lat_lon"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -78,12 +77,13 @@
         android:id="@+id/camera_image_holder"
         android:layout_width="210dp"
         android:layout_height="210dp"
-        android:layout_marginTop="50dp"
+
         android:src="@drawable/ic_outline_photo_camera_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/image_not_available_text"
         android:contentDescription="TODO" />
 
     <Button
@@ -91,9 +91,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="20dp"
+
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="20dp"
+
         android:backgroundTint="@color/red"
         android:text="@string/delete_post"
         android:visibility="invisible"
