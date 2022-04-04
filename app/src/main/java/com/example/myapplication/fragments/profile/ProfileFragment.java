@@ -118,19 +118,8 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         activity = (MainActivity) getActivity();
         assert activity != null;
 
-        // receives the isAdmin from search
-
-        try { this.isAdmin = getArguments().getBoolean("isAdmin");}
-        catch(Exception e) { this.isAdmin = null; }
-
-        try { this.viewedUser = getArguments().getString("Username");}
-        catch(Exception e) { this.viewedUser = "viewedUser"; }
-
-        try { this.mainProfile = getArguments().getString("mainProfile");}
-        catch(Exception e) { this.mainProfile = "mainProfile"; }
-
-        System.out.println(viewedUser);
-        System.out.println(mainProfile);
+        // retrieves the arguments
+        retrieveArguments();
 
         // initialises the delete profile button
         deleteProfileButton = (Button) binding.deleteProfileButton;
@@ -245,6 +234,22 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         super.onViewStateRestored(savedInstanceState);
         requireActivity().getViewModelStore().clear();
 
+    }
+
+    /**
+     * If the user is arriving to the ProfileFragment from another fragment, retrieveArguments
+     * retrieves the viewer username, the profile to access, and the boolean value to
+     * determine if the viewer is an admin
+     */
+    public void retrieveArguments() {
+        try { this.isAdmin = getArguments().getBoolean("isAdmin");}
+        catch(Exception e) { this.isAdmin = null; }
+
+        try { this.viewedUser = getArguments().getString("Username");}
+        catch(Exception e) { this.viewedUser = "viewedUser"; }
+
+        try { this.mainProfile = getArguments().getString("mainProfile");}
+        catch(Exception e) { this.mainProfile = "mainProfile"; }
     }
 
     /**
