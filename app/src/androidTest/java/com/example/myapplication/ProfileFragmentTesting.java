@@ -55,6 +55,10 @@ public class ProfileFragmentTesting {
     private final String USERS_COLLECTION = "Users";
     private final String POST_COLLECTION = "Posts";
     private final String QRCODE_COLLECTION = "ScoringQRCodes";
+
+    private final String email = "test@email.com";
+    private final String phone = "000000000";
+
     private String deviceID;
 
     private final ArrayList<String> priorUsernames = new ArrayList<>();
@@ -126,8 +130,8 @@ public class ProfileFragmentTesting {
         Map<String, Object> user = new HashMap<>();
         user.put("admin", false);
         user.put("devices", Collections.singletonList(deviceID));
-        user.put("email","test@email.com");
-        user.put("phone","000000000");
+        user.put("email",email);
+        user.put("phone",phone);
         user.put("scanned_count",0);
         user.put("scanned_highest",0);
         user.put("scanned_qrcodes",Collections.singletonList(scoringQRCode.getHash()));
@@ -231,10 +235,9 @@ public class ProfileFragmentTesting {
     /**
      * Tests whether adding to the database updates the profile fragment with the qrcode values.
      *
-     * @throws InterruptedException
      */
     @Test
-    public void addQrCodeTest() throws InterruptedException {
+    public void addQrCodeTest() {
 
         // check the view for proper updated text
         onView(withId(R.id.profile_total_score)).check(matches(withText(String.valueOf(scoringQRCode.getScore()))));
