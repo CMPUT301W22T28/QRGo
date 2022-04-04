@@ -193,6 +193,7 @@ public class CameraFragment extends Fragment {
             FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
 
             requestResult[0] = 1;
+            //obtain the location of the user.
             fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
                 @RequiresApi(api = Build.VERSION_CODES.N)
                 @Override
@@ -204,7 +205,7 @@ public class CameraFragment extends Fragment {
                         currentLocation.setLongitude(location.getLongitude());
 
                         if (container !=null) {
-
+                            //update the latitude and longitdue values in the HashMap as well as the geohash.
                             container.replace("latitude" , null, currentLocation.getLatitude());
                             container.replace("longitude" , null, currentLocation.getLongitude());
 
@@ -225,8 +226,6 @@ public class CameraFragment extends Fragment {
         } else {
             // You can directly ask for the permission.
             // The registered ActivityResultCallback gets the result of this request.
-//            requestPermissionLauncher.launch(
-//                    Manifest.permission.ACCESS_FINE_LOCATION);
 
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
 
@@ -248,6 +247,7 @@ public class CameraFragment extends Fragment {
         }
         else {
 
+            //if permission hasn't been granted, then ask for permission
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST_CODE);
         }
 
@@ -278,6 +278,8 @@ public class CameraFragment extends Fragment {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
+
+                //launch the qrcode scanner from the camera fragment when the camera icon is clicked.
                 final Intent intent = new Intent(getContext(), QRScanActivity.class).putExtra("Prev","CameraFragment");
                 startActivityForResult(intent, 6);
 
@@ -308,6 +310,9 @@ public class CameraFragment extends Fragment {
                 }
 
                 else {
+
+                    //if the save picture switch is disabled, then remove the image and set it to the
+                    //drawable
                     cameraImage.setImageDrawable(null);
                     cameraImage.setBackgroundResource(R.drawable.ic_outline_photo_camera_24);
                     sizeImageText.setText("Image Size 0/64KB");
@@ -333,12 +338,12 @@ public class CameraFragment extends Fragment {
         if (requestCode == LOCATION_REQUEST_CODE) {
 
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                //user granted permission to use his location
                 Toast.makeText(getContext(), "Location Services Enabled.", Toast.LENGTH_SHORT).show();
 
 
             } else {
-
+                //permission denied.
                 Toast.makeText(getContext(), "Location must be enabled to save geolocation.", Toast.LENGTH_LONG).show();
 
             }
@@ -346,7 +351,15 @@ public class CameraFragment extends Fragment {
         }
     }
 
+    /**
+     * responsible for checking if the scanned QRCode is a gamestatus qrcode, if so then it disables
+     * the buttons and doesn't count it as a valid qrcode that the user can save. However, if it's
+     * a valid scoring qrcode, then the user can proceed normally.
+     * @param scannedString
+     * @param context
+     */
     public void checkGameStatusQRCode(String scannedString, Context context ){
+
         db.collection(GAME_STATUS_QRCODE_COLLECTION)
                 .whereEqualTo("username",scannedString)
                 .get()
@@ -470,10 +483,18 @@ public class CameraFragment extends Fragment {
 
     }
 
+    /**
+     * This is responsible for saving the user's applied data to the post directory in the firestore
+     * as well as the scoring qrcode if it doesn't exist in the database already.
+     * After the checks are done to ensure that the data is valid. This is then followed by updating
+     * the users data accordingly as well as the creation of the actual post.
+     */
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void savePost() {
+        //get a post ID that is unique.
         postUUID = UUID.randomUUID().toString();
 
+        //show the loader till the process is complete.
         showLoader();
 
         HashMap<String, Object> scoringQRCodeData = new HashMap<>();
@@ -493,6 +514,7 @@ public class CameraFragment extends Fragment {
         scoringQRCodeData.put("latitude", null);
         scoringQRCodeData.put("longitude", null);
         scoringQRCodeData.put("geoHash", null);
+
         if (saveGeolocationSwitch.isChecked()) {
 
             checkLocationPermission();
@@ -505,11 +527,12 @@ public class CameraFragment extends Fragment {
         post.put("url", null);
 
         if (savePictureSwitch.isChecked()) {
-            //Update or upload an Image
 
+            //Update or upload an Image
             saveTheImage(post, scoringQRCodeData);
         }
         else {
+            //user didn't save a picture so go to checking the validity of the qrcode.
             checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
         }
     }
@@ -529,22 +552,34 @@ public class CameraFragment extends Fragment {
 
                                 //remove the comment ids from newly created hashmap.
                                 scoringQRCodeData.remove("comment_ids");
+
+                                //only update the relevant fields.
                                 updateScoringQRCode(scoringQRCodeData);
 
                                 //Check that this man isn't pulling some bs
                                 saveUserPost(post);
 
                             } else {
+                                //the qrcode is new and thus we need to post it as a new one
                                 createScoringQRCode(scoringQRCodeData);
 
+                                //save the user post.
                                 saveUserPost(post);
                             }
-                        } else {
+                        }
+                        else {
+
+                            //do nothing
                         }
                     }
                 });
     }
 
+    /**
+     * This function is responsible for creating a new instance of a scoring qrcode to be saved in
+     * firestore as well as adding the qr code to the user instance in scanned qrcodes.
+     * @param scoringQRCodeData
+     */
     public void createScoringQRCode(HashMap<String, Object> scoringQRCodeData) {
         List<String> scannedBy = new ArrayList<>();
 
@@ -558,6 +593,7 @@ public class CameraFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
+                        //do nothing
                     }
                 });
 
@@ -581,6 +617,12 @@ public class CameraFragment extends Fragment {
 
     }
 
+    /**
+     * this function is responsible for updating the scoring qrcode metadata that is present in the
+     * firestore instance, this can be the last_scanned date and the number of people that scanned
+     * the qrcode.
+     * @param scoringQRCodeData
+     */
     public void updateScoringQRCode(HashMap<String, Object> scoringQRCodeData) {
 
         scoringQRCodeData.put("last_scanned", Calendar.getInstance().getTime());
@@ -647,6 +689,12 @@ public class CameraFragment extends Fragment {
                 });
 
     }
+
+    /**
+     * return the scanned_qrcodes in the user instance with the given username.
+     * @param userInstance
+     * @return
+     */
 
     public ArrayList<String> getUserQRCodes(Map<String, Object> userInstance) {
         Iterable<?> ar = (Iterable<?>) userInstance.get("scanned_qrcodes");
@@ -717,6 +765,9 @@ public class CameraFragment extends Fragment {
 
     }
 
+    /**
+     * clear all the data fields in the CameraFragment instance.
+     */
     public void clearAllFields() {
 
         cameraImage.setImageDrawable(null);
@@ -737,6 +788,13 @@ public class CameraFragment extends Fragment {
 
     }
 
+    /**
+     * this function saves the image that the user took using the camera into the firestore database
+     * using the storage space, whereby we obtain the url of the image that we can use as reference.
+     * @param post
+     * @param scoringQRCodeData
+     * @return
+     */
     public HashMap<String, Object> saveTheImage(HashMap<String, Object> post,HashMap<String, Object> scoringQRCodeData) {
 
         StorageReference imageToStore = imageStore.child(String.format("images/%s", postUUID));
@@ -749,6 +807,7 @@ public class CameraFragment extends Fragment {
             imageBitMap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] data = baos.toByteArray();
 
+            //check if the user has already scanned this specific qrcode, if so don't post an image.
             db.collection("Users").document(getActivity().getIntent().getStringExtra("Username"))
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -789,6 +848,7 @@ public class CameraFragment extends Fragment {
                                                 public void onComplete(@NonNull Task<Uri> task) {
                                                     if (task.isSuccessful()) {
 
+                                                        //replace the post url with the proper one.
                                                         post.replace("url", null, task.getResult().toString());
 
 
@@ -798,7 +858,7 @@ public class CameraFragment extends Fragment {
                                                     }
                                                     else{
 
-                                                        //show the stuff again
+                                                        //show the display again
                                                         removeLoader();
 
                                                         Toast.makeText(getContext(), "Failed to save QR Code", Toast.LENGTH_LONG).show();
@@ -817,6 +877,8 @@ public class CameraFragment extends Fragment {
         }
 
         else {
+
+            //if the user has not taken an image, then proceed as usual.
             checkScoringQRCodeExists(encodedQRCodeString, scoringQRCodeData, post);
 
         }
@@ -824,6 +886,11 @@ public class CameraFragment extends Fragment {
         return null;
     }
 
+    /**
+     * this function posts the new scanned qr code that the user has scanned into the posts firestore
+     * if there exists a post that has the same username and qrcode hash, it will not be posted.
+     * @param post
+     */
     public void saveUserPost(HashMap<String, Object> post) {
         db.collection("Posts")
         .whereEqualTo("qrcode_hash", post.get("qrcode_hash"))
@@ -846,6 +913,12 @@ public class CameraFragment extends Fragment {
         });
     }
 
+    /**
+     * checks the admin status of the user, then redirect the user accordingly to the username
+     * of admin view.
+     * @param Username
+     * @param scannedUsername
+     */
     public void getAdminStatus(String Username, String scannedUsername){
         CameraFragment cameraFragment = this;
         db.collection(USERS_COLLECTION)
