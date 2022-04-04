@@ -80,24 +80,6 @@ public class MainActivity extends AppCompatActivity {
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
-
-        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
-            @Override
-            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
-                Log.d("walter", "destination b4: "+destination.getLabel());
-
-                if (arguments != null) {
-                    String from = arguments.getString("from");
-                    if (from != null) {
-                        if (from.equals(getString(R.string.title_search))) {
-                            destination.setLabel(getString(R.string.title_search));
-
-                        }
-                    }
-                }
-                Log.d("walter", "destination: "+destination.getLabel());
-            }
-        });
     }
 
     private void layoutChanges() {

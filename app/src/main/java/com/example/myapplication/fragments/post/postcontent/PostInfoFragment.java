@@ -40,9 +40,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.example.myapplication.fragments.post.listfragment.ScannedByViewModel;
 
 import java.util.Timer;
 import java.util.TimerTask;
+
+/**
+ *
+ * Fragment that shows information about the post and the image
+ *
+ * @author Marc-Andre Haley, Walter Ostrander
+ *
+ * @see PostInfoViewModel
+ *
+ * March 22, 2022
+ *
+ */
 
 public class PostInfoFragment extends Fragment {
     private MainActivity activity;
@@ -243,5 +256,4 @@ public class PostInfoFragment extends Fragment {
             }
         });
     }
-
 }
