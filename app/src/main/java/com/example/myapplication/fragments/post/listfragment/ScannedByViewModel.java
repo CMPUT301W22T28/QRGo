@@ -6,6 +6,16 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
 
+/**
+ * View model class for ScannedByFragment
+ *
+ * @author Walter Ostrander
+ *
+ * @see ScannedByFragment
+ *
+ * March 22, 2022
+ */
+
 public class ScannedByViewModel extends ViewModel {
     // TODO: Implement the ViewModel
     private final MutableLiveData<ArrayList<String>> scannedByLiveDataList;

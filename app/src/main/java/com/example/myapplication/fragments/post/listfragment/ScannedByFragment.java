@@ -18,6 +18,17 @@ import com.example.myapplication.databinding.FragmentScannedByBinding;
 
 import java.util.ArrayList;
 
+/**
+ *
+ * Fragment that shows the list of people who also scanned the QR code of the respective post
+ *
+ * @author Marc-Andre Haley, Walter Ostrander
+ *
+ * @see ScannedByViewModel
+ *
+ * March 22, 2022
+ */
+
 public class ScannedByFragment extends Fragment {
     FragmentScannedByBinding binding;
     ArrayAdapter<String> scannedByAdapter;

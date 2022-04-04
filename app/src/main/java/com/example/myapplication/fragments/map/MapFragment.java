@@ -61,8 +61,7 @@ import java.util.List;
  * Checking google play services:
  * https://stackoverflow.com/questions/62787511/programmatically-check-if-android-device-has-google-play
  *
- * Known issue: On new device's first time launching the app, the map fragment might require moving
- * to map fragment twice before showing location and markers
+ * Known issue: Google play service does not work with android 11 on certain emulators
  */
 public class MapFragment extends Fragment {
 
@@ -168,7 +167,7 @@ public class MapFragment extends Fragment {
                         currentLocation.setLatitude(location.getLatitude());
                         currentLocation.setLongitude(location.getLongitude());
 
-                        // if updatelocation is called from search nearby button
+                        // if updateLocation is called from search nearby button
                         if (event == 1){
                             getNearbyCodes();
                         }
@@ -210,7 +209,6 @@ public class MapFragment extends Fragment {
             tasks.add(q.get());
         }
 
-        //final List<OverlayItem> markers = new ArrayList<OverlayItem>();
         // Collect all the query results together into a single list
         Tasks.whenAllComplete(tasks)
                 .addOnCompleteListener(new OnCompleteListener<List<Task<?>>>() {
@@ -229,7 +227,6 @@ public class MapFragment extends Fragment {
                                 GeoLocation docLocation = new GeoLocation(lat, lng);
                                 double distanceInM = GeoFireUtils.getDistanceBetween(docLocation, center);
                                 if (distanceInM <= 1000) {
-                                    //matchingDocs.add(doc);
                                     // create marker and listener for each doc
                                     Marker marker = new Marker(mMapView);
                                     marker.setPosition(new GeoPoint(lat, lng));

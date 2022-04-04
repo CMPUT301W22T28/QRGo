@@ -10,10 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +23,7 @@ import com.example.myapplication.activity.LoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,8 +31,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.robotium.solo.Solo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 
 /**
@@ -48,7 +49,6 @@ import java.util.Map;
 public class LoginActivityUITest {
     // Firestore collection names
     private final String USERS_COLLECTION = "Users";
-    private final String LOGIN_QRCODE_COLLECTION = "LoginQRCode";
 
     private final String LOGIN_TEST_TAG = "LoginUITest";
 
@@ -56,7 +56,7 @@ public class LoginActivityUITest {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     // Android ID
-    String androidId;
+    String deviceID;
 
     private Solo solo;
     private final String testUsername = "usrForIntentTesting";
@@ -64,44 +64,49 @@ public class LoginActivityUITest {
     // Previous username, to put back at the end of intent testing
     private String previousUsername = null;
 
+    private final ArrayList<String> priorUsernames = new ArrayList<>();
+
     // To synchronize data fetches
     private final Object actualUsernameSyncObject = new Object();
     private boolean actualUsernameNotifyCalled;
 
+
     /**
-     * This function runs and removes the current user from the database if it exists
-     *
-     * @param androidId the id of the current android
+     * gets the usernames who have your device id on them
      */
-    private void removeDeviceFromDatabase(String androidId) {
-        db.collection(USERS_COLLECTION)
-                .whereArrayContains("devices",androidId)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
+    private void getUsernames() {
+        CountDownLatch done = new CountDownLatch(1);
 
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                // set previous username
-                                previousUsername = document.getId();
+        //region remove and store usernames used
+        CollectionReference usersRef = db.collection(USERS_COLLECTION);
+        usersRef.whereArrayContains("devices", deviceID).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    String oldUsername = document.getId();
+                    priorUsernames.add(oldUsername);
+                }
+            }
+            done.countDown();
+        });
+        //endregion
 
-                                // update document by removing device id from fields
-                                updateUserDeviceList(previousUsername, false);
-                            }
-                            Log.d(LOGIN_TEST_TAG, "before notify");
-                            synchronized (actualUsernameSyncObject) {
-                                actualUsernameSyncObject.notify();
-                                actualUsernameNotifyCalled = true;
-                            }
-                            Log.d(LOGIN_TEST_TAG, "after notify");
+        try {
+            done.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-                        } else {
-                            Log.d(LOGIN_TEST_TAG, "Error getting documents: ", task.getException());
-                        }
+    /**
+     * adds the device id to the usernames who had your device id at the beginning.
+     */
+    private void addUsernames() {
 
-                    }
-                });
+        //region put back all the device ids
+        for (String priorUsername : priorUsernames) {
+            updateUserDeviceList(priorUsername, true);
+        }
+        //endregion
     }
 
     /**
@@ -111,14 +116,21 @@ public class LoginActivityUITest {
      * @param addToFields whether or not to remove android id from it
      */
     private void updateUserDeviceList(String username, boolean addToFields){
+        CountDownLatch done = new CountDownLatch(1);
         DocumentReference userRef = db.collection(USERS_COLLECTION).document(username);
         Map<String, Object> map = new HashMap<>();
         if (addToFields) {
-            map.put("devices", FieldValue.arrayUnion(androidId));
+            map.put("devices", FieldValue.arrayUnion(deviceID));
         }else {
-            map.put("devices", FieldValue.arrayRemove(androidId));
+            map.put("devices", FieldValue.arrayRemove(deviceID));
         }
-        userRef.update(map);
+        userRef.update(map).addOnCompleteListener(unused -> done.countDown());
+
+        try {
+            done.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -126,43 +138,35 @@ public class LoginActivityUITest {
      * this functions sets up the device for a new sign up. Getting the android id which starts
      * the activity in the process. It then removes that device id if its present. It waits for these
      * database actions to complete. It then restarts the app and starts the tests.
-     *
-     * @throws Throwable will throw an error if synchronized doesn't work.
      */
     @Before
-    public void setUp() throws Throwable {
+    public void setUp() {
         Log.d(LOGIN_TEST_TAG, "starting the thing");
         // Start the app
         solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
-
-        // delete test username from db.
-        db.collection(USERS_COLLECTION).document(testUsername).delete();
 
         // reset boolean value to false before each run.
         actualUsernameNotifyCalled = false;
 
         // remove device from database
-        androidId =  Settings.Secure.getString(solo.getCurrentActivity().getApplicationContext().getContentResolver(),
+        deviceID =  Settings.Secure.getString(solo.getCurrentActivity().getApplicationContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
-        removeDeviceFromDatabase(androidId);
 
-        Log.d(LOGIN_TEST_TAG, "got the id, waiting on delete");
+        getUsernames();
 
-        // wait for update to complete
-        synchronized (actualUsernameSyncObject) {
-            while(!actualUsernameNotifyCalled) {
-                actualUsernameSyncObject.wait();
-            }
-            actualUsernameNotifyCalled = false;
+        Log.d("testStuff", "here here");
+
+        // remove the usernames from device lists
+        for (String username : priorUsernames) {
+            updateUserDeviceList(username, false);
         }
-        Log.d(LOGIN_TEST_TAG, "finished waiting");
+
+        Log.d("testStuff", "here");
 
         // restart so database can update
         solo.finishOpenedActivities();
-        Log.d(LOGIN_TEST_TAG, "finish open activities done");
 
         rule.launchActivity(rule.getActivity().getIntent());
-        Log.d(LOGIN_TEST_TAG, "launched activity lol");
     }
 
     /**
@@ -211,7 +215,7 @@ public class LoginActivityUITest {
     }
 
     /**
-     * TO
+     * Tests whether or not the login activity works correctly in detecting a user already signed up
      */
     @Test
     public void TestAutomaticLogin() {
@@ -240,20 +244,17 @@ public class LoginActivityUITest {
      */
     @After
     public void after() {
-        Log.d(LOGIN_TEST_TAG, "Starting after");
+        CountDownLatch done = new CountDownLatch(1);
 
-        // delete test username from db.
-        db.collection(USERS_COLLECTION).document(testUsername).delete();
-
-        if (previousUsername != null) {
-            Log.d(LOGIN_TEST_TAG, "running put back in list");
-
-            // put it back into the database
-            updateUserDeviceList(previousUsername, true);
-
-            Log.d(LOGIN_TEST_TAG, "done put back in list");
-        }
-        Log.d(LOGIN_TEST_TAG, "finished after");
+        addUsernames();
         solo.finishOpenedActivities();
+        //region delete user
+        db.collection(USERS_COLLECTION).document(testUsername).delete().addOnCompleteListener(task -> done.countDown());
+        //endregion
+        try {
+            done.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

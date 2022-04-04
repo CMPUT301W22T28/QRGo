@@ -42,17 +42,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.example.myapplication.fragments.post.listfragment.ScannedByViewModel;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * The fragment for the post info view. It shows profile information such as score, number of scans, geolocation, and the image.
- * @author Walter Ostrander, Marc-Andre Haley, Sankalp Saini
- * @see ProfileViewModel
- * @see QRGoEventListener
  *
- * March 12, 2022
+ * Fragment that shows information about the post and the image
+ *
+ * @author Marc-Andre Haley, Walter Ostrander, Sankalp Saini
+ *
+ * @see PostInfoViewModel
+ *
+ * March 22, 2022
+ *
  */
 public class PostInfoFragment extends Fragment {
     private MainActivity activity;
@@ -258,5 +262,4 @@ public class PostInfoFragment extends Fragment {
             }
         });
     }
-
 }

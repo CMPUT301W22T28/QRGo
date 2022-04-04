@@ -16,11 +16,12 @@
         tools:ignore="MissingConstraints">
 
         <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        app:cardBackgroundColor="@color/purple_500"
-        tools:ignore="MissingConstraints">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            app:cardBackgroundColor="@color/primaryColor"
+            app:cardElevation="8dp"
+            tools:ignore="MissingConstraints">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -164,7 +165,7 @@
 
     <ImageView
         android:id="@+id/no_qr_codes_found_view"
-        android:layout_width="0dp"
+        android:layout_width="200dp"
         android:layout_height="0dp"
         app:layout_constraintWidth_percent="0.75"
         app:layout_constraintTop_toBottomOf="@id/profile_top_bar"
@@ -235,7 +236,7 @@
             android:layout_width="0dp"
             android:layout_height="72dp"
             android:layout_marginEnd="5dp"
-            android:text="Show Contact Info"
+            android:text="@string/show_contact_info"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/show_login_qrcode_button"

@@ -229,10 +229,16 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
     }
 
+    /**
+     * Whenever you come back to the fragment, we reset the view store
+     * @param savedInstanceState the saved data from when the fragment was paused.
+     */
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         requireActivity().getViewModelStore().clear();
+        final ImageView imageView = binding.noQrCodesFoundView;
+        imageView.setVisibility(View.GONE);
 
     }
 
@@ -555,6 +561,10 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         resetAndFillQRCodes(qrCodes);
     }
 
+    /**
+     * this function clears qr code data that we currently have and fills them with the new ones.
+     * @param qrCodes the qr codes passed from the database fetch
+     */
     public void resetAndFillQRCodes(ArrayList<ScoringQRCode> qrCodes) {
         // fill the profile view with qrcodes
         myPlayerProfile.resetQRCodeList();
@@ -602,6 +612,12 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         profileViewModel.setTotalScore(myPlayerProfile.getTotalScore());
     }
 
+    /**
+     * This function will disable the Show Login QRCode and Show Game Status QRCode if you're on
+     * a profile that is not yours.
+     * @param loggedInUsername the username of the user that is logged in
+     * @param viewedUsername the username of the user being viewed
+     */
     public void enableDisableQRCodeButtons(String loggedInUsername, String viewedUsername){
         if (!loggedInUsername.equals(viewedUsername)){
             Button showLoginQRCode = binding.showLoginQrcodeButton;

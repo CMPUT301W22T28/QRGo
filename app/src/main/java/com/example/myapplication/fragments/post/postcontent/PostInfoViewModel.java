@@ -6,6 +6,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.myapplication.fragments.post.listfragment.CommentsFragment;
+
+/**
+ * View model class for PostInfoFragment
+ *
+ * @author Walter Ostrander
+ *
+ * @see PostInfoFragment
+ *
+ * March 22, 2022
+ */
+
 public class PostInfoViewModel extends ViewModel {
     private final MutableLiveData<String> geoLocation;
     private final MutableLiveData<Bitmap> image;
