@@ -8,6 +8,15 @@ import com.example.myapplication.dataClasses.Comment;
 
 import java.util.ArrayList;
 
+/**
+ * View model class for CommentsFragment
+ *
+ * @author Walter Ostrander
+ *
+ * @see CommentsFragment
+ *
+ * March 22, 2022
+ */
 public class CommentsViewModel extends ViewModel {
     // TODO: Implement the ViewModel
 

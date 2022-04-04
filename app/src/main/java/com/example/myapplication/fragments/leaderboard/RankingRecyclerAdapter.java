@@ -86,6 +86,9 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.firstMedalImage.setVisibility(View.GONE);
+        holder.secondMedalImage.setVisibility(View.GONE);
+        holder.thirdMedalImage.setVisibility(View.GONE);
         Player player = rankings.get(position);
         holder.score.setText((Integer.toString(player.getRankingScore())));
         holder.scoreLabel.setText(player.getRankingLabel());

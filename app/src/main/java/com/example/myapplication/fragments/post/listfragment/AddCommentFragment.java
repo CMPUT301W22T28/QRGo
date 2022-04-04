@@ -22,9 +22,19 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ * This Fragment displays an alert dialog fragment that allows the user to type and post a comment.
+ *
+ * @author CMPUT 301 team 28, Marc-Andre Haley
+ *
+ * @see CommentsFragment
+ *
+ * March 22, 2022
+ */
+
 /*
- * This fragment lets the user add a game by specify a name and number of rolls of 6 sided die
- * ISSUE: If the user enters input in the number of rolls text edit that is not 1,2 or 3 the app will not work. I'm not sure how to validate input.
+ * source
  */
 
 public class AddCommentFragment extends DialogFragment {

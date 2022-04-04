@@ -15,6 +15,11 @@ import java.security.NoSuchAlgorithmException;
 public abstract class QRCode {
     private String hash;
 
+    /**
+     * Converts the scannedString parameter into the encrypted sha256 string
+     * @param scannedString the string you want to encrypt
+     * @return the hashed string
+     */
     public String stringToSHA256(String scannedString){
             byte[] hash = null;
             String hashCode = null;// w  ww  .  j  a va 2 s.c  o m
