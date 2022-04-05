@@ -27,6 +27,7 @@ import com.example.myapplication.databinding.FragmentPostInfoBinding;
 import com.example.myapplication.fragments.post.PostFragment;
 import com.example.myapplication.fragments.post.PostFragmentDirections;
 import com.example.myapplication.fragments.profile.ProfileViewModel;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -35,21 +36,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
-import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.example.myapplication.fragments.post.listfragment.ScannedByViewModel;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  *
@@ -266,6 +258,7 @@ public class PostInfoFragment extends Fragment {
             if (imageView.getWidth() > 0) {
                 widthHeight = imageView.getWidth();
             }
+
             if (widthHeight > 0) {
                 imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, widthHeight, widthHeight, false));
             }
