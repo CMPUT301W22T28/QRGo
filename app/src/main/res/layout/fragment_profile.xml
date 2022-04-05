@@ -65,7 +65,8 @@
                         android:padding="1dp"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@color/white"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:text="@string/profile_static_username"/>
 
                     <TextView
                         android:id="@+id/profile_username"

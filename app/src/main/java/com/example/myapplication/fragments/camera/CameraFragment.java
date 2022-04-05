@@ -796,7 +796,7 @@ public class CameraFragment extends Fragment {
 
         TextView qrCodeScoreValue = binding.qrcodeScoreValue;
 
-        qrCodeScoreValue.setText("N/A");
+        qrCodeScoreValue.setText("-");
 
         disablingButtons();
 
