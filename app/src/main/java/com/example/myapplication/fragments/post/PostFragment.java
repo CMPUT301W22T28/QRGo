@@ -16,7 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+
 
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.Comment;
@@ -69,9 +69,6 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     private String postOwner; // username of post owner
     private String username; // main user
     private Boolean isAdmin;
-    private PostInfoViewModel postInfoViewModel;
-    private CommentsViewModel commentsViewModel;
-    private ScannedByViewModel scannedByViewModel;
     private boolean userHasCode;
     private FirebaseFirestore db;
 
