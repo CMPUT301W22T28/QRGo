@@ -286,6 +286,8 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
      */
     private void getAndSetPostScannedBy(DocumentSnapshot QRCodeSnapshot, DocumentReference QRCodeDocRef){
 
+        Log.d("tagtag", "here:"+String.valueOf(getActivity()));
+
         ScannedByViewModel scannedByViewModel = new ViewModelProvider(requireActivity()).get(ScannedByViewModel.class);
 
         //region get scanned_by
