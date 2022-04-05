@@ -66,7 +66,7 @@ public class LeaderboardFragmentUITest {
     @BeforeClass
     public static void addToDatabase() {
         final String USERS_COLLECTION = "Users";
-        final String testUsername = "sankalpsankalp";
+        final String testUsername = "lengthtestingprofile";
         final String testQrCode = "x7fZHWF2mivfZNBnUZfk";
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -83,7 +83,7 @@ public class LeaderboardFragmentUITest {
     @AfterClass
     public static void removeFromDatabase() {
         final String USERS_COLLECTION = "Users";
-        final String testUsername = "sankalpsaini";
+        final String testUsername = "lengthtestingprofile";
         final String testQrCode = "x7fZHWF2mivfZNBnUZfk";
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
