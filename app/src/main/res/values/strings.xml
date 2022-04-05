@@ -11,10 +11,10 @@
     <string name="username_hint">Username</string>
     <string name="profile_filler_value">-</string>
     <string name="profile_icon">Profile Icon</string>
-    <string name="profile_static_username">Username:</string>
-    <string name="profile_static_total_score">Total Score:</string>
-    <string name="profile_static_total_qr_code_count">Total QR Code Count</string>
-    <string name="profile_static_top_qr_code">Top QR Code:</string>
+    <string name="profile_static_username">Username</string>
+    <string name="profile_static_total_score">Total Score</string>
+    <string name="profile_static_total_qr_code_count">QR Code Count</string>
+    <string name="profile_static_top_qr_code">Top QR Code</string>
     <string name="map_search">Search Nearby</string>
     <string name="delete_profile">Delete Profile</string>
     <string name="delete_post">Delete Post</string>
@@ -27,7 +27,7 @@
     <string name="profile_static_email">Email:</string>
     <string name="profile_static_phone">Phone:</string>
     <string name="long_comment">This is a very long comment blah blah blah. This is a very long comment blah blah blah.</string>
-    <string name="username">UserName:</string>
+    <string name="username">UserName</string>
     <string name="last_location">Last known coordinates</string>
     <string name="post_score">SCORE</string>
     <string name="post_score_value">100</string>
