@@ -57,6 +57,7 @@ import com.google.firebase.storage.UploadTask;
 
 import org.osmdroid.util.GeoPoint;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -554,8 +555,21 @@ public class CameraFragment extends Fragment {
                                 scoringQRCodeData.remove("comment_ids");
 
                                 //only update the relevant fields.
-                                updateScoringQRCode(scoringQRCodeData);
+                                db.collection("Users").document(getActivity().getIntent().getStringExtra("Username"))
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                DocumentSnapshot doc = task.getResult();
 
+                                                ArrayList<String> hashes = getUserQRCodes(doc.getData());
+
+                                                //only update the data if the user hasn't scanned it before.
+                                                if (hashes.contains(encodedQRCodeString)== false) {
+                                                    updateScoringQRCode(scoringQRCodeData);
+                                                }
+                                            }
+                                        });
                                 //Check that this man isn't pulling some bs
                                 saveUserPost(post);
 
