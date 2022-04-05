@@ -90,6 +90,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         return fragment;
     }
 
+
     /**
      * Initially called when the profile fragment is created.
      * @param inflater The inflater for this view.
