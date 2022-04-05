@@ -97,7 +97,7 @@
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/score_card"
-        android:layout_width="180dp"
+        android:layout_width="wrap_content"
         android:layout_height="125dp"
         app:cardBackgroundColor="@color/primaryDarkColor"
         app:cardCornerRadius="20dp"
@@ -109,13 +109,15 @@
         app:layout_constraintTop_toBottomOf="@+id/camera_image_holder">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="10dp">
 
             <TextView
                 android:textColor="@color/white"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/qrcode_score_text"
-                android:layout_width="wrap_content"
+                android:layout_width="150dp"
+                android:gravity="center"
                 android:layout_height="wrap_content"
                 android:text="SCORE"
                 android:textSize="20dp"
@@ -130,11 +132,12 @@
                 android:textColor="@color/white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center"
                 app:layout_constraintTop_toBottomOf="@id/qrcode_score_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:text="0"
-                android:textSize="50sp" />
+                android:text="-"
+                android:textSize="50sp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
