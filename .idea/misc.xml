@@ -4,12 +4,13 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/1Projects/Walter/School/2021-2022/Winter/cmput301/team_project/QRGo/app/src/main/res/layout/activity_main.xml" value="0.22826086956521738" />
-
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/drawable/app_logo_background.xml" value="0.1125" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/drawable/ic_leaderboard_24.xml" value="0.1" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/drawable/ic_outline_photo_camera_24.xml" value="0.247" />
+        <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout-v26/fragment_camera.xml" value="0.26875" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/activity_login.xml" value="0.2064814814814815" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/activity_main.xml" value="0.26875" />
+        <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/dialog_contact_info.xml" value="0.15925925925925927" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_add_comment.xml" value="0.26875" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_camera.xml" value="0.26875" />
         <entry key="..\:/Users/ervin/CMPUT301/QRGo/app/src/main/res/layout/fragment_comments.xml" value="0.26875" />
@@ -50,6 +51,8 @@
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/drawable/ic_outline_photo_camera_24.xml" value="0.114" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/drawable/ic_profile_24.xml" value="0.114" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/drawable/ic_qr_code_scanner_24.xml" value="0.114" />
+        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/activity_login.xml" value="0.4" />
+        <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/activity_main.xml" value="0.176" />
 
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/activity_login.xml" value="0.4" />
         <entry key="..\:/Users/smol/Documents/school/2021-2022/Winter/CMPUT_301/team_project/QRGo/app/src/main/res/layout/activity_main.xml" value="0.176" />

@@ -90,6 +90,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         return fragment;
     }
 
+
     /**
      * Initially called when the profile fragment is created.
      * @param inflater The inflater for this view.
@@ -239,7 +240,6 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
         requireActivity().getViewModelStore().clear();
         final ImageView imageView = binding.noQrCodesFoundView;
         imageView.setVisibility(View.GONE);
-
     }
 
     /**
@@ -432,7 +432,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
     /**
      * Method that fetches the livedata and attaches listeners. Whenever there is a change in any of the data,
-     * it gets passed on to it's respective view. For example, when the username changes, it's textview will
+     * it gets passed on to its respective view. For example, when the username changes, its textview will
      * change with it.
      */
     private void setViewListeners() {
