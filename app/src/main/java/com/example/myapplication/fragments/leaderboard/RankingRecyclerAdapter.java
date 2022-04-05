@@ -89,11 +89,14 @@ public class RankingRecyclerAdapter extends RecyclerView.Adapter<RankingRecycler
         holder.firstMedalImage.setVisibility(View.GONE);
         holder.secondMedalImage.setVisibility(View.GONE);
         holder.thirdMedalImage.setVisibility(View.GONE);
+
         Player player = rankings.get(position);
+
         holder.score.setText((Integer.toString(player.getRankingScore())));
         holder.scoreLabel.setText(player.getRankingLabel());
         holder.username.setText(player.getUsername());
         holder.listElementNumber.setText(player.getRankingNumber());
+
         if (player.getRankingNumber().equals("1")) {
             holder.firstMedalImage.setVisibility(View.VISIBLE);
         }
