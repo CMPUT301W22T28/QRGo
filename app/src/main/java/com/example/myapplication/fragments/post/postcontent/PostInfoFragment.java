@@ -8,7 +8,10 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
+import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +25,9 @@ import com.example.myapplication.activity.MainActivity;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 import com.example.myapplication.databinding.FragmentPostInfoBinding;
 import com.example.myapplication.fragments.post.PostFragment;
+import com.example.myapplication.fragments.post.PostFragmentDirections;
 import com.example.myapplication.fragments.profile.ProfileViewModel;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -31,21 +36,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
-import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.example.myapplication.fragments.post.listfragment.ScannedByViewModel;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  *
@@ -125,6 +121,13 @@ public class PostInfoFragment extends Fragment {
 
         System.out.println("in PostInfoFragment"+isAdmin);
 
+        NavController navController = Navigation.findNavController(view);
+
+        PostFragmentDirections.NavigationBackToProfile action = PostFragmentDirections.navigationBackToProfile(
+                isAdmin,
+                postOwner
+        );
+
         deletePostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -167,8 +170,7 @@ public class PostInfoFragment extends Fragment {
                                     db.collection("Users").document(document.getId()).update(map);
                                 }
 
-                                getParentFragmentManager().popBackStackImmediate();
-                                requireActivity().getViewModelStore().clear();
+                                navController.navigate(action);
                                 Toast.makeText(activity.getApplicationContext(), "Post Deleted Successfully", Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -208,8 +210,7 @@ public class PostInfoFragment extends Fragment {
                             map.put("scanned_qrcodes", FieldValue.arrayRemove(qrHash));
                             db.collection("Users").document(postOwner).update(map);
 
-                            getParentFragmentManager().popBackStackImmediate();
-                            requireActivity().getViewModelStore().clear();
+                            navController.navigate(action);
                             Toast.makeText(activity.getApplicationContext(), "Post Deleted Successfully", Toast.LENGTH_SHORT).show();
 
                         }
@@ -257,6 +258,7 @@ public class PostInfoFragment extends Fragment {
             if (imageView.getWidth() > 0) {
                 widthHeight = imageView.getWidth();
             }
+
             if (widthHeight > 0) {
                 imageView.setImageBitmap(Bitmap.createScaledBitmap(bitmap, widthHeight, widthHeight, false));
             }

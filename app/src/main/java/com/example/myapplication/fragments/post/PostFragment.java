@@ -16,7 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+
 
 import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.Comment;
@@ -69,9 +69,6 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     private String postOwner; // username of post owner
     private String username; // main user
     private Boolean isAdmin;
-    private PostInfoViewModel postInfoViewModel;
-    private CommentsViewModel commentsViewModel;
-    private ScannedByViewModel scannedByViewModel;
     private boolean userHasCode;
     private FirebaseFirestore db;
 
@@ -84,6 +81,10 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     private static final String POST_COLLECTION = "Posts";
     private static final String USER_COLLECTION = "Users";
     private static final String TAG = "PostFragment";
+
+    private ScannedByViewModel scannedByViewModel;
+    private PostInfoViewModel postInfoViewModel;
+    private CommentsViewModel commentsViewModel;
 
     private final StorageReference storageRef = FirebaseStorage.getInstance("gs://qrgo-e62ee.appspot.com/").getReference();
 
@@ -103,6 +104,10 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentPostBinding.inflate(inflater, container, false);
+
+        postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
+        scannedByViewModel = new ViewModelProvider(requireActivity()).get(ScannedByViewModel.class);
+        commentsViewModel = new ViewModelProvider(requireActivity()).get(CommentsViewModel.class);
 
         return binding.getRoot();
     }
@@ -200,7 +205,6 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
      */
     private void getAndSetPostImage() {
         // get view model to use
-        PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
 
         postInfoViewModel.setImageNotAvailableText("");
 
@@ -266,6 +270,9 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
             if (e != null) {
                 Log.w(TAG, "Listen failed.", e);
             } else if (snapshot != null && snapshot.exists()) {
+                if (getActivity() == null) {
+
+                }
                 getAndSetPostScannedBy(snapshot, scoringQRCodeDocRef);
                 getAndSetPostInfo(snapshot);
                 getAndSetPostComments(snapshot);
@@ -286,7 +293,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
      */
     private void getAndSetPostScannedBy(DocumentSnapshot QRCodeSnapshot, DocumentReference QRCodeDocRef){
 
-        ScannedByViewModel scannedByViewModel = new ViewModelProvider(requireActivity()).get(ScannedByViewModel.class);
+        Log.d("tagtag", "here:"+String.valueOf(getActivity()));
 
         //region get scanned_by
         ArrayList<String> scannedByList = new ArrayList<>();
@@ -324,7 +331,6 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
      *
      */
     private void getAndSetPostInfo(DocumentSnapshot snapshot){
-        PostInfoViewModel postInfoViewModel = new ViewModelProvider(requireActivity()).get(PostInfoViewModel.class);
 
         // set score
         postInfoViewModel.setScore(snapshot.getLong("score").intValue());
@@ -428,7 +434,7 @@ public class PostFragment extends Fragment implements QRGoEventListener<Comment>
     @Override
     public void onListDoneFillingEvent(ArrayList<Comment> comments) {
         if (isAdded()) {
-            CommentsViewModel commentsViewModel = new ViewModelProvider(requireActivity()).get(CommentsViewModel.class);
+
             commentsViewModel.setComments(comments);
         }
     }
