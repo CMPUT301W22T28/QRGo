@@ -21,12 +21,13 @@
             android:layout_margin="5dp"
             app:cardBackgroundColor="@color/primaryColor"
             app:cardElevation="8dp"
+            app:cardCornerRadius="20dp"
             tools:ignore="MissingConstraints">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
+            android:padding="10dp"
             android:gravity="center"
             android:orientation="horizontal"
             app:layout_constraintTop_toTopOf="parent"

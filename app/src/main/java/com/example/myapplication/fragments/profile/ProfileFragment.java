@@ -432,7 +432,7 @@ public class ProfileFragment extends Fragment implements QRCodeRecyclerAdapter.I
 
     /**
      * Method that fetches the livedata and attaches listeners. Whenever there is a change in any of the data,
-     * it gets passed on to it's respective view. For example, when the username changes, it's textview will
+     * it gets passed on to its respective view. For example, when the username changes, its textview will
      * change with it.
      */
     private void setViewListeners() {
