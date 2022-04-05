@@ -934,8 +934,7 @@ public class CameraFragment extends Fragment {
                                 isAdmin,
                                 // Redirect to username which is scannedString but remove the "gs-"
                                 scannedUsername,
-                                Username,
-                                getString(R.string.title_camera)
+                                Username
                         );
                         NavHostFragment.findNavController(cameraFragment).navigate(action);
 
