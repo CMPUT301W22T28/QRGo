@@ -25,9 +25,6 @@
             <argument
                 android:name="Username"
                 app:argType="string" />
-            <argument
-                android:name="from"
-                app:argType="string" />
         </action>
     </fragment>
 
@@ -47,9 +44,6 @@
                 app:argType="string" />
             <argument
                 android:name="mainProfile"
-                app:argType="string" />
-            <argument
-                android:name="from"
                 app:argType="string" />
         </action>
     </fragment>
