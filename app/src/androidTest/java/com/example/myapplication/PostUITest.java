@@ -252,6 +252,9 @@ public class PostUITest {
         onView(withId(R.id.post_parent_fragment)).check(matches(isDisplayed()));
     }
 
+    /**
+     * test tab navigation
+     */
     @Test
     public void tabNavigationTest(){
         onView(withId(R.id.scoring_qr_code_list)).check(matches(atPosition(0, hasDescendant(withText(String.valueOf(scoringQRCode.getScore()))))));
@@ -265,6 +268,9 @@ public class PostUITest {
         onView(withId(R.id.scanned_by_fragment)).check(matches(isDisplayed()));
     }
 
+    /**
+     * test adding comments
+     */
     @Test
     public void addCommentTest(){
         onView(withId(R.id.scoring_qr_code_list)).check(matches(atPosition(0, hasDescendant(withText(String.valueOf(scoringQRCode.getScore()))))));
@@ -281,6 +287,9 @@ public class PostUITest {
         onView(withId(R.id.comment_text)).check(matches(withText("test comment")));
     }
 
+    /**
+     * test to see if the scanned by list displays the correct info
+     */
     @Test
     public void scannedByListTest(){
         onView(withId(R.id.scoring_qr_code_list)).check(matches(atPosition(0, hasDescendant(withText(String.valueOf(scoringQRCode.getScore()))))));
@@ -295,6 +304,9 @@ public class PostUITest {
                 check(matches(withText(testUsername)));
     }
 
+    /**
+     * test removing a post
+     */
     @Test
     public void removePostTest(){
         onView(withId(R.id.scoring_qr_code_list)).check(matches(atPosition(0, hasDescendant(withText(String.valueOf(scoringQRCode.getScore()))))));
