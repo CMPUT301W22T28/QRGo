@@ -125,7 +125,8 @@ public class PostInfoFragment extends Fragment {
 
         PostFragmentDirections.NavigationBackToProfile action = PostFragmentDirections.navigationBackToProfile(
                 isAdmin,
-                postOwner
+                postOwner,
+                username
         );
 
         deletePostButton.setOnClickListener(new View.OnClickListener() {
@@ -134,7 +135,6 @@ public class PostInfoFragment extends Fragment {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
                 if (isAdmin){
-                    System.out.println("THIS IS AN ADMIN POST DELETE");
 
                     db.collection("ScoringQRCodes").document(qrHash).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
@@ -189,8 +189,6 @@ public class PostInfoFragment extends Fragment {
                 }
 
                 else if (username.equals(postOwner)) {
-                    System.out.println("THIS IS AN USER POST DELETE");
-                    //db.collection("Comments").
 
                     db.collection("Posts").whereEqualTo("qrcode_hash", qrHash).whereEqualTo("username", username).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override

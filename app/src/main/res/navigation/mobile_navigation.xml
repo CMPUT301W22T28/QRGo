@@ -91,6 +91,9 @@
             <argument
                 android:name="Username"
                 app:argType="string" />
+            <argument
+                android:name="mainProfile"
+                app:argType="string" />
         </action>
     </fragment>
 
