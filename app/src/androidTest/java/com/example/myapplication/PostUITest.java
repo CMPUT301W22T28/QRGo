@@ -300,6 +300,9 @@ public class PostUITest {
         onView(withText("Scanned by")).perform(ViewActions.click());
         onView(withId(R.id.scanned_by_fragment)).check(matches(isDisplayed()));
         // check to see that current user is displayed in scanned by list
+        // source:
+        // https://stackoverflow.com/questions/37825896/how-to-select-a-listview-in-espresso
+        // answer by jitinsharma
         Espresso.onData(anything()).inAdapterView(withId(R.id.user_list)).atPosition(0).
                 check(matches(withText(testUsername)));
     }
