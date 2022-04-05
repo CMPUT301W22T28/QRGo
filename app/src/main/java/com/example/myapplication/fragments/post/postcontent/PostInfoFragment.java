@@ -19,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.activity.MainActivity;
-import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 import com.example.myapplication.databinding.FragmentPostInfoBinding;
 
 import com.google.android.gms.tasks.OnCompleteListener;

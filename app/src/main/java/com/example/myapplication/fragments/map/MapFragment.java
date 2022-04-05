@@ -2,7 +2,6 @@ package com.example.myapplication.fragments.map;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;

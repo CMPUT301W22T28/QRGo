@@ -14,7 +14,6 @@ import static org.hamcrest.Matchers.anything;
 import android.content.Intent;
 import android.provider.Settings;
 
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.contrib.RecyclerViewActions;
@@ -31,9 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,9 +62,6 @@ public class PostUITest {
     private final String USERS_COLLECTION = "Users";
     private final String POST_COLLECTION = "Posts";
     private final String QRCODE_COLLECTION = "ScoringQRCodes";
-
-    private final String email = "test@email.com";
-    private final String phone = "000000000";
 
     private String deviceID;
 
@@ -140,8 +134,10 @@ public class PostUITest {
         Map<String, Object> user = new HashMap<>();
         user.put("admin", false);
         user.put("devices", Collections.singletonList(deviceID));
-        user.put("email",email);
-        user.put("phone",phone);
+        String email = "test@email.com";
+        user.put("email", email);
+        String phone = "000000000";
+        user.put("phone", phone);
         user.put("scanned_count",0);
         user.put("scanned_highest",0);
         user.put("scanned_qrcodes",Collections.singletonList(scoringQRCode.getHash()));
