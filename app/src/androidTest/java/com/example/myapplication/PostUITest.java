@@ -14,7 +14,6 @@ import static org.hamcrest.Matchers.anything;
 import android.content.Intent;
 import android.provider.Settings;
 
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.contrib.RecyclerViewActions;
@@ -31,9 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,9 +62,6 @@ public class PostUITest {
     private final String USERS_COLLECTION = "Users";
     private final String POST_COLLECTION = "Posts";
     private final String QRCODE_COLLECTION = "ScoringQRCodes";
-
-    private final String email = "test@email.com";
-    private final String phone = "000000000";
 
     private String deviceID;
 
@@ -140,8 +134,10 @@ public class PostUITest {
         Map<String, Object> user = new HashMap<>();
         user.put("admin", false);
         user.put("devices", Collections.singletonList(deviceID));
-        user.put("email",email);
-        user.put("phone",phone);
+        String email = "test@email.com";
+        user.put("email", email);
+        String phone = "000000000";
+        user.put("phone", phone);
         user.put("scanned_count",0);
         user.put("scanned_highest",0);
         user.put("scanned_qrcodes",Collections.singletonList(scoringQRCode.getHash()));
@@ -256,6 +252,9 @@ public class PostUITest {
         onView(withId(R.id.post_parent_fragment)).check(matches(isDisplayed()));
     }
 
+    /**
+     * test tab navigation
+     */
     @Test
     public void tabNavigationTest(){
         onView(withId(R.id.scoring_qr_code_list)).check(matches(atPosition(0, hasDescendant(withText(String.valueOf(scoringQRCode.getScore()))))));
@@ -269,6 +268,9 @@ public class PostUITest {
         onView(withId(R.id.scanned_by_fragment)).check(matches(isDisplayed()));
     }
 
+    /**
+     * test adding comments
+     */
     @Test
     public void addCommentTest(){
         onView(withId(R.id.scoring_qr_code_list)).check(matches(atPosition(0, hasDescendant(withText(String.valueOf(scoringQRCode.getScore()))))));
@@ -285,6 +287,9 @@ public class PostUITest {
         onView(withId(R.id.comment_text)).check(matches(withText("test comment")));
     }
 
+    /**
+     * test to see if the scanned by list displays the correct info
+     */
     @Test
     public void scannedByListTest(){
         onView(withId(R.id.scoring_qr_code_list)).check(matches(atPosition(0, hasDescendant(withText(String.valueOf(scoringQRCode.getScore()))))));
@@ -295,10 +300,16 @@ public class PostUITest {
         onView(withText("Scanned by")).perform(ViewActions.click());
         onView(withId(R.id.scanned_by_fragment)).check(matches(isDisplayed()));
         // check to see that current user is displayed in scanned by list
+        // source:
+        // https://stackoverflow.com/questions/37825896/how-to-select-a-listview-in-espresso
+        // answer by jitinsharma
         Espresso.onData(anything()).inAdapterView(withId(R.id.user_list)).atPosition(0).
                 check(matches(withText(testUsername)));
     }
 
+    /**
+     * test removing a post
+     */
     @Test
     public void removePostTest(){
         onView(withId(R.id.scoring_qr_code_list)).check(matches(atPosition(0, hasDescendant(withText(String.valueOf(scoringQRCode.getScore()))))));

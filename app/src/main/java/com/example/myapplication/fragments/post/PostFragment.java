@@ -1,9 +1,7 @@
 package com.example.myapplication.fragments.post;
 
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -22,7 +20,6 @@ import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.Comment;
 import com.example.myapplication.dataClasses.asyncdata.AsyncList;
 import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
-import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
 import com.example.myapplication.databinding.FragmentPostBinding;
 import com.example.myapplication.fragments.post.listfragment.CommentsFragment;
 import com.example.myapplication.fragments.post.listfragment.CommentsViewModel;
@@ -30,7 +27,6 @@ import com.example.myapplication.fragments.post.listfragment.ScannedByFragment;
 import com.example.myapplication.fragments.post.listfragment.ScannedByViewModel;
 import com.example.myapplication.fragments.post.postcontent.PostInfoFragment;
 import com.example.myapplication.fragments.post.postcontent.PostInfoViewModel;
-import com.example.myapplication.fragments.profile.ProfileViewModel;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;

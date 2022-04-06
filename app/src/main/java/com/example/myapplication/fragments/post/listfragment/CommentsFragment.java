@@ -1,9 +1,8 @@
 package com.example.myapplication.fragments.post.listfragment;
 
-import androidx.lifecycle.Observer;
+
 import androidx.lifecycle.ViewModelProvider;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,21 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
-import com.example.myapplication.R;
 import com.example.myapplication.dataClasses.Comment;
 import com.example.myapplication.databinding.FragmentCommentsBinding;
-import com.example.myapplication.dataClasses.qrCode.ScoringQRCode;
-import com.example.myapplication.databinding.FragmentProfileBinding;
-import com.example.myapplication.fragments.post.postcontent.PostInfoFragment;
-import com.example.myapplication.fragments.post.postcontent.PostInfoViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
