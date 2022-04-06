@@ -763,6 +763,7 @@ public class CameraFragment extends Fragment {
         savePictureSwitch.setVisibility(View.VISIBLE);
         saveGeolocationSwitch.setVisibility(View.VISIBLE);
         savePostButton.setVisibility(View.VISIBLE);
+        scoreCard = binding.scoreCard;
         scoreCard.setVisibility(View.VISIBLE);
 
         TextView saveGeolocationText = binding.geolocationText;
