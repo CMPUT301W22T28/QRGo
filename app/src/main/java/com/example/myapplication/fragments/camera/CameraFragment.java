@@ -46,6 +46,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.firebase.geofire.GeoLocation;
+import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -86,6 +87,7 @@ public class CameraFragment extends Fragment {
     private final String USERS_COLLECTION = "Users";
 
     private ImageView cameraImage;
+    private MaterialCardView scoreCard;
     private TextView sizeImageText;
     private Switch savePictureSwitch;
     private Switch saveGeolocationSwitch;
@@ -731,6 +733,7 @@ public class CameraFragment extends Fragment {
         savePictureSwitch.setVisibility(View.INVISIBLE);
         saveGeolocationSwitch.setVisibility(View.INVISIBLE);
         savePostButton.setVisibility(View.INVISIBLE);
+        scoreCard.setVisibility(View.INVISIBLE);
 
         TextView saveGeolocationText = binding.geolocationText;
         saveGeolocationText.setVisibility(View.INVISIBLE);
@@ -759,6 +762,7 @@ public class CameraFragment extends Fragment {
         savePictureSwitch.setVisibility(View.VISIBLE);
         saveGeolocationSwitch.setVisibility(View.VISIBLE);
         savePostButton.setVisibility(View.VISIBLE);
+        scoreCard.setVisibility(View.VISIBLE);
 
         TextView saveGeolocationText = binding.geolocationText;
         saveGeolocationText.setVisibility(View.VISIBLE);
