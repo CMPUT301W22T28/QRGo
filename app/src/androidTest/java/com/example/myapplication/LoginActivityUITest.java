@@ -190,7 +190,7 @@ public class LoginActivityUITest {
         Assert.assertTrue(solo.waitForText(testUsername, 1, 2000));
 
         solo.clickOnView((Button) solo.getView(R.id.btn_sign_up));
-        Assert.assertTrue(solo.waitForText("Total Score:", 1, 2000));
+        Assert.assertTrue(solo.waitForText("Total Score", 1, 2000));
 
         Log.d(LOGIN_TEST_TAG, "signed up");
     }
@@ -229,14 +229,14 @@ public class LoginActivityUITest {
         Assert.assertTrue(solo.waitForText(testUsername, 1, 2000));
 
         solo.clickOnView((Button) solo.getView(R.id.btn_sign_up));
-        Assert.assertTrue(solo.waitForText("Total Score:", 1, 2000));
+        Assert.assertTrue(solo.waitForText("Total Score", 1, 2000));
 
         // restart after signing up
         solo.finishOpenedActivities();
         rule.launchActivity(rule.getActivity().getIntent());
 
         // wait for profile screen
-        Assert.assertTrue(solo.waitForText("Total Score:", 1, 2000));
+        Assert.assertTrue(solo.waitForText("Total Score", 1, 2000));
     }
 
     /**
