@@ -22,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.activity.MainActivity;
-import com.example.myapplication.dataClasses.asyncdata.QRGoEventListener;
 import com.example.myapplication.databinding.FragmentPostInfoBinding;
 import com.example.myapplication.fragments.post.PostFragment;
 import com.example.myapplication.fragments.post.PostFragmentDirections;
