@@ -12,6 +12,7 @@ This is an application that follows in the same premise as PokemonGo, however wi
 - Ervin Binu Joseph
 
 ### Demo Video ###
+ [![Project 0a: Degrees | CS50 AI 2020](http://img.youtube.com/vi/Zrwvpql3P4o/0.jpg)](https://youtu.be/Zrwvpql3P4o)
 
 
 
@@ -39,6 +40,14 @@ This is an application that follows in the same premise as PokemonGo, however wi
 - You can also generate your Profile QRCode which if your friends scan it, it will direct you to your profile and they can see all your stats.
 - **NOTE:** If you have admin privileges, you will be able to delete/remove users once you're on their profile page. 
 
+#### Post page ####
+- After clicking on one of the qrcodes listed on a player's profile, you will be directed to the post page.
+- On the post page, you can view the post of the scoring qrcode itself which may/may not have an image saved (depending on what the user chose when saving the qrcode). *NOTE* that only users which have scanned this qrcode can see the image (if there is one) this adds some element of mystery and it prevents users that haven't scannned the qrcode from screenshotting and scanning the image. 
+- On the post tab also they can see the number of players that scanned this qrcode and the geolocation.
+- Users on this page can also see the comments section and they can add comments. 
+- Users on this page can see which users have scanned this qrcode.
+- **NOTE:** If you have admin privileges, you will be able to delete/remove scoring qrcode posts.
+
 #### Search Page ####
 - Here, you can search for usernames and by clicking on a username, you are directed to that username's profile page.
 
@@ -47,7 +56,7 @@ This is an application that follows in the same premise as PokemonGo, however wi
 - By clicking on the pin, you are able to see the address and score of that QRCode.
 
 #### Leaderboards Page ####
+- This page contains three tabs that allow you to sort the player rankings by highest scoring qr code, the count (number of qrcodes scanned) and the sum (sum of all qrcodes scanned). 
+- By clicking on any of the players on the leaderboard, you will be directed to their profile.
 
 
-
-### Storyboard and App Flowchart ###
